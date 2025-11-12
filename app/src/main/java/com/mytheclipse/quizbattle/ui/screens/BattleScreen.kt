@@ -251,12 +251,12 @@ fun BattleScreen(
                     }
                 }
                 
-                // Goblin on right
+                // Goblin on right - sprites now cropped, no whitespace
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(end = 32.dp, bottom = 16.dp)
-                        .offset(x = goblinOffsetX, y = 38.dp) // Fine-tuned position to align with knight and keep label visible
+                        .offset(x = goblinOffsetX)
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
