@@ -36,7 +36,8 @@ data class BattleState(
     val damageAmount: Int = 20, // Damage per wrong answer
     val playerTookDamage: Boolean = false,
     val playerAttacking: Boolean = false,
-    val opponentTookDamage: Boolean = false
+    val opponentTookDamage: Boolean = false,
+    val lastOpponentAttackTime: Long = 0 // Track when opponent last attacked
 )
 
 class BattleViewModel(application: Application) : AndroidViewModel(application) {
@@ -49,8 +50,68 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
     private val _state = MutableStateFlow(BattleState())
     val state: StateFlow<BattleState> = _state.asStateFlow()
     
+    // Opponent attack interval (random between 3-7 seconds)
+    private val opponentAttackIntervalMin = 3000L
+    private val opponentAttackIntervalMax = 7000L
+    
     init {
         loadQuestions()
+        startOpponentAttacks()
+    }
+    
+    private fun startOpponentAttacks() {
+        viewModelScope.launch {
+            while (true) {
+                kotlinx.coroutines.delay(1000) // Check every second
+                
+                val currentState = _state.value
+                if (currentState.isGameOver || currentState.playerHealth <= 0) break
+                
+                val currentTime = System.currentTimeMillis()
+                val timeSinceLastAttack = currentTime - currentState.lastOpponentAttackTime
+                val nextAttackInterval = Random.nextLong(opponentAttackIntervalMin, opponentAttackIntervalMax)
+                
+                if (timeSinceLastAttack >= nextAttackInterval || currentState.lastOpponentAttackTime == 0L) {
+                    opponentAttack()
+                }
+            }
+        }
+    }
+    
+    private fun opponentAttack() {
+        val currentState = _state.value
+        if (currentState.isGameOver || currentState.playerHealth <= 0) return
+        
+        // Random chance: 50% opponent attacks successfully
+        val opponentSuccess = Random.nextBoolean()
+        
+        if (opponentSuccess) {
+            // Opponent attacks player
+            val newPlayerHealth = (currentState.playerHealth - currentState.damageAmount).coerceAtLeast(0)
+            val isGameOver = newPlayerHealth <= 0
+            
+            _state.value = currentState.copy(
+                playerHealth = newPlayerHealth,
+                playerTookDamage = true,
+                isGameOver = isGameOver,
+                lastOpponentAttackTime = System.currentTimeMillis()
+            )
+            
+            if (isGameOver) {
+                saveGameResult()
+            }
+            
+            // Reset damage indicator after short delay
+            viewModelScope.launch {
+                kotlinx.coroutines.delay(500)
+                _state.value = _state.value.copy(playerTookDamage = false)
+            }
+        } else {
+            // Opponent missed - just update last attack time
+            _state.value = currentState.copy(
+                lastOpponentAttackTime = System.currentTimeMillis()
+            )
+        }
     }
     
     private fun loadQuestions() {
@@ -93,39 +154,58 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
         val currentQuestion = currentState.questions[currentState.currentQuestionIndex]
         val isCorrect = answerIndex == currentQuestion.correctAnswerIndex
         
-        // Calculate opponent's random answer
-        val opponentCorrect = Random.nextBoolean()
-        
-        // Calculate new health values
-        val newPlayerHealth = if (isCorrect) {
-            currentState.playerHealth
+        // Realtime RTS style: only player takes action immediately
+        if (isCorrect) {
+            // Player attacks opponent
+            val newOpponentHealth = (currentState.opponentHealth - currentState.damageAmount).coerceAtLeast(0)
+            val isGameOver = newOpponentHealth <= 0
+            
+            _state.value = currentState.copy(
+                isAnswered = true,
+                selectedAnswerIndex = answerIndex,
+                opponentHealth = newOpponentHealth,
+                isGameOver = isGameOver,
+                playerTookDamage = false,
+                playerAttacking = true,
+                opponentTookDamage = true
+            )
+            
+            if (isGameOver) {
+                saveGameResult()
+            }
+            
+            // Reset attack flags after animation
+            viewModelScope.launch {
+                kotlinx.coroutines.delay(800)
+                _state.value = _state.value.copy(
+                    playerAttacking = false,
+                    opponentTookDamage = false
+                )
+            }
         } else {
-            (currentState.playerHealth - currentState.damageAmount).coerceAtLeast(0)
-        }
-        
-        val newOpponentHealth = if (opponentCorrect) {
-            currentState.opponentHealth
-        } else {
-            (currentState.opponentHealth - currentState.damageAmount).coerceAtLeast(0)
-        }
-        
-        // Check if game over due to health reaching 0
-        val isGameOver = newPlayerHealth <= 0 || newOpponentHealth <= 0
-        
-        _state.value = currentState.copy(
-            isAnswered = true,
-            selectedAnswerIndex = answerIndex,
-            playerHealth = newPlayerHealth,
-            opponentHealth = newOpponentHealth,
-            isGameOver = isGameOver,
-            playerTookDamage = !isCorrect,
-            playerAttacking = isCorrect,
-            opponentTookDamage = !opponentCorrect
-        )
-        
-        // Save game if health reaches 0
-        if (isGameOver) {
-            saveGameResult()
+            // Player takes damage for wrong answer
+            val newPlayerHealth = (currentState.playerHealth - currentState.damageAmount).coerceAtLeast(0)
+            val isGameOver = newPlayerHealth <= 0
+            
+            _state.value = currentState.copy(
+                isAnswered = true,
+                selectedAnswerIndex = answerIndex,
+                playerHealth = newPlayerHealth,
+                isGameOver = isGameOver,
+                playerTookDamage = true,
+                playerAttacking = false,
+                opponentTookDamage = false
+            )
+            
+            if (isGameOver) {
+                saveGameResult()
+            }
+            
+            // Reset damage flag after animation
+            viewModelScope.launch {
+                kotlinx.coroutines.delay(800)
+                _state.value = _state.value.copy(playerTookDamage = false)
+            }
         }
     }
     
@@ -157,30 +237,19 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
         val currentState = _state.value
         if (currentState.isAnswered) return
         
-        // Player loses health for timeout
+        // Player takes damage for timeout (no opponent involvement)
         val newPlayerHealth = (currentState.playerHealth - currentState.damageAmount).coerceAtLeast(0)
-        
-        // Opponent has a chance to answer
-        val opponentCorrect = Random.nextBoolean()
-        val newOpponentHealth = if (opponentCorrect) {
-            currentState.opponentHealth
-        } else {
-            (currentState.opponentHealth - currentState.damageAmount).coerceAtLeast(0)
-        }
-        
-        // Check if game over due to health
-        val isGameOver = newPlayerHealth <= 0 || newOpponentHealth <= 0
+        val isGameOver = newPlayerHealth <= 0
         
         _state.value = currentState.copy(
             isAnswered = true,
             playerHealth = newPlayerHealth,
-            opponentHealth = newOpponentHealth,
             isGameOver = isGameOver,
             playerTookDamage = true,
-            opponentTookDamage = !opponentCorrect
+            playerAttacking = false,
+            opponentTookDamage = false
         )
         
-        // Save game if health reaches 0
         if (isGameOver) {
             saveGameResult()
         }
