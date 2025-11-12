@@ -18,11 +18,11 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(
-    onNavigateToLogin: () -> Unit
+    onNavigateToMain: () -> Unit
 ) {
     LaunchedEffect(key1 = true) {
         delay(2000) // Show splash for 2 seconds
-        onNavigateToLogin()
+        onNavigateToMain()
     }
     
     Box(

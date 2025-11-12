@@ -9,24 +9,37 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mytheclipse.quizbattle.ui.components.QuizBattleButton
 import com.mytheclipse.quizbattle.ui.components.QuizBattlePasswordField
 import com.mytheclipse.quizbattle.ui.components.QuizBattleTextField
 import com.mytheclipse.quizbattle.ui.theme.*
+import com.mytheclipse.quizbattle.viewmodel.AuthViewModel
 
 @Composable
 fun LoginScreen(
     onNavigateToRegister: () -> Unit,
     onNavigateToResetPassword: () -> Unit,
-    onNavigateToMain: () -> Unit
+    onNavigateToMain: () -> Unit,
+    viewModel: AuthViewModel = viewModel()
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var showSuccessDialog by remember { mutableStateOf(false) }
+    
+    val authState by viewModel.authState.collectAsState()
+    
+    // Handle success navigation
+    LaunchedEffect(authState.isSuccess) {
+        if (authState.isSuccess && authState.user != null) {
+            onNavigateToMain()
+            viewModel.resetState()
+        }
+    }
     
     Box(
         modifier = Modifier
@@ -119,11 +132,29 @@ fun LoginScreen(
             QuizBattleButton(
                 text = "Masuk",
                 onClick = {
-                    // TODO: Add validation and authentication logic
-                    showSuccessDialog = true
+                    viewModel.login(email, password)
                 },
+                enabled = !authState.isLoading,
                 modifier = Modifier.fillMaxWidth()
             )
+            
+            // Show loading or error
+            if (authState.isLoading) {
+                Spacer(modifier = Modifier.height(16.dp))
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+            }
+            
+            if (authState.error != null) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = authState.error!!,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+            }
             
             Spacer(modifier = Modifier.height(16.dp))
             
@@ -147,35 +178,5 @@ fun LoginScreen(
             
             Spacer(modifier = Modifier.height(24.dp))
         }
-    }
-    
-    // Success dialog
-    if (showSuccessDialog) {
-        AlertDialog(
-            onDismissRequest = { },
-            title = {
-                Text(
-                    text = "Berhasil!",
-                    style = MaterialTheme.typography.headlineLarge
-                )
-            },
-            text = {
-                Text(
-                    text = "Login Berhasil",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary
-                )
-            },
-            confirmButton = {
-                QuizBattleButton(
-                    text = "OK",
-                    onClick = {
-                        showSuccessDialog = false
-                        onNavigateToMain()
-                    }
-                )
-            },
-            containerColor = MaterialTheme.colorScheme.background
-        )
     }
 }

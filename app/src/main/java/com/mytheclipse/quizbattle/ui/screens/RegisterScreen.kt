@@ -13,20 +13,33 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mytheclipse.quizbattle.ui.components.QuizBattleButton
 import com.mytheclipse.quizbattle.ui.components.QuizBattlePasswordField
 import com.mytheclipse.quizbattle.ui.components.QuizBattleTextField
 import com.mytheclipse.quizbattle.ui.theme.*
+import com.mytheclipse.quizbattle.viewmodel.AuthViewModel
 
 @Composable
 fun RegisterScreen(
     onNavigateToLogin: () -> Unit,
-    onNavigateToMain: () -> Unit
+    onNavigateToMain: () -> Unit,
+    viewModel: AuthViewModel = viewModel()
 ) {
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    
+    val authState by viewModel.authState.collectAsState()
+    
+    // Handle success navigation
+    LaunchedEffect(authState.isSuccess) {
+        if (authState.isSuccess && authState.user != null) {
+            onNavigateToLogin()
+            viewModel.resetState()
+        }
+    }
     
     Box(
         modifier = Modifier
@@ -131,11 +144,29 @@ fun RegisterScreen(
             QuizBattleButton(
                 text = "Selanjutnya",
                 onClick = {
-                    // TODO: Add validation and registration logic
-                    onNavigateToMain()
+                    viewModel.register(username, email, password, confirmPassword)
                 },
+                enabled = !authState.isLoading,
                 modifier = Modifier.fillMaxWidth()
             )
+            
+            // Show loading or error
+            if (authState.isLoading) {
+                Spacer(modifier = Modifier.height(16.dp))
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+            }
+            
+            if (authState.error != null) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = authState.error!!,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+            }
             
             Spacer(modifier = Modifier.height(16.dp))
             

@@ -1,10 +1,7 @@
 package com.mytheclipse.quizbattle.ui.screens
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,173 +13,235 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mytheclipse.quizbattle.ui.components.QuizAnswerButton
 import com.mytheclipse.quizbattle.ui.theme.*
+import com.mytheclipse.quizbattle.viewmodel.BattleViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-
-data class Question(
-    val text: String,
-    val answers: List<String>,
-    val correctAnswerIndex: Int
-)
 
 @Composable
 fun BattleScreen(
-    onNavigateToResult: (Boolean) -> Unit // true for victory, false for defeat
+    onNavigateToResult: (Boolean) -> Unit, // true for victory, false for defeat
+    viewModel: BattleViewModel = viewModel()
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    var currentQuestionIndex by remember { mutableIntStateOf(0) }
-    var selectedAnswerIndex by remember { mutableIntStateOf(-1) }
-    var isAnswered by remember { mutableStateOf(false) }
-    var playerScore by remember { mutableIntStateOf(0) }
-    var opponentScore by remember { mutableIntStateOf(0) }
-    var timeProgress by remember { mutableFloatStateOf(1f) }
-    
-    // Sample questions
-    val questions = remember {
-        listOf(
-            Question(
-                text = "Benda langit yang dikenal sebagai \"Bintang Kejora\" atau \"Bintang Fajar\" adalah:",
-                answers = listOf("Mars", "Venus", "Jupiter", "Saturnus"),
-                correctAnswerIndex = 1
-            ),
-            Question(
-                text = "Unsur kimia dengan lambang Fe dan nomor atom 26 dikenal sebagai",
-                answers = listOf("Emas (Gold)", "Perak (Silver)", "Besi (Iron)", "Tembaga (Copper)"),
-                correctAnswerIndex = 2
-            ),
-            Question(
-                text = "Siapakah pelukis terkenal asal Belanda yang dikenal dengan karyanya The Starry Night?",
-                answers = listOf("Pablo Picasso", "Claude Monet", "Vincent van Gogh", "Leonardo da Vinci"),
-                correctAnswerIndex = 2
-            )
-        )
+    val state by viewModel.state.collectAsState()
+
+    // Handle game over
+    LaunchedEffect(state.isGameOver) {
+        if (state.isGameOver) {
+            delay(500)
+            onNavigateToResult(state.playerScore > state.opponentScore)
+        }
     }
-    
-    val currentQuestion = questions[currentQuestionIndex]
-    
-    // Timer effect
-    LaunchedEffect(currentQuestionIndex, isAnswered) {
-        if (!isAnswered) {
-            while (timeProgress > 0) {
+
+    // Timer effect - only when not answered
+    LaunchedEffect(state.currentQuestionIndex, state.isAnswered) {
+        if (!state.isAnswered) {
+            var progress = 1f
+            while (progress > 0 && !state.isAnswered) {
                 delay(100)
-                timeProgress -= 0.01f
+                progress -= 0.01f
+                viewModel.updateTimeProgress(progress.coerceAtLeast(0f))
             }
-            // Time's up
-            isAnswered = true
-            delay(1500)
-            // Move to next question or end game
-            if (currentQuestionIndex < questions.size - 1) {
-                currentQuestionIndex++
-                selectedAnswerIndex = -1
-                isAnswered = false
-                timeProgress = 1f
-            } else {
-                onNavigateToResult(playerScore > opponentScore)
+            // Time's up - only if still not answered
+            if (!state.isAnswered) {
+                viewModel.timeUp()
+                delay(1500)
+                viewModel.nextQuestion()
             }
         }
     }
-    
+
+    // Auto-advance after answering
+    LaunchedEffect(state.isAnswered, state.currentQuestionIndex) {
+        if (state.isAnswered) {
+            delay(1500)
+            viewModel.nextQuestion()
+        }
+    }
+
+    // Show loading
+    if (state.isLoading || state.questions.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+
+    val currentQuestion = state.questions[state.currentQuestionIndex]
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp)
     ) {
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         
-        // Players section
+        // Question progress
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Player 1
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(
-                    modifier = Modifier
-                        .size(56.dp)
-                        .clip(CircleShape)
-                        .background(Color.LightGray)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                LinearProgressIndicator(
-                    progress = { timeProgress },
-                    modifier = Modifier
-                        .width(46.dp)
-                        .height(6.dp)
-                        .clip(RoundedCornerShape(3.dp)),
-                    color = PrimaryRed,
-                    trackColor = ProgressTrack
-                )
-            }
-            
-            // VS or score
             Text(
-                text = "VS",
-                style = MaterialTheme.typography.headlineMedium.copy(
+                text = "Soal ${state.currentQuestionIndex + 1}/${state.questions.size}",
+                style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Bold
                 ),
                 color = TextPrimary
             )
             
-            // Player 2
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(
-                    modifier = Modifier
-                        .size(56.dp)
-                        .clip(CircleShape)
-                        .background(Color.LightGray)
+            // Timer indicator
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = "⏱",
+                    style = MaterialTheme.typography.bodyLarge
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                LinearProgressIndicator(
-                    progress = { 0.8f },
-                    modifier = Modifier
-                        .width(46.dp)
-                        .height(6.dp)
-                        .clip(RoundedCornerShape(3.dp)),
-                    color = PrimaryRed,
-                    trackColor = ProgressTrack
+                Text(
+                    text = "${(state.timeProgress * 10).toInt()}s",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = if (state.timeProgress < 0.3f) MaterialTheme.colorScheme.error else TextPrimary
                 )
             }
         }
         
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Score section - improved
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Player score
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = PrimaryBlue
+                ),
+                modifier = Modifier.weight(1f)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "YOU",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White
+                    )
+                    Text(
+                        text = "${state.playerScore}",
+                        style = MaterialTheme.typography.headlineLarge.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = Color.White
+                    )
+                }
+            }
+            
+            Spacer(modifier = Modifier.width(16.dp))
+            
+            Text(
+                text = "VS",
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.Bold
+                ),
+                color = TextPrimary
+            )
+            
+            Spacer(modifier = Modifier.width(16.dp))
+
+            // Opponent score
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = PrimaryRed
+                ),
+                modifier = Modifier.weight(1f)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "BOT",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White
+                    )
+                    Text(
+                        text = "${state.opponentScore}",
+                        style = MaterialTheme.typography.headlineLarge.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = Color.White
+                    )
+                }
+            }
+        }
         
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        // Timer progress bar
+        LinearProgressIndicator(
+            progress = { state.timeProgress },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(8.dp)
+                .clip(RoundedCornerShape(4.dp)),
+            color = if (state.timeProgress < 0.3f) MaterialTheme.colorScheme.error else PrimaryBlue,
+            trackColor = ProgressTrack
+        )
+
+        
+        Spacer(modifier = Modifier.height(16.dp))
+
         // Question card
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 150.dp),
+                .weight(1f),
             colors = CardDefaults.cardColors(
                 containerColor = Color.White
             ),
             border = BorderStroke(1.dp, BorderLight),
-            shape = RoundedCornerShape(8.dp)
+            shape = RoundedCornerShape(12.dp)
         ) {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp),
+                    .fillMaxSize()
+                    .padding(20.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = currentQuestion.text,
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontSize = 20.sp
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium,
+                        lineHeight = 24.sp
                     ),
                     color = Color.Black,
                     textAlign = TextAlign.Center
                 )
             }
         }
-        
-        Spacer(modifier = Modifier.height(32.dp))
+
+        Spacer(modifier = Modifier.height(20.dp))
         
         // Answer buttons
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -191,61 +250,30 @@ fun BattleScreen(
                 QuizAnswerButton(
                     text = currentQuestion.answers[0],
                     onClick = {
-                        if (!isAnswered) {
-                            selectedAnswerIndex = 0
-                            isAnswered = true
-                            if (0 == currentQuestion.correctAnswerIndex) {
-                                playerScore++
-                            }
-                            // Wait then move to next question
-                            coroutineScope.launch {
-                                delay(1500)
-                                if (currentQuestionIndex < questions.size - 1) {
-                                    currentQuestionIndex++
-                                    selectedAnswerIndex = -1
-                                    isAnswered = false
-                                    timeProgress = 1f
-                                } else {
-                                    onNavigateToResult(playerScore > opponentScore)
-                                }
-                            }
+                        if (!state.isAnswered) {
+                            viewModel.answerQuestion(0)
                         }
                     },
-                    isSelected = selectedAnswerIndex == 0,
-                    isCorrect = if (isAnswered && selectedAnswerIndex == 0) 0 == currentQuestion.correctAnswerIndex else null,
-                    enabled = !isAnswered,
+                    isSelected = state.selectedAnswerIndex == 0,
+                    isCorrect = if (state.isAnswered && state.selectedAnswerIndex == 0) 0 == currentQuestion.correctAnswerIndex else null,
+                    enabled = !state.isAnswered,
                     modifier = Modifier.weight(1f)
                 )
-                
+
                 QuizAnswerButton(
                     text = currentQuestion.answers[1],
                     onClick = {
-                        if (!isAnswered) {
-                            selectedAnswerIndex = 1
-                            isAnswered = true
-                            if (1 == currentQuestion.correctAnswerIndex) {
-                                playerScore++
-                            }
-                            coroutineScope.launch {
-                                delay(1500)
-                                if (currentQuestionIndex < questions.size - 1) {
-                                    currentQuestionIndex++
-                                    selectedAnswerIndex = -1
-                                    isAnswered = false
-                                    timeProgress = 1f
-                                } else {
-                                    onNavigateToResult(playerScore > opponentScore)
-                                }
-                            }
+                        if (!state.isAnswered) {
+                            viewModel.answerQuestion(1)
                         }
                     },
-                    isSelected = selectedAnswerIndex == 1,
-                    isCorrect = if (isAnswered && selectedAnswerIndex == 1) 1 == currentQuestion.correctAnswerIndex else null,
-                    enabled = !isAnswered,
+                    isSelected = state.selectedAnswerIndex == 1,
+                    isCorrect = if (state.isAnswered && state.selectedAnswerIndex == 1) 1 == currentQuestion.correctAnswerIndex else null,
+                    enabled = !state.isAnswered,
                     modifier = Modifier.weight(1f)
                 )
             }
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -253,59 +281,32 @@ fun BattleScreen(
                 QuizAnswerButton(
                     text = currentQuestion.answers[2],
                     onClick = {
-                        if (!isAnswered) {
-                            selectedAnswerIndex = 2
-                            isAnswered = true
-                            if (2 == currentQuestion.correctAnswerIndex) {
-                                playerScore++
-                            }
-                            coroutineScope.launch {
-                                delay(1500)
-                                if (currentQuestionIndex < questions.size - 1) {
-                                    currentQuestionIndex++
-                                    selectedAnswerIndex = -1
-                                    isAnswered = false
-                                    timeProgress = 1f
-                                } else {
-                                    onNavigateToResult(playerScore > opponentScore)
-                                }
-                            }
+                        if (!state.isAnswered) {
+                            viewModel.answerQuestion(2)
                         }
                     },
-                    isSelected = selectedAnswerIndex == 2,
-                    isCorrect = if (isAnswered && selectedAnswerIndex == 2) 2 == currentQuestion.correctAnswerIndex else null,
-                    enabled = !isAnswered,
+                    isSelected = state.selectedAnswerIndex == 2,
+                    isCorrect = if (state.isAnswered && state.selectedAnswerIndex == 2) 2 == currentQuestion.correctAnswerIndex else null,
+                    enabled = !state.isAnswered,
                     modifier = Modifier.weight(1f)
                 )
-                
+
                 QuizAnswerButton(
                     text = currentQuestion.answers[3],
                     onClick = {
-                        if (!isAnswered) {
-                            selectedAnswerIndex = 3
-                            isAnswered = true
-                            if (3 == currentQuestion.correctAnswerIndex) {
-                                playerScore++
-                            }
-                            coroutineScope.launch {
-                                delay(1500)
-                                if (currentQuestionIndex < questions.size - 1) {
-                                    currentQuestionIndex++
-                                    selectedAnswerIndex = -1
-                                    isAnswered = false
-                                    timeProgress = 1f
-                                } else {
-                                    onNavigateToResult(playerScore > opponentScore)
-                                }
-                            }
+                        if (!state.isAnswered) {
+                            viewModel.answerQuestion(3)
                         }
                     },
-                    isSelected = selectedAnswerIndex == 3,
-                    isCorrect = if (isAnswered && selectedAnswerIndex == 3) 3 == currentQuestion.correctAnswerIndex else null,
-                    enabled = !isAnswered,
+                    isSelected = state.selectedAnswerIndex == 3,
+                    isCorrect = if (state.isAnswered && state.selectedAnswerIndex == 3) 3 == currentQuestion.correctAnswerIndex else null,
+                    enabled = !state.isAnswered,
                     modifier = Modifier.weight(1f)
                 )
             }
         }
+        
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
+
