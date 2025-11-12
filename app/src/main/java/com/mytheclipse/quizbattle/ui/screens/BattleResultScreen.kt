@@ -33,8 +33,23 @@ fun BattleResultScreen(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
         ) {
+            // Winner avatar - pindah ke atas
+            Image(
+                painter = painterResource(
+                    id = if (isVictory) R.drawable.player_avatar else R.drawable.bot_avatar
+                ),
+                contentDescription = if (isVictory) "Player Won" else "Bot Won",
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+            
+            Spacer(modifier = Modifier.height(24.dp))
+            
             // Result text with gradient
             if (isVictory) {
                 Text(
@@ -46,7 +61,7 @@ fun BattleResultScreen(
                                 GradientBlueEnd
                             )
                         ),
-                        fontSize = 48.sp,
+                        fontSize = 56.sp,
                         fontWeight = FontWeight.Bold
                     )
                 )
@@ -54,62 +69,34 @@ fun BattleResultScreen(
                 Text(
                     text = "DEFEAT",
                     style = MaterialTheme.typography.displayMedium.copy(
-                        fontSize = 48.sp,
+                        fontSize = 56.sp,
                         fontWeight = FontWeight.Bold
                     ),
                     color = DefeatRed
                 )
             }
             
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Winner/Loser message
+            Text(
+                text = if (isVictory) "You Won!" else "Bot Wins!",
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.SemiBold
+                ),
+                color = if (isVictory) GradientRedStart else DefeatRed
+            )
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Text(
+                text = if (isVictory) "Selamat, kamu menang!" else "Better luck next time!",
+                style = MaterialTheme.typography.bodyLarge,
+                color = TextSecondary
+            )
+            
             Spacer(modifier = Modifier.height(48.dp))
-            
-            // Result card with avatar
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(240.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.White
-                )
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    // Winner avatar
-                    Image(
-                        painter = painterResource(
-                            id = if (isVictory) R.drawable.player_avatar else R.drawable.bot_avatar
-                        ),
-                        contentDescription = if (isVictory) "Player Won" else "Bot Won",
-                        modifier = Modifier
-                            .size(100.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop
-                    )
-                    
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    Text(
-                        text = if (isVictory) "You Won!" else "Bot Wins!",
-                        style = MaterialTheme.typography.headlineLarge,
-                        color = TextPrimary
-                    )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Text(
-                        text = if (isVictory) "Selamat, kamu menang!" else "Better luck next time!",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TextSecondary
-                    )
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(32.dp))
             
             // Buttons
             Row(
