@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.dp
@@ -112,7 +113,9 @@ fun AnimatedGoblin(
     Image(
         bitmap = currentFrame,
         contentDescription = "Goblin $animation",
-        modifier = modifier.size(size),
+        modifier = modifier
+            .size(size)
+            .graphicsLayer(scaleX = -1f), // Flip horizontal to face left
         contentScale = ContentScale.Fit
     )
 }
