@@ -63,7 +63,10 @@ fun AnimatedGoblin(
             R.drawable.goblin_atk1_0094, R.drawable.goblin_atk1_0095
         )
         GoblinAnimation.HURT -> listOf(
-            R.drawable.goblin_idle_0001 // Placeholder, bisa diganti dengan hurt frames jika ada
+            R.drawable.goblin_hurt_0001, R.drawable.goblin_hurt_0002, R.drawable.goblin_hurt_0003,
+            R.drawable.goblin_hurt_0004, R.drawable.goblin_hurt_0005, R.drawable.goblin_hurt_0006,
+            R.drawable.goblin_hurt_0007, R.drawable.goblin_hurt_0008, R.drawable.goblin_hurt_0009,
+            R.drawable.goblin_hurt_0010, R.drawable.goblin_hurt_0011
         )
         GoblinAnimation.DEAD -> listOf(
             R.drawable.goblin_dead_0160, R.drawable.goblin_dead_0161, R.drawable.goblin_dead_0162,
