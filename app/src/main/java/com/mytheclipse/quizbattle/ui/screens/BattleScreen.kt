@@ -2,9 +2,11 @@ package com.mytheclipse.quizbattle.ui.screens
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,6 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -187,70 +191,75 @@ fun BattleScreen(
                     label = "goblin_offset"
                 )
                 
+                // White flash effect when hurt
+                val playerFlashAlpha by animateFloatAsState(
+                    targetValue = if (state.playerTookDamage) 0.7f else 0f,
+                    animationSpec = tween(durationMillis = 200),
+                    label = "player_flash"
+                )
+                
+                val enemyFlashAlpha by animateFloatAsState(
+                    targetValue = if (state.opponentTookDamage) 0.7f else 0f,
+                    animationSpec = tween(durationMillis = 200),
+                    label = "enemy_flash"
+                )
+                
                 // Knight on left
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                Box(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(start = 32.dp, bottom = 16.dp)
                         .offset(x = knightOffsetX)
                 ) {
-                    AnimatedKnight(
-                        animation = playerAnimation,
-                        modifier = Modifier,
-                        size = 180.dp
-                    )
-                    
-                    Spacer(modifier = Modifier.height(4.dp))
-                    
-                    Text(
-                        text = "KNIGHT",
-                        style = MaterialTheme.typography.titleSmall.copy(
-                            fontWeight = FontWeight.Bold
-                        ),
-                        color = Color(0xFF1E88E5)
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        AnimatedKnight(
+                            animation = playerAnimation,
+                            modifier = Modifier,
+                            size = 180.dp,
+                            flashAlpha = playerFlashAlpha
+                        )
+                        
+                        Spacer(modifier = Modifier.height(4.dp))
+                        
+                        Text(
+                            text = "KNIGHT",
+                            style = MaterialTheme.typography.titleSmall.copy(
+                                fontWeight = FontWeight.Bold
+                            ),
+                            color = Color(0xFF1E88E5)
+                        )
+                    }
                 }
                 
                 // Goblin on right
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                Box(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(end = 32.dp, bottom = 16.dp)
                         .offset(x = goblinOffsetX)
                 ) {
-                    AnimatedGoblin(
-                        animation = enemyAnimation,
-                        modifier = Modifier,
-                        size = 180.dp
-                    )
-                    
-                    Spacer(modifier = Modifier.height(4.dp))
-                    
-                    Text(
-                        text = "GOBLIN",
-                        style = MaterialTheme.typography.titleSmall.copy(
-                            fontWeight = FontWeight.Bold
-                        ),
-                        color = Color(0xFFD32F2F)
-                    )
-                }
-                
-                // VS indicator in center
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(bottom = 20.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "VS",
-                        style = MaterialTheme.typography.headlineLarge.copy(
-                            fontWeight = FontWeight.Black
-                        ),
-                        color = Color(0xFFFFD700) // Gold
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        AnimatedGoblin(
+                            animation = enemyAnimation,
+                            modifier = Modifier,
+                            size = 180.dp,
+                            flashAlpha = enemyFlashAlpha
+                        )
+                        
+                        Spacer(modifier = Modifier.height(4.dp))
+                        
+                        Text(
+                            text = "GOBLIN",
+                            style = MaterialTheme.typography.titleSmall.copy(
+                                fontWeight = FontWeight.Bold
+                            ),
+                            color = Color(0xFFD32F2F)
+                        )
+                    }
                 }
             }
         }

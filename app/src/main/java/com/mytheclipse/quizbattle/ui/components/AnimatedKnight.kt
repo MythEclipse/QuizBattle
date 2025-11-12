@@ -5,6 +5,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.imageResource
@@ -23,7 +26,8 @@ enum class KnightAnimation {
 fun AnimatedKnight(
     animation: KnightAnimation,
     modifier: Modifier = Modifier,
-    size: androidx.compose.ui.unit.Dp = 80.dp
+    size: androidx.compose.ui.unit.Dp = 80.dp,
+    flashAlpha: Float = 0f
 ) {
     // Frame resources for each animation
     val frameResources = when (animation) {
@@ -87,6 +91,9 @@ fun AnimatedKnight(
         bitmap = currentFrame,
         contentDescription = "Knight $animation",
         modifier = modifier.size(size),
-        contentScale = ContentScale.Fit
+        contentScale = ContentScale.Fit,
+        colorFilter = if (flashAlpha > 0f) {
+            ColorFilter.tint(Color.White.copy(alpha = flashAlpha), BlendMode.Modulate)
+        } else null
     )
 }

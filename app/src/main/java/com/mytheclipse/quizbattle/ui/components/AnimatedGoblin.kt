@@ -5,6 +5,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -24,7 +27,8 @@ enum class GoblinAnimation {
 fun AnimatedGoblin(
     animation: GoblinAnimation,
     modifier: Modifier = Modifier,
-    size: androidx.compose.ui.unit.Dp = 96.dp
+    size: androidx.compose.ui.unit.Dp = 96.dp,
+    flashAlpha: Float = 0f
 ) {
     // Mapping frame resources berdasarkan folder Goblin
     // Idle: 0001-0040 (40 frames)
@@ -116,6 +120,9 @@ fun AnimatedGoblin(
         modifier = modifier
             .size(size)
             .graphicsLayer(scaleX = -1f), // Flip horizontal to face left
-        contentScale = ContentScale.Fit
+        contentScale = ContentScale.Fit,
+        colorFilter = if (flashAlpha > 0f) {
+            ColorFilter.tint(Color.White.copy(alpha = flashAlpha), BlendMode.Modulate)
+        } else null
     )
 }
