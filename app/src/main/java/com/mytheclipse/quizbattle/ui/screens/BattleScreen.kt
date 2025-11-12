@@ -23,6 +23,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mytheclipse.quizbattle.R
 import com.mytheclipse.quizbattle.ui.components.AnimatedGoblin
 import com.mytheclipse.quizbattle.ui.components.AnimatedKnight
+import com.mytheclipse.quizbattle.ui.components.FantasyHealthBar
+import com.mytheclipse.quizbattle.ui.components.FantasyTimerBar
 import com.mytheclipse.quizbattle.ui.components.GoblinAnimation
 import com.mytheclipse.quizbattle.ui.components.KnightAnimation
 import com.mytheclipse.quizbattle.ui.components.QuizAnswerButton
@@ -176,31 +178,13 @@ fun BattleScreen(
                         color = Color.White
                     )
                     
-                    // Health bar
+                    // Health bar with Fantasy style
                     Spacer(modifier = Modifier.height(8.dp))
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                            text = "HP: ${state.playerHealth}/100",
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                fontWeight = FontWeight.Bold
-                            ),
-                            color = Color.White
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        LinearProgressIndicator(
-                            progress = { state.playerHealth / 100f },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(10.dp)
-                                .clip(RoundedCornerShape(5.dp)),
-                            color = when {
-                                state.playerHealth > 60 -> Color(0xFF4CAF50)
-                                state.playerHealth > 30 -> Color(0xFFFFC107)
-                                else -> Color(0xFFF44336)
-                            },
-                            trackColor = Color.White.copy(alpha = 0.3f)
-                        )
-                    }
+                    FantasyHealthBar(
+                        currentHealth = state.playerHealth,
+                        maxHealth = 100,
+                        label = "HP"
+                    )
                 }
             }
             
@@ -252,46 +236,22 @@ fun BattleScreen(
                         color = Color.White
                     )
                     
-                    // Health bar
+                    // Health bar with Fantasy style
                     Spacer(modifier = Modifier.height(8.dp))
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                            text = "HP: ${state.opponentHealth}/100",
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                fontWeight = FontWeight.Bold
-                            ),
-                            color = Color.White
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        LinearProgressIndicator(
-                            progress = { state.opponentHealth / 100f },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(10.dp)
-                                .clip(RoundedCornerShape(5.dp)),
-                            color = when {
-                                state.opponentHealth > 60 -> Color(0xFF4CAF50)
-                                state.opponentHealth > 30 -> Color(0xFFFFC107)
-                                else -> Color(0xFFF44336)
-                            },
-                            trackColor = Color.White.copy(alpha = 0.3f)
-                        )
-                    }
+                    FantasyHealthBar(
+                        currentHealth = state.opponentHealth,
+                        maxHealth = 100,
+                        label = "HP"
+                    )
                 }
             }
         }
         
         Spacer(modifier = Modifier.height(24.dp))
         
-        // Timer progress bar
-        LinearProgressIndicator(
-            progress = { state.timeProgress },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(8.dp)
-                .clip(RoundedCornerShape(4.dp)),
-            color = if (state.timeProgress < 0.3f) MaterialTheme.colorScheme.error else PrimaryBlue,
-            trackColor = ProgressTrack
+        // Timer progress bar with Fantasy style
+        FantasyTimerBar(
+            progress = state.timeProgress
         )
 
         
