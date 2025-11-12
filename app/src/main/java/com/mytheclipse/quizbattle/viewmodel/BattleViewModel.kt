@@ -136,6 +136,7 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
                 
                 _state.value = _state.value.copy(
                     questions = battleQuestions,
+                    currentQuestionIndex = Random.nextInt(battleQuestions.size),
                     isLoading = false
                 )
             } catch (e: Exception) {
@@ -216,28 +217,18 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
         // Check if game over due to health
         if (currentState.isGameOver) return
         
-        if (currentState.currentQuestionIndex < currentState.questions.size - 1) {
-            _state.value = currentState.copy(
-                currentQuestionIndex = currentState.currentQuestionIndex + 1,
-                isAnswered = false,
-                selectedAnswerIndex = -1,
-                timeProgress = 1f,
-                playerTookDamage = false,
-                playerAttacking = false,
-                opponentTookDamage = false
-            )
-        } else {
-            // Loop back to first question (game only ends when HP = 0)
-            _state.value = currentState.copy(
-                currentQuestionIndex = 0,
-                isAnswered = false,
-                selectedAnswerIndex = -1,
-                timeProgress = 1f,
-                playerTookDamage = false,
-                playerAttacking = false,
-                opponentTookDamage = false
-            )
-        }
+        // Pick random question index
+        val randomIndex = Random.nextInt(currentState.questions.size)
+        
+        _state.value = currentState.copy(
+            currentQuestionIndex = randomIndex,
+            isAnswered = false,
+            selectedAnswerIndex = -1,
+            timeProgress = 1f,
+            playerTookDamage = false,
+            playerAttacking = false,
+            opponentTookDamage = false
+        )
     }
     
     fun timeUp() {
