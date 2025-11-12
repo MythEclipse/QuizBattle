@@ -21,7 +21,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mytheclipse.quizbattle.R
+import com.mytheclipse.quizbattle.ui.components.AnimatedGoblin
 import com.mytheclipse.quizbattle.ui.components.AnimatedKnight
+import com.mytheclipse.quizbattle.ui.components.GoblinAnimation
 import com.mytheclipse.quizbattle.ui.components.KnightAnimation
 import com.mytheclipse.quizbattle.ui.components.QuizAnswerButton
 import com.mytheclipse.quizbattle.ui.theme.*
@@ -167,7 +169,7 @@ fun BattleScreen(
                     
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "YOU",
+                        text = "KNIGHT",
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontWeight = FontWeight.Bold
                         ),
@@ -227,17 +229,23 @@ fun BattleScreen(
                         .padding(12.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.bot_avatar),
-                        contentDescription = "Bot",
-                        modifier = Modifier
-                            .size(64.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop
+                    // Animated Goblin based on state
+                    val enemyAnimation = when {
+                        state.opponentHealth <= 0 -> GoblinAnimation.DEAD
+                        state.opponentTookDamage -> GoblinAnimation.HURT
+                        state.playerTookDamage -> GoblinAnimation.ATTACK
+                        else -> GoblinAnimation.IDLE
+                    }
+                    
+                    AnimatedGoblin(
+                        animation = enemyAnimation,
+                        modifier = Modifier,
+                        size = 80.dp
                     )
+                    
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "BOT",
+                        text = "GOBLIN",
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontWeight = FontWeight.Bold
                         ),
