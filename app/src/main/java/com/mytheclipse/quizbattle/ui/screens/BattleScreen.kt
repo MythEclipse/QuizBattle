@@ -3,6 +3,8 @@ package com.mytheclipse.quizbattle.ui.screens
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -141,6 +143,70 @@ fun BattleScreen(
         
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Define all animation states first
+        val playerAnimation = when {
+            state.playerHealth <= 0 -> KnightAnimation.DEAD
+            state.playerTookDamage -> KnightAnimation.HURT
+            state.playerAttacking -> KnightAnimation.ATTACK
+            else -> KnightAnimation.IDLE
+        }
+        
+        val enemyAnimation = when {
+            state.opponentHealth <= 0 -> GoblinAnimation.DEAD
+            state.opponentTookDamage -> GoblinAnimation.HURT
+            state.playerTookDamage -> GoblinAnimation.ATTACK
+            else -> GoblinAnimation.IDLE
+        }
+        
+        // Knight positioning with animation
+        val knightOffsetX by animateDpAsState(
+            targetValue = when {
+                state.playerAttacking -> 80.dp
+                state.playerTookDamage -> (-20).dp
+                else -> 0.dp
+            },
+            animationSpec = tween(durationMillis = 300),
+            label = "knight_offset"
+        )
+        
+        // Goblin positioning with animation
+        val goblinOffsetX by animateDpAsState(
+            targetValue = when {
+                state.playerTookDamage -> (-80).dp
+                state.opponentTookDamage -> 20.dp
+                else -> 0.dp
+            },
+            animationSpec = tween(durationMillis = 300),
+            label = "goblin_offset"
+        )
+        
+        // White flash effect when hurt (more intense)
+        val playerFlashAlpha by animateFloatAsState(
+            targetValue = if (state.playerTookDamage) 1f else 0f,
+            animationSpec = tween(durationMillis = 150),
+            label = "player_flash"
+        )
+        
+        val enemyFlashAlpha by animateFloatAsState(
+            targetValue = if (state.opponentTookDamage) 1f else 0f,
+            animationSpec = tween(durationMillis = 150),
+            label = "enemy_flash"
+        )
+        
+        // Screen shake effect
+        val shakeOffsetX by animateDpAsState(
+            targetValue = when {
+                state.playerTookDamage -> if ((System.currentTimeMillis() / 50) % 2 == 0L) 8.dp else (-8).dp
+                state.opponentTookDamage -> if ((System.currentTimeMillis() / 50) % 2 == 0L) (-8).dp else 8.dp
+                else -> 0.dp
+            },
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioHighBouncy,
+                stiffness = Spring.StiffnessHigh
+            ),
+            label = "shake"
+        )
+
         // Battleground Arena
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -153,56 +219,8 @@ fun BattleScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(240.dp)
+                    .offset(x = shakeOffsetX) // Add shake to entire arena
             ) {
-                // Define animations
-                val playerAnimation = when {
-                    state.playerHealth <= 0 -> KnightAnimation.DEAD
-                    state.playerTookDamage -> KnightAnimation.HURT
-                    state.playerAttacking -> KnightAnimation.ATTACK
-                    else -> KnightAnimation.IDLE
-                }
-                
-                val enemyAnimation = when {
-                    state.opponentHealth <= 0 -> GoblinAnimation.DEAD
-                    state.opponentTookDamage -> GoblinAnimation.HURT
-                    state.playerTookDamage -> GoblinAnimation.ATTACK
-                    else -> GoblinAnimation.IDLE
-                }
-                
-                // Knight positioning with animation
-                val knightOffsetX by animateDpAsState(
-                    targetValue = when {
-                        state.playerAttacking -> 80.dp // Move forward when attacking
-                        state.playerTookDamage -> (-20).dp // Recoil back when hurt
-                        else -> 0.dp
-                    },
-                    animationSpec = tween(durationMillis = 300),
-                    label = "knight_offset"
-                )
-                
-                // Goblin positioning with animation
-                val goblinOffsetX by animateDpAsState(
-                    targetValue = when {
-                        state.playerTookDamage -> (-80).dp // Move forward when attacking player
-                        state.opponentTookDamage -> 20.dp // Recoil back when hurt
-                        else -> 0.dp
-                    },
-                    animationSpec = tween(durationMillis = 300),
-                    label = "goblin_offset"
-                )
-                
-                // White flash effect when hurt
-                val playerFlashAlpha by animateFloatAsState(
-                    targetValue = if (state.playerTookDamage) 0.7f else 0f,
-                    animationSpec = tween(durationMillis = 200),
-                    label = "player_flash"
-                )
-                
-                val enemyFlashAlpha by animateFloatAsState(
-                    targetValue = if (state.opponentTookDamage) 0.7f else 0f,
-                    animationSpec = tween(durationMillis = 200),
-                    label = "enemy_flash"
-                )
                 
                 // Knight on left
                 Box(
@@ -212,13 +230,13 @@ fun BattleScreen(
                         .offset(x = knightOffsetX)
                 ) {
                     Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Bottom
                     ) {
                         AnimatedKnight(
                             animation = playerAnimation,
-                            modifier = Modifier,
                             size = 180.dp,
-                            flashAlpha = playerFlashAlpha
+                            flashAlpha = playerFlashAlpha * 0.8f
                         )
                         
                         Spacer(modifier = Modifier.height(4.dp))
@@ -238,16 +256,16 @@ fun BattleScreen(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(end = 32.dp, bottom = 16.dp)
-                        .offset(x = goblinOffsetX)
+                        .offset(x = goblinOffsetX, y = 38.dp) // Fine-tuned position to align with knight and keep label visible
                 ) {
                     Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Bottom
                     ) {
                         AnimatedGoblin(
                             animation = enemyAnimation,
-                            modifier = Modifier,
                             size = 180.dp,
-                            flashAlpha = enemyFlashAlpha
+                            flashAlpha = enemyFlashAlpha * 0.8f
                         )
                         
                         Spacer(modifier = Modifier.height(4.dp))
