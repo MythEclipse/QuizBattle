@@ -151,14 +151,20 @@ fun BattleScreen(
                         .padding(12.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.player_avatar),
-                        contentDescription = "Player",
-                        modifier = Modifier
-                            .size(64.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop
+                    // Animated Knight based on state
+                    val playerAnimation = when {
+                        state.playerHealth <= 0 -> KnightAnimation.DEAD
+                        state.playerTookDamage -> KnightAnimation.HURT
+                        state.playerAttacking -> KnightAnimation.ATTACK
+                        else -> KnightAnimation.IDLE
+                    }
+                    
+                    AnimatedKnight(
+                        animation = playerAnimation,
+                        modifier = Modifier,
+                        size = 80.dp
                     )
+                    
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "YOU",
