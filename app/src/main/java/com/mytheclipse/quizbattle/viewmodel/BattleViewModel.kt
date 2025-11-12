@@ -227,9 +227,16 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
                 opponentTookDamage = false
             )
         } else {
-            // All questions answered
-            _state.value = currentState.copy(isGameOver = true)
-            saveGameResult()
+            // Loop back to first question (game only ends when HP = 0)
+            _state.value = currentState.copy(
+                currentQuestionIndex = 0,
+                isAnswered = false,
+                selectedAnswerIndex = -1,
+                timeProgress = 1f,
+                playerTookDamage = false,
+                playerAttacking = false,
+                opponentTookDamage = false
+            )
         }
     }
     
