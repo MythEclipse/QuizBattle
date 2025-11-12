@@ -1,6 +1,7 @@
 package com.mytheclipse.quizbattle.ui.screens
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -136,131 +137,149 @@ fun BattleScreen(
         
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Health section with avatars
-        Row(
+        // Battleground Arena
+        Card(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top
+            colors = CardDefaults.cardColors(
+                containerColor = Color(0xFF2C2C2C) // Dark battleground
+            ),
+            shape = RoundedCornerShape(16.dp)
         ) {
-            // Player side
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFF1E88E5) // Bright blue for knight
-                ),
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(12.dp)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(240.dp)
             ) {
+                // Define animations
+                val playerAnimation = when {
+                    state.playerHealth <= 0 -> KnightAnimation.DEAD
+                    state.playerTookDamage -> KnightAnimation.HURT
+                    state.playerAttacking -> KnightAnimation.ATTACK
+                    else -> KnightAnimation.IDLE
+                }
+                
+                val enemyAnimation = when {
+                    state.opponentHealth <= 0 -> GoblinAnimation.DEAD
+                    state.opponentTookDamage -> GoblinAnimation.HURT
+                    state.playerTookDamage -> GoblinAnimation.ATTACK
+                    else -> GoblinAnimation.IDLE
+                }
+                
+                // Knight positioning with animation
+                val knightOffsetX by animateDpAsState(
+                    targetValue = when {
+                        state.playerAttacking -> 80.dp // Move forward when attacking
+                        state.playerTookDamage -> (-20).dp // Recoil back when hurt
+                        else -> 0.dp
+                    },
+                    animationSpec = tween(durationMillis = 300),
+                    label = "knight_offset"
+                )
+                
+                // Goblin positioning with animation
+                val goblinOffsetX by animateDpAsState(
+                    targetValue = when {
+                        state.playerTookDamage -> (-80).dp // Move forward when attacking player
+                        state.opponentTookDamage -> 20.dp // Recoil back when hurt
+                        else -> 0.dp
+                    },
+                    animationSpec = tween(durationMillis = 300),
+                    label = "goblin_offset"
+                )
+                
+                // Knight on left
                 Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .align(Alignment.BottomStart)
+                        .padding(start = 32.dp, bottom = 16.dp)
+                        .offset(x = knightOffsetX)
                 ) {
-                    // Animated Knight based on state
-                    val playerAnimation = when {
-                        state.playerHealth <= 0 -> KnightAnimation.DEAD
-                        state.playerTookDamage -> KnightAnimation.HURT
-                        state.playerAttacking -> KnightAnimation.ATTACK
-                        else -> KnightAnimation.IDLE
-                    }
+                    AnimatedKnight(
+                        animation = playerAnimation,
+                        modifier = Modifier,
+                        size = 180.dp
+                    )
                     
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(140.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        AnimatedKnight(
-                            animation = playerAnimation,
-                            modifier = Modifier,
-                            size = 140.dp // Even larger
-                        )
-                    }
+                    Spacer(modifier = Modifier.height(4.dp))
                     
-                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "KNIGHT",
-                        style = MaterialTheme.typography.titleMedium.copy(
+                        style = MaterialTheme.typography.titleSmall.copy(
                             fontWeight = FontWeight.Bold
                         ),
-                        color = Color.White
-                    )
-                    
-                    // Health bar with Fantasy style
-                    Spacer(modifier = Modifier.height(8.dp))
-                    FantasyHealthBar(
-                        currentHealth = state.playerHealth,
-                        maxHealth = 100,
-                        label = "HP"
+                        color = Color(0xFF1E88E5)
                     )
                 }
+                
+                // Goblin on right
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = 32.dp, bottom = 16.dp)
+                        .offset(x = goblinOffsetX)
+                ) {
+                    AnimatedGoblin(
+                        animation = enemyAnimation,
+                        modifier = Modifier,
+                        size = 180.dp
+                    )
+                    
+                    Spacer(modifier = Modifier.height(4.dp))
+                    
+                    Text(
+                        text = "GOBLIN",
+                        style = MaterialTheme.typography.titleSmall.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = Color(0xFFD32F2F)
+                    )
+                }
+                
+                // VS indicator in center
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(bottom = 20.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "VS",
+                        style = MaterialTheme.typography.headlineLarge.copy(
+                            fontWeight = FontWeight.Black
+                        ),
+                        color = Color(0xFFFFD700) // Gold
+                    )
+                }
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        // Health bars below battleground
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Player health
+            Column(modifier = Modifier.weight(1f)) {
+                FantasyHealthBar(
+                    currentHealth = state.playerHealth,
+                    maxHealth = 100,
+                    label = "KNIGHT HP"
+                )
             }
             
             Spacer(modifier = Modifier.width(16.dp))
             
-            Text(
-                text = "VS",
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    fontWeight = FontWeight.ExtraBold
-                ),
-                color = Color.White,
-                modifier = Modifier.padding(top = 40.dp)
-            )
-            
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // Opponent side
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFD32F2F) // Bright red for goblin
-                ),
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    // Animated Goblin based on state
-                    val enemyAnimation = when {
-                        state.opponentHealth <= 0 -> GoblinAnimation.DEAD
-                        state.opponentTookDamage -> GoblinAnimation.HURT
-                        state.playerTookDamage -> GoblinAnimation.ATTACK
-                        else -> GoblinAnimation.IDLE
-                    }
-                    
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(140.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        AnimatedGoblin(
-                            animation = enemyAnimation,
-                            modifier = Modifier,
-                            size = 120.dp
-                        )
-                    }
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "GOBLIN",
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold
-                        ),
-                        color = Color.White
-                    )
-                    
-                    // Health bar with Fantasy style
-                    Spacer(modifier = Modifier.height(8.dp))
-                    FantasyHealthBar(
-                        currentHealth = state.opponentHealth,
-                        maxHealth = 100,
-                        label = "HP"
-                    )
-                }
+            // Enemy health
+            Column(modifier = Modifier.weight(1f)) {
+                FantasyHealthBar(
+                    currentHealth = state.opponentHealth,
+                    maxHealth = 100,
+                    label = "GOBLIN HP"
+                )
             }
         }
         
