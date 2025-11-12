@@ -33,7 +33,10 @@ data class BattleState(
     val isGameOver: Boolean = false,
     val isLoading: Boolean = false,
     val error: String? = null,
-    val damageAmount: Int = 20 // Damage per wrong answer
+    val damageAmount: Int = 20, // Damage per wrong answer
+    val playerTookDamage: Boolean = false,
+    val playerAttacking: Boolean = false,
+    val opponentTookDamage: Boolean = false
 )
 
 class BattleViewModel(application: Application) : AndroidViewModel(application) {
@@ -114,7 +117,10 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
             selectedAnswerIndex = answerIndex,
             playerHealth = newPlayerHealth,
             opponentHealth = newOpponentHealth,
-            isGameOver = isGameOver
+            isGameOver = isGameOver,
+            playerTookDamage = !isCorrect,
+            playerAttacking = isCorrect,
+            opponentTookDamage = !opponentCorrect
         )
         
         // Save game if health reaches 0
@@ -135,7 +141,10 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
                 currentQuestionIndex = currentState.currentQuestionIndex + 1,
                 isAnswered = false,
                 selectedAnswerIndex = -1,
-                timeProgress = 1f
+                timeProgress = 1f,
+                playerTookDamage = false,
+                playerAttacking = false,
+                opponentTookDamage = false
             )
         } else {
             // All questions answered
@@ -166,7 +175,9 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
             isAnswered = true,
             playerHealth = newPlayerHealth,
             opponentHealth = newOpponentHealth,
-            isGameOver = isGameOver
+            isGameOver = isGameOver,
+            playerTookDamage = true,
+            opponentTookDamage = !opponentCorrect
         )
         
         // Save game if health reaches 0

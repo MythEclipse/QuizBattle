@@ -1,5 +1,7 @@
 package com.mytheclipse.quizbattle.ui.screens
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -19,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mytheclipse.quizbattle.R
+import com.mytheclipse.quizbattle.ui.components.AnimatedKnight
+import com.mytheclipse.quizbattle.ui.components.KnightAnimation
 import com.mytheclipse.quizbattle.ui.components.QuizAnswerButton
 import com.mytheclipse.quizbattle.ui.theme.*
 import com.mytheclipse.quizbattle.viewmodel.BattleViewModel
