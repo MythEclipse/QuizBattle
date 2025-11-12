@@ -25,14 +25,15 @@ data class BattleQuestion(
 data class BattleState(
     val questions: List<BattleQuestion> = emptyList(),
     val currentQuestionIndex: Int = 0,
-    val playerScore: Int = 0,
-    val opponentScore: Int = 0,
+    val playerHealth: Int = 100,
+    val opponentHealth: Int = 100,
     val isAnswered: Boolean = false,
     val selectedAnswerIndex: Int = -1,
     val timeProgress: Float = 1f,
     val isGameOver: Boolean = false,
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val damageAmount: Int = 20 // Damage per wrong answer
 )
 
 class BattleViewModel(application: Application) : AndroidViewModel(application) {
@@ -92,17 +93,42 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
         // Calculate opponent's random answer
         val opponentCorrect = Random.nextBoolean()
         
+        // Calculate new health values
+        val newPlayerHealth = if (isCorrect) {
+            currentState.playerHealth
+        } else {
+            (currentState.playerHealth - currentState.damageAmount).coerceAtLeast(0)
+        }
+        
+        val newOpponentHealth = if (opponentCorrect) {
+            currentState.opponentHealth
+        } else {
+            (currentState.opponentHealth - currentState.damageAmount).coerceAtLeast(0)
+        }
+        
+        // Check if game over due to health reaching 0
+        val isGameOver = newPlayerHealth <= 0 || newOpponentHealth <= 0
+        
         _state.value = currentState.copy(
             isAnswered = true,
             selectedAnswerIndex = answerIndex,
-            playerScore = if (isCorrect) currentState.playerScore + 1 else currentState.playerScore,
-            opponentScore = if (opponentCorrect) currentState.opponentScore + 1 else currentState.opponentScore
+            playerHealth = newPlayerHealth,
+            opponentHealth = newOpponentHealth,
+            isGameOver = isGameOver
         )
+        
+        // Save game if health reaches 0
+        if (isGameOver) {
+            saveGameResult()
+        }
     }
     
     fun nextQuestion() {
         val currentState = _state.value
         if (!currentState.isAnswered) return
+        
+        // Check if game over due to health
+        if (currentState.isGameOver) return
         
         if (currentState.currentQuestionIndex < currentState.questions.size - 1) {
             _state.value = currentState.copy(
@@ -112,7 +138,7 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
                 timeProgress = 1f
             )
         } else {
-            // Game over
+            // All questions answered
             _state.value = currentState.copy(isGameOver = true)
             saveGameResult()
         }
@@ -122,13 +148,31 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
         val currentState = _state.value
         if (currentState.isAnswered) return
         
+        // Player loses health for timeout
+        val newPlayerHealth = (currentState.playerHealth - currentState.damageAmount).coerceAtLeast(0)
+        
         // Opponent has a chance to answer
         val opponentCorrect = Random.nextBoolean()
+        val newOpponentHealth = if (opponentCorrect) {
+            currentState.opponentHealth
+        } else {
+            (currentState.opponentHealth - currentState.damageAmount).coerceAtLeast(0)
+        }
+        
+        // Check if game over due to health
+        val isGameOver = newPlayerHealth <= 0 || newOpponentHealth <= 0
         
         _state.value = currentState.copy(
             isAnswered = true,
-            opponentScore = if (opponentCorrect) currentState.opponentScore + 1 else currentState.opponentScore
+            playerHealth = newPlayerHealth,
+            opponentHealth = newOpponentHealth,
+            isGameOver = isGameOver
         )
+        
+        // Save game if health reaches 0
+        if (isGameOver) {
+            saveGameResult()
+        }
     }
     
     fun updateTimeProgress(progress: Float) {
@@ -141,22 +185,29 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
                 val currentUser = userRepository.getLoggedInUser()
                 if (currentUser != null) {
                     val currentState = _state.value
-                    val isVictory = currentState.playerScore > currentState.opponentScore
+                    // Victory if opponent health reaches 0 or player has more health
+                    val isVictory = if (currentState.opponentHealth <= 0 && currentState.playerHealth > 0) {
+                        true
+                    } else if (currentState.playerHealth <= 0 && currentState.opponentHealth > 0) {
+                        false
+                    } else {
+                        currentState.playerHealth > currentState.opponentHealth
+                    }
                     
-                    // Save game history
+                    // Save game history (use health as score)
                     val gameHistory = GameHistory(
                         userId = currentUser.id,
                         opponentName = "AI Bot",
-                        userScore = currentState.playerScore,
-                        opponentScore = currentState.opponentScore,
+                        userScore = currentState.playerHealth,
+                        opponentScore = currentState.opponentHealth,
                         isVictory = isVictory,
                         totalQuestions = currentState.questions.size,
                         gameMode = "offline"
                     )
                     gameHistoryRepository.insertGame(gameHistory)
                     
-                    // Update user stats
-                    val points = currentState.playerScore * 10
+                    // Update user stats based on victory
+                    val points = if (isVictory) 100 else 0
                     val wins = if (isVictory) 1 else 0
                     val losses = if (!isVictory) 1 else 0
                     userRepository.updateUserStats(currentUser.id, points, wins, losses)

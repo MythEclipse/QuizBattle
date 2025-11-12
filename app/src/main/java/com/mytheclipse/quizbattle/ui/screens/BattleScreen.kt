@@ -35,7 +35,15 @@ fun BattleScreen(
     LaunchedEffect(state.isGameOver) {
         if (state.isGameOver) {
             delay(500)
-            onNavigateToResult(state.playerScore > state.opponentScore)
+            // Victory based on health: opponent HP = 0 or player HP > opponent HP
+            val isVictory = if (state.opponentHealth <= 0 && state.playerHealth > 0) {
+                true
+            } else if (state.playerHealth <= 0 && state.opponentHealth > 0) {
+                false
+            } else {
+                state.playerHealth > state.opponentHealth
+            }
+            onNavigateToResult(isVictory)
         }
     }
 
@@ -120,49 +128,65 @@ fun BattleScreen(
         
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Score section - improved with avatars
+        // Health section with avatars
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Player score
+            // Player side
             Card(
                 colors = CardDefaults.cardColors(
                     containerColor = PrimaryBlue
                 ),
                 modifier = Modifier.weight(1f)
             ) {
-                Row(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(12.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.player_avatar),
                         contentDescription = "Player",
                         modifier = Modifier
-                            .size(48.dp)
+                            .size(64.dp)
                             .clip(CircleShape),
                         contentScale = ContentScale.Crop
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "YOU",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = Color.White
+                    )
+                    
+                    // Health bar
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Column(modifier = Modifier.fillMaxWidth()) {
                         Text(
-                            text = "YOU",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.White
-                        )
-                        Text(
-                            text = "${state.playerScore}",
-                            style = MaterialTheme.typography.headlineLarge.copy(
+                            text = "HP: ${state.playerHealth}/100",
+                            style = MaterialTheme.typography.bodyMedium.copy(
                                 fontWeight = FontWeight.Bold
                             ),
                             color = Color.White
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        LinearProgressIndicator(
+                            progress = { state.playerHealth / 100f },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(10.dp)
+                                .clip(RoundedCornerShape(5.dp)),
+                            color = when {
+                                state.playerHealth > 60 -> Color(0xFF4CAF50)
+                                state.playerHealth > 30 -> Color(0xFFFFC107)
+                                else -> Color(0xFFF44336)
+                            },
+                            trackColor = Color.White.copy(alpha = 0.3f)
                         )
                     }
                 }
@@ -180,45 +204,61 @@ fun BattleScreen(
             
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Opponent score
+            // Opponent side
             Card(
                 colors = CardDefaults.cardColors(
                     containerColor = PrimaryRed
                 ),
                 modifier = Modifier.weight(1f)
             ) {
-                Row(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(12.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "BOT",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.White
-                        )
-                        Text(
-                            text = "${state.opponentScore}",
-                            style = MaterialTheme.typography.headlineLarge.copy(
-                                fontWeight = FontWeight.Bold
-                            ),
-                            color = Color.White
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
                     Image(
                         painter = painterResource(id = R.drawable.bot_avatar),
                         contentDescription = "Bot",
                         modifier = Modifier
-                            .size(48.dp)
+                            .size(64.dp)
                             .clip(CircleShape),
                         contentScale = ContentScale.Crop
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "BOT",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = Color.White
+                    )
+                    
+                    // Health bar
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = "HP: ${state.opponentHealth}/100",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontWeight = FontWeight.Bold
+                            ),
+                            color = Color.White
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        LinearProgressIndicator(
+                            progress = { state.opponentHealth / 100f },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(10.dp)
+                                .clip(RoundedCornerShape(5.dp)),
+                            color = when {
+                                state.opponentHealth > 60 -> Color(0xFF4CAF50)
+                                state.opponentHealth > 30 -> Color(0xFFFFC107)
+                                else -> Color(0xFFF44336)
+                            },
+                            trackColor = Color.White.copy(alpha = 0.3f)
+                        )
+                    }
                 }
             }
         }
