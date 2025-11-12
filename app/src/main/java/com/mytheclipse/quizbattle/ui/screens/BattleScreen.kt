@@ -140,19 +140,20 @@ fun BattleScreen(
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             // Player side
             Card(
                 colors = CardDefaults.cardColors(
-                    containerColor = PrimaryBlue
+                    containerColor = Color(0xFF1E88E5) // Bright blue for knight
                 ),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(12.dp),
+                        .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     // Animated Knight based on state
@@ -163,16 +164,23 @@ fun BattleScreen(
                         else -> KnightAnimation.IDLE
                     }
                     
-                    AnimatedKnight(
-                        animation = playerAnimation,
-                        modifier = Modifier,
-                        size = 80.dp
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(140.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        AnimatedKnight(
+                            animation = playerAnimation,
+                            modifier = Modifier,
+                            size = 140.dp // Even larger
+                        )
+                    }
                     
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "KNIGHT",
-                        style = MaterialTheme.typography.bodyMedium.copy(
+                        style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold
                         ),
                         color = Color.White
@@ -192,10 +200,11 @@ fun BattleScreen(
             
             Text(
                 text = "VS",
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.ExtraBold
                 ),
-                color = TextPrimary
+                color = Color.White,
+                modifier = Modifier.padding(top = 40.dp)
             )
             
             Spacer(modifier = Modifier.width(16.dp))
@@ -203,14 +212,15 @@ fun BattleScreen(
             // Opponent side
             Card(
                 colors = CardDefaults.cardColors(
-                    containerColor = PrimaryRed
+                    containerColor = Color(0xFFD32F2F) // Bright red for goblin
                 ),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(12.dp),
+                        .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     // Animated Goblin based on state
@@ -221,16 +231,23 @@ fun BattleScreen(
                         else -> GoblinAnimation.IDLE
                     }
                     
-                    AnimatedGoblin(
-                        animation = enemyAnimation,
-                        modifier = Modifier,
-                        size = 80.dp
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(140.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        AnimatedGoblin(
+                            animation = enemyAnimation,
+                            modifier = Modifier,
+                            size = 120.dp
+                        )
+                    }
                     
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "GOBLIN",
-                        style = MaterialTheme.typography.bodyMedium.copy(
+                        style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold
                         ),
                         color = Color.White
