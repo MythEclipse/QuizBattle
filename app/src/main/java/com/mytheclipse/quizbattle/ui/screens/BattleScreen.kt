@@ -251,11 +251,11 @@ fun BattleScreen(
                     }
                 }
                 
-                // Goblin on right - sprites now cropped, no whitespace
+                // Goblin on right - smaller size (it's a goblin, not a human!)
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .padding(end = 32.dp, bottom = 16.dp)
+                        .padding(end = 80.dp, bottom = 16.dp) // Closer to knight
                         .offset(x = goblinOffsetX)
                 ) {
                     Column(
@@ -264,7 +264,7 @@ fun BattleScreen(
                     ) {
                         AnimatedGoblin(
                             animation = enemyAnimation,
-                            size = 180.dp,
+                            size = 120.dp, // Smaller - goblins are smaller than knights
                             flashAlpha = enemyFlashAlpha * 0.8f
                         )
                         
