@@ -1,6 +1,7 @@
 package com.mytheclipse.quizbattle.ui.screens
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -14,10 +15,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mytheclipse.quizbattle.R
 import com.mytheclipse.quizbattle.ui.components.QuizBattleButton
 import com.mytheclipse.quizbattle.ui.components.QuizBattleOutlinedButton
 import com.mytheclipse.quizbattle.ui.theme.*
@@ -198,7 +202,7 @@ fun LeaderboardItem(
         Box(
             contentAlignment = Alignment.BottomCenter
         ) {
-            // Avatar circle
+            // Avatar circle with image
             Box(
                 modifier = Modifier
                     .size(if (isTop) 84.dp else 74.dp)
@@ -206,12 +210,13 @@ fun LeaderboardItem(
                     .border(BorderStroke(3.dp, avatarColor), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                // Placeholder for avatar image
-                Surface(
+                // Use player avatar for leaderboard
+                Image(
+                    painter = painterResource(id = R.drawable.player_avatar),
+                    contentDescription = "Player $rank",
                     modifier = Modifier.fillMaxSize(),
-                    color = Color.LightGray,
-                    shape = CircleShape
-                ) {}
+                    contentScale = ContentScale.Crop
+                )
             }
             
             // Rank badge
