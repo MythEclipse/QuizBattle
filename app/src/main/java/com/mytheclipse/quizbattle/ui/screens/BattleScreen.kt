@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mytheclipse.quizbattle.R
+import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
 import com.mytheclipse.quizbattle.ui.components.AnimatedGoblin
 import com.mytheclipse.quizbattle.ui.components.AnimatedKnight
 import com.mytheclipse.quizbattle.ui.components.FantasyHealthBar
@@ -38,6 +39,8 @@ import com.mytheclipse.quizbattle.ui.components.QuizAnswerButton
 import com.mytheclipse.quizbattle.ui.theme.*
 import com.mytheclipse.quizbattle.viewmodel.BattleViewModel
 import kotlinx.coroutines.delay
+import com.mytheclipse.quizbattle.ui.components.ErrorState
+import com.mytheclipse.quizbattle.ui.components.LoadingState
 
 @Composable
 fun BattleScreen(
@@ -45,6 +48,7 @@ fun BattleScreen(
     viewModel: BattleViewModel = viewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val haptic = rememberHapticFeedback()
 
     // Handle game over
     LaunchedEffect(state.isGameOver) {
@@ -88,15 +92,22 @@ fun BattleScreen(
         }
     }
 
-    // Show loading
-    if (state.isLoading || state.questions.isEmpty()) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
+    // Unified loading/error states
+    when {
+        state.isLoading || state.questions.isEmpty() -> {
+            if (state.error != null) {
+                ErrorState(
+                    message = state.error ?: "Gagal memuat pertanyaan",
+                    onRetry = {
+                        haptic.mediumTap()
+                        viewModel.resetGame()
+                    }
+                )
+            } else {
+                LoadingState(message = "Memuat pertanyaan...")
+            }
+            return
         }
-        return
     }
 
     val currentQuestion = state.questions[state.currentQuestionIndex]
@@ -365,6 +376,7 @@ fun BattleScreen(
                     text = currentQuestion.answers[0],
                     onClick = {
                         if (!state.isAnswered) {
+                            haptic.mediumTap()
                             viewModel.answerQuestion(0)
                         }
                     },
@@ -378,6 +390,7 @@ fun BattleScreen(
                     text = currentQuestion.answers[1],
                     onClick = {
                         if (!state.isAnswered) {
+                            haptic.mediumTap()
                             viewModel.answerQuestion(1)
                         }
                     },
@@ -396,6 +409,7 @@ fun BattleScreen(
                     text = currentQuestion.answers[2],
                     onClick = {
                         if (!state.isAnswered) {
+                            haptic.mediumTap()
                             viewModel.answerQuestion(2)
                         }
                     },
@@ -409,6 +423,7 @@ fun BattleScreen(
                     text = currentQuestion.answers[3],
                     onClick = {
                         if (!state.isAnswered) {
+                            haptic.mediumTap()
                             viewModel.answerQuestion(3)
                         }
                     },

@@ -19,6 +19,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mytheclipse.quizbattle.viewmodel.ChatViewModel
+import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
+import com.mytheclipse.quizbattle.ui.components.ErrorState
+import com.mytheclipse.quizbattle.ui.components.EmptyState
+import com.mytheclipse.quizbattle.ui.components.LoadingState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,6 +35,7 @@ fun ChatRoomScreen(
     val state by viewModel.state.collectAsState()
     var messageText by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
+    val haptic = rememberHapticFeedback()
     
     LaunchedEffect(roomId) {
         viewModel.connectToRoom(roomId)
@@ -92,6 +97,7 @@ fun ChatRoomScreen(
                     FloatingActionButton(
                         onClick = {
                             if (messageText.isNotBlank()) {
+                                haptic.lightTap()
                                 viewModel.sendMessage(roomId, messageText)
                                 messageText = ""
                             }
@@ -109,22 +115,36 @@ fun ChatRoomScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            if (state.isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            } else {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(state.messages) { message ->
-                        MessageItem(
-                            message = message,
-                            isOwnMessage = message.userId == "current_user_id" // TODO: Get from auth
-                        )
+            when {
+                state.isLoading -> {
+                    LoadingState("Memuat pesan...")
+                }
+                state.error != null -> {
+                    ErrorState(
+                        message = state.error ?: "Gagal memuat pesan",
+                        onRetry = { viewModel.loadMessages(roomId) }
+                    )
+                }
+                state.messages.isEmpty() -> {
+                    EmptyState(
+                        icon = Icons.Default.ChatBubbleOutline,
+                        title = "Belum ada pesan",
+                        message = "Mulai percakapan dengan mengirim pesan pertama"
+                    )
+                }
+                else -> {
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(state.messages) { message ->
+                            MessageItem(
+                                message = message,
+                                isOwnMessage = message.userId == "current_user_id" // TODO: Get from auth
+                            )
+                        }
                     }
                 }
             }

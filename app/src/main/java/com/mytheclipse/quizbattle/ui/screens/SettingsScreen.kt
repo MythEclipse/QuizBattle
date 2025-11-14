@@ -10,8 +10,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
+import com.mytheclipse.quizbattle.utils.SoundManager
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -19,10 +23,15 @@ fun SettingsScreen(
     onNavigateBack: () -> Unit,
     onDeleteAccount: () -> Unit
 ) {
-    var soundEnabled by remember { mutableStateOf(true) }
+    val context = LocalContext.current
+    val soundManager = remember { SoundManager.getInstance(context) }
+    val scope = rememberCoroutineScope()
+    
+    val soundEnabled by soundManager.isSoundEnabled().collectAsState(initial = true)
     var vibrationEnabled by remember { mutableStateOf(true) }
     var notificationsEnabled by remember { mutableStateOf(true) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    val haptic = rememberHapticFeedback()
 
     Scaffold(
         topBar = {
@@ -65,7 +74,12 @@ fun SettingsScreen(
                         title = "Sound Effects",
                         subtitle = "Enable game sound effects",
                         checked = soundEnabled,
-                        onCheckedChange = { soundEnabled = it }
+                        onCheckedChange = { enabled ->
+                            haptic.lightTap()
+                            scope.launch {
+                                soundManager.setSoundEnabled(enabled)
+                            }
+                        }
                     )
 
                     Divider(modifier = Modifier.padding(vertical = 8.dp))
@@ -75,7 +89,10 @@ fun SettingsScreen(
                         title = "Vibration",
                         subtitle = "Haptic feedback for actions",
                         checked = vibrationEnabled,
-                        onCheckedChange = { vibrationEnabled = it }
+                        onCheckedChange = { 
+                            if (it) haptic.lightTap()
+                            vibrationEnabled = it 
+                        }
                     )
                 }
             }
@@ -104,7 +121,10 @@ fun SettingsScreen(
                         title = "Push Notifications",
                         subtitle = "Receive game updates and alerts",
                         checked = notificationsEnabled,
-                        onCheckedChange = { notificationsEnabled = it }
+                        onCheckedChange = { 
+                            haptic.lightTap()
+                            notificationsEnabled = it 
+                        }
                     )
                 }
             }
@@ -166,7 +186,10 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     OutlinedButton(
-                        onClick = { showDeleteDialog = true },
+                        onClick = { 
+                            haptic.strongTap()
+                            showDeleteDialog = true 
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.outlinedButtonColors(
                             contentColor = MaterialTheme.colorScheme.error

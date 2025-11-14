@@ -21,6 +21,11 @@ class NetworkMonitor(val context: Context) {
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     
     /**
+     * Flow that emits network connectivity status
+     */
+    val isConnected: Flow<Boolean> by lazy { observeNetworkStatus() }
+    
+    /**
      * Check if network is currently available
      */
     fun isNetworkAvailable(): Boolean {
@@ -40,7 +45,7 @@ class NetworkMonitor(val context: Context) {
     /**
      * Observe network connectivity as Flow
      */
-    fun observeNetworkStatus(): Flow<Boolean> = callbackFlow {
+    private fun observeNetworkStatus(): Flow<Boolean> = callbackFlow {
         val callback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 trySend(true)

@@ -23,6 +23,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mytheclipse.quizbattle.R
 import com.mytheclipse.quizbattle.viewmodel.ProfileViewModel
+import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
+import com.mytheclipse.quizbattle.ui.components.ErrorState
+import com.mytheclipse.quizbattle.ui.components.LoadingState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,6 +38,7 @@ fun ProfileScreen(
 ) {
     val state by viewModel.state.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
+    val haptic = rememberHapticFeedback()
 
     Scaffold(
         topBar = {
@@ -58,34 +62,22 @@ fun ProfileScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            if (state.isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            } else if (state.error != null) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = state.error ?: "An error occurred",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { viewModel.loadProfile() }) {
-                        Text("Retry")
-                    }
+            when {
+                state.isLoading -> {
+                    LoadingState("Memuat profil...")
                 }
-            } else {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                ) {
+                state.error != null -> {
+                    ErrorState(
+                        message = state.error ?: "Gagal memuat profil",
+                        onRetry = { viewModel.loadProfile() }
+                    )
+                }
+                else -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                    ) {
                     // Profile Header with Background
                     Box(
                         modifier = Modifier
@@ -221,7 +213,10 @@ fun ProfileScreen(
                             ProfileActionItem(
                                 icon = Icons.Default.Edit,
                                 title = "Edit Profile",
-                                onClick = onNavigateToEdit
+                                onClick = {
+                                    haptic.lightTap()
+                                    onNavigateToEdit()
+                                }
                             )
 
                             Divider()
@@ -229,7 +224,10 @@ fun ProfileScreen(
                             ProfileActionItem(
                                 icon = Icons.Default.Settings,
                                 title = "Settings",
-                                onClick = onNavigateToSettings
+                                onClick = {
+                                    haptic.lightTap()
+                                    onNavigateToSettings()
+                                }
                             )
 
                             Divider()
@@ -237,7 +235,10 @@ fun ProfileScreen(
                             ProfileActionItem(
                                 icon = Icons.Default.Logout,
                                 title = "Logout",
-                                onClick = { showLogoutDialog = true },
+                                onClick = { 
+                                    haptic.mediumTap()
+                                    showLogoutDialog = true 
+                                },
                                 textColor = MaterialTheme.colorScheme.error
                             )
                         }
@@ -246,6 +247,7 @@ fun ProfileScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                 }
             }
+        }
         }
 
         // Logout Confirmation Dialog

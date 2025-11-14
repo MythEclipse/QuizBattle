@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import com.mytheclipse.quizbattle.R
 import com.mytheclipse.quizbattle.ui.components.QuizBattleButton
 import com.mytheclipse.quizbattle.ui.theme.*
+import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
 
 @Composable
 fun BattleResultScreen(
@@ -25,6 +26,8 @@ fun BattleResultScreen(
     onNavigateToMain: () -> Unit,
     onRematch: () -> Unit
 ) {
+    val haptic = rememberHapticFeedback()
+    
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -105,13 +108,19 @@ fun BattleResultScreen(
             ) {
                 QuizBattleButton(
                     text = "Main Menu",
-                    onClick = onNavigateToMain,
+                    onClick = {
+                        haptic.mediumTap()
+                        onNavigateToMain()
+                    },
                     modifier = Modifier.weight(1f)
                 )
                 
                 QuizBattleButton(
                     text = "Rematch",
-                    onClick = onRematch,
+                    onClick = {
+                        haptic.mediumTap()
+                        onRematch()
+                    },
                     modifier = Modifier.weight(1f)
                 )
             }

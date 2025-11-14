@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.mytheclipse.quizbattle.ui.screens.*
+import com.mytheclipse.quizbattle.ui.animations.*
 
 sealed class Screen(val route: String) {
     object Splash : Screen("splash")
@@ -57,7 +58,11 @@ fun QuizBattleNavigation(
         navController = navController,
         startDestination = Screen.Splash.route
     ) {
-        composable(Screen.Splash.route) {
+        composable(
+            route = Screen.Splash.route,
+            enterTransition = { fadeIn() },
+            exitTransition = { fadeOut() }
+        ) {
             SplashScreen(
                 onNavigateToMain = {
                     navController.navigate(Screen.Main.route) {
@@ -67,7 +72,13 @@ fun QuizBattleNavigation(
             )
         }
         
-        composable(Screen.Login.route) {
+        composable(
+            route = Screen.Login.route,
+            enterTransition = { slideInFromRight() },
+            exitTransition = { slideOutToLeft() },
+            popEnterTransition = { slideInFromLeft() },
+            popExitTransition = { slideOutToRight() }
+        ) {
             LoginScreen(
                 onNavigateToRegister = {
                     navController.navigate(Screen.Register.route)
@@ -83,7 +94,13 @@ fun QuizBattleNavigation(
             )
         }
         
-        composable(Screen.Register.route) {
+        composable(
+            route = Screen.Register.route,
+            enterTransition = { slideInFromRight() },
+            exitTransition = { slideOutToLeft() },
+            popEnterTransition = { slideInFromLeft() },
+            popExitTransition = { slideOutToRight() }
+        ) {
             RegisterScreen(
                 onNavigateToLogin = {
                     navController.popBackStack()
@@ -107,7 +124,11 @@ fun QuizBattleNavigation(
             )
         }
         
-        composable(Screen.Main.route) {
+        composable(
+            route = Screen.Main.route,
+            enterTransition = { fadeIn() },
+            exitTransition = { fadeOut() }
+        ) {
             MainScreen(
                 onNavigateToBattle = {
                     navController.navigate(Screen.Battle.route)

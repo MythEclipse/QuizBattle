@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,7 +26,13 @@ import com.mytheclipse.quizbattle.R
 import com.mytheclipse.quizbattle.ui.components.QuizBattleButton
 import com.mytheclipse.quizbattle.ui.components.QuizBattleOutlinedButton
 import com.mytheclipse.quizbattle.ui.theme.*
+import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
+import com.mytheclipse.quizbattle.utils.NetworkMonitor
+import com.mytheclipse.quizbattle.ui.components.ConnectionStatusBanner
 import com.mytheclipse.quizbattle.viewmodel.MainViewModel
+import com.mytheclipse.quizbattle.ui.components.ErrorState
+import com.mytheclipse.quizbattle.ui.components.LoadingState
+import androidx.compose.ui.platform.LocalContext
 
 @Suppress("UNUSED_PARAMETER")
 @Composable
@@ -39,16 +46,22 @@ fun MainScreen(
     viewModel: MainViewModel = viewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val haptic = rememberHapticFeedback()
     
-    if (state.isLoading) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
+    when {
+        state.isLoading -> {
+            LoadingState(message = "Memuat data...")
+            return
         }
-        return
+        state.error != null -> {
+            ErrorState(
+                message = state.error ?: "Gagal memuat data",
+                onRetry = { viewModel.refreshData() }
+            )
+            return
+        }
     }
+    
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -85,7 +98,8 @@ fun MainScreen(
                 name = topUsers.getOrNull(1)?.username ?: "Player 2",
                 points = "${topUsers.getOrNull(1)?.points ?: 0} pts",
                 avatarColor = Color.Gray,
-                modifier = Modifier.padding(top = 20.dp)
+                modifier = Modifier.padding(top = 20.dp),
+                isTop = false
             )
             
             // 1st place
@@ -94,6 +108,7 @@ fun MainScreen(
                 name = topUsers.getOrNull(0)?.username ?: "Player 1",
                 points = "${topUsers.getOrNull(0)?.points ?: 0} pts",
                 avatarColor = PrimaryBlue,
+                modifier = Modifier,
                 isTop = true
             )
             
@@ -103,7 +118,8 @@ fun MainScreen(
                 name = topUsers.getOrNull(2)?.username ?: "Player 3",
                 points = "${topUsers.getOrNull(2)?.points ?: 0} pts",
                 avatarColor = Color.Gray,
-                modifier = Modifier.padding(top = 20.dp)
+                modifier = Modifier.padding(top = 20.dp),
+                isTop = false
             )
         }
         
@@ -147,7 +163,10 @@ fun MainScreen(
         // Buttons
         QuizBattleButton(
             text = "Main Quiz (Offline)",
-            onClick = onNavigateToBattle,
+            onClick = {
+                haptic.mediumTap()
+                onNavigateToBattle()
+            },
             modifier = Modifier.fillMaxWidth()
         )
         
@@ -173,7 +192,10 @@ fun MainScreen(
         
         QuizBattleButton(
             text = "Main Online",
-            onClick = onNavigateToOnlineMenu,
+            onClick = {
+                haptic.mediumTap()
+                onNavigateToOnlineMenu()
+            },
             backgroundColor = MaterialTheme.colorScheme.tertiary,
             modifier = Modifier.fillMaxWidth()
         )
@@ -186,13 +208,19 @@ fun MainScreen(
         ) {
             QuizBattleOutlinedButton(
                 text = "Feed",
-                onClick = onNavigateToFeed,
+                onClick = {
+                    haptic.lightTap()
+                    onNavigateToFeed()
+                },
                 modifier = Modifier.weight(1f)
             )
             
             QuizBattleOutlinedButton(
                 text = "Profil",
-                onClick = onNavigateToProfile,
+                onClick = {
+                    haptic.lightTap()
+                    onNavigateToProfile()
+                },
                 modifier = Modifier.weight(1f)
             )
         }

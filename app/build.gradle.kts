@@ -24,11 +24,23 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Optional: Disable debugging features in release
+            isDebuggable = false
+            
+            // Optional: Version name suffix
+            versionNameSuffix = ""
+        }
+        debug {
+            isMinifyEnabled = false
+            isDebuggable = true
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-DEBUG"
         }
     }
     compileOptions {

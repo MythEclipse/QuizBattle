@@ -8,6 +8,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,6 +20,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mytheclipse.quizbattle.viewmodel.LobbyViewModel
+import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
+import com.mytheclipse.quizbattle.ui.components.ErrorState
+import com.mytheclipse.quizbattle.ui.components.LoadingState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,6 +33,7 @@ fun LobbyRoomScreen(
     viewModel: LobbyViewModel = viewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val haptic = rememberHapticFeedback()
     
     LaunchedEffect(lobbyId) {
         viewModel.observeLobbyEvents()
@@ -48,16 +54,34 @@ fun LobbyRoomScreen(
                         viewModel.leaveLobby()
                         onNavigateBack()
                     }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Leave")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Leave")
                     }
                 }
             )
         }
     ) { padding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+        ) {
+            when {
+                state.error != null -> {
+                    ErrorState(
+                        message = state.error ?: "Terjadi kesalahan di lobby",
+                        onRetry = {
+                            haptic.mediumTap()
+                            viewModel.observeLobbyEvents()
+                        }
+                    )
+                }
+                state.lobbyCode == null && state.players.isEmpty() && !state.gameStarting -> {
+                    LoadingState(message = "Menghubungkan ke lobby...")
+                }
+                else -> {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
                 .padding(16.dp)
         ) {
             // Lobby info card
@@ -128,7 +152,10 @@ fun LobbyRoomScreen(
             ) {
                 if (!state.isHost) {
                     Button(
-                        onClick = { viewModel.setReady(!state.isReady) },
+                        onClick = { 
+                            haptic.mediumTap()
+                            viewModel.setReady(!state.isReady) 
+                        },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = if (state.isReady) 
@@ -146,7 +173,10 @@ fun LobbyRoomScreen(
                     }
                 } else {
                     Button(
-                        onClick = { viewModel.startGame() },
+                        onClick = { 
+                            haptic.mediumTap()
+                            viewModel.startGame() 
+                        },
                         modifier = Modifier.weight(1f),
                         enabled = state.players.all { it.isReady || it.isHost }
                     ) {
@@ -158,14 +188,18 @@ fun LobbyRoomScreen(
                 
                 OutlinedButton(
                     onClick = {
+                        haptic.lightTap()
                         viewModel.leaveLobby()
                         onNavigateBack()
                     },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Icon(Icons.Default.ExitToApp, contentDescription = null)
+                    Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Leave")
+                }
+            }
+        }
                 }
             }
         }

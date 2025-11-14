@@ -14,6 +14,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
+import com.mytheclipse.quizbattle.utils.NetworkMonitor
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,10 +31,25 @@ fun OnlineMenuScreen(
     onNotifications: () -> Unit
 ) {
     val haptic = rememberHapticFeedback()
+    val context = LocalContext.current
+    val networkMonitor = remember { NetworkMonitor(context) }
+    val isConnected by networkMonitor.isConnected.collectAsState(initial = true)
+    
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Online Mode") },
+                title = { 
+                    Column {
+                        Text("Online Mode")
+                        if (!isConnected) {
+                            Text(
+                                text = "Offline",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
@@ -60,6 +77,35 @@ fun OnlineMenuScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Offline banner
+            if (!isConnected) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.CloudOff,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                        Text(
+                            text = "No internet connection. Online features unavailable.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    }
+                }
+            }
+            
             // Welcome card
             Card(
                 modifier = Modifier.fillMaxWidth(),

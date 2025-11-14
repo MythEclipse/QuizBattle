@@ -29,6 +29,10 @@ class WebSocketManager {
     private val _messages = MutableSharedFlow<Map<String, Any>>()
     val messages: SharedFlow<Map<String, Any>> = _messages
     
+    // Message queue for offline messages
+    private val messageQueue = mutableListOf<Map<String, Any>>()
+    private val maxQueueSize = 50
+    
     private var reconnectJob: Job? = null
     private var reconnectAttempts = 0
     private val maxReconnectAttempts = 5
@@ -65,6 +69,9 @@ class WebSocketManager {
                     )
                 )
                 sendMessage(authMessage)
+                
+                // Send queued messages
+                sendQueuedMessages()
             }
             
             override fun onMessage(webSocket: WebSocket, text: String) {
@@ -108,9 +115,65 @@ class WebSocketManager {
     fun sendMessage(message: Map<String, Any>) {
         try {
             val json = gson.toJson(message)
-            webSocket?.send(json)
+            val isConnected = _connectionState.value is ConnectionState.Connected
+            
+            if (isConnected && webSocket != null) {
+                webSocket?.send(json)
+            } else {
+                // Queue message if not connected
+                queueMessage(message)
+            }
         } catch (e: Exception) {
             e.printStackTrace()
+            // Queue message on error
+            queueMessage(message)
+        }
+    }
+    
+    private fun queueMessage(message: Map<String, Any>) {
+        synchronized(messageQueue) {
+            if (messageQueue.size < maxQueueSize) {
+                messageQueue.add(message)
+            } else {
+                // Remove oldest message if queue is full
+                messageQueue.removeAt(0)
+                messageQueue.add(message)
+            }
+        }
+    }
+    
+    private fun sendQueuedMessages() {
+        synchronized(messageQueue) {
+            if (messageQueue.isNotEmpty()) {
+                val messagesToSend = messageQueue.toList()
+                messageQueue.clear()
+                
+                scope.launch {
+                    messagesToSend.forEach { message ->
+                        delay(100) // Small delay between messages
+                        try {
+                            val json = gson.toJson(message)
+                            webSocket?.send(json)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            // Re-queue failed message
+                            queueMessage(message)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    fun clearMessageQueue() {
+        synchronized(messageQueue) {
+            messageQueue.clear()
+        }
+    }
+    
+    fun getQueuedMessageCount(): Int {
+        synchronized(messageQueue) {
+            return messageQueue.size
         }
     }
     

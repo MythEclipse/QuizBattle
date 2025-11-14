@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.mytheclipse.quizbattle.ui.components.QuizBattleButton
 import com.mytheclipse.quizbattle.ui.components.QuizBattleTextField
 import com.mytheclipse.quizbattle.ui.theme.*
+import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
 
 @Composable
 fun ResetPasswordScreen(
@@ -23,6 +24,7 @@ fun ResetPasswordScreen(
 ) {
     var email by remember { mutableStateOf("") }
     var showSuccessDialog by remember { mutableStateOf(false) }
+    val haptic = rememberHapticFeedback()
     
     Box(
         modifier = Modifier
@@ -77,6 +79,7 @@ fun ResetPasswordScreen(
             QuizBattleButton(
                 text = "Kirim",
                 onClick = {
+                    haptic.mediumTap()
                     // TODO: Add email validation and reset password logic
                     showSuccessDialog = true
                 },

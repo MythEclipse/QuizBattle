@@ -18,8 +18,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mytheclipse.quizbattle.ui.components.QuizBattleButton
 import com.mytheclipse.quizbattle.ui.components.QuizBattlePasswordField
 import com.mytheclipse.quizbattle.ui.components.QuizBattleTextField
+import com.mytheclipse.quizbattle.ui.components.ErrorState
+import com.mytheclipse.quizbattle.ui.components.LoadingState
 import com.mytheclipse.quizbattle.ui.theme.*
 import com.mytheclipse.quizbattle.viewmodel.AuthViewModel
+import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
 
 @Composable
 fun LoginScreen(
@@ -30,6 +33,7 @@ fun LoginScreen(
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    val haptic = rememberHapticFeedback()
     
     val authState by viewModel.authState.collectAsState()
     
@@ -46,6 +50,21 @@ fun LoginScreen(
             .fillMaxSize()
             .padding(horizontal = 24.dp)
     ) {
+        // Loading & Error full-screen states
+        when {
+            authState.isLoading -> {
+                LoadingState(message = "Masuk...")
+            }
+            authState.error != null -> {
+                ErrorState(
+                    message = authState.error!!,
+                    onRetry = {
+                        haptic.mediumTap()
+                        viewModel.login(email, password)
+                    }
+                )
+            }
+            else -> {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -132,29 +151,12 @@ fun LoginScreen(
             QuizBattleButton(
                 text = "Masuk",
                 onClick = {
+                    haptic.mediumTap()
                     viewModel.login(email, password)
                 },
                 enabled = !authState.isLoading,
                 modifier = Modifier.fillMaxWidth()
             )
-            
-            // Show loading or error
-            if (authState.isLoading) {
-                Spacer(modifier = Modifier.height(16.dp))
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
-            }
-            
-            if (authState.error != null) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = authState.error!!,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
-            }
             
             Spacer(modifier = Modifier.height(16.dp))
             
@@ -177,6 +179,8 @@ fun LoginScreen(
             }
             
             Spacer(modifier = Modifier.height(24.dp))
+        }
+            }
         }
     }
 }

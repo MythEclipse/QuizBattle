@@ -17,6 +17,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mytheclipse.quizbattle.ui.components.EmptyState
+import com.mytheclipse.quizbattle.ui.components.ErrorState
+import com.mytheclipse.quizbattle.ui.components.LoadingState
 import com.mytheclipse.quizbattle.viewmodel.DailyMissionsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,40 +88,28 @@ fun MissionsTab(
     onClaimReward: (String) -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
-        if (isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center)
-            )
-        } else if (missions.isEmpty()) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(32.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    Icons.Default.CheckCircle,
-                    contentDescription = null,
-                    modifier = Modifier.size(64.dp),
-                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    "All missions completed!",
-                    style = MaterialTheme.typography.titleLarge
+        when {
+            isLoading -> {
+                LoadingState(message = "Memuat misi...")
+            }
+            missions.isEmpty() -> {
+                EmptyState(
+                    icon = Icons.Default.CheckCircle,
+                    title = "Semua Misi Selesai!",
+                    message = "Cek lagi besok untuk misi baru"
                 )
             }
-        } else {
-            LazyColumn(
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(missions) { mission ->
-                    MissionItem(
-                        mission = mission,
-                        onClaimReward = { onClaimReward(mission.missionId) }
-                    )
+            else -> {
+                LazyColumn(
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(missions) { mission ->
+                        MissionItem(
+                            mission = mission,
+                            onClaimReward = { onClaimReward(mission.missionId) }
+                        )
+                    }
                 }
             }
         }

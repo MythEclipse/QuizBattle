@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,7 +15,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
 import com.mytheclipse.quizbattle.viewmodel.RankedViewModel
+import com.mytheclipse.quizbattle.ui.components.ErrorState
+import com.mytheclipse.quizbattle.ui.components.LoadingState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,6 +28,7 @@ fun RankedScreen(
     viewModel: RankedViewModel = viewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val haptic = rememberHapticFeedback()
     
     LaunchedEffect(Unit) {
         viewModel.loadRankedStats()
@@ -34,16 +40,34 @@ fun RankedScreen(
                 title = { Text("Ranked Mode") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
         }
     ) { padding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+        ) {
+            when {
+                state.isLoading -> {
+                    LoadingState(message = "Memuat ranked...")
+                }
+                state.error != null -> {
+                    ErrorState(
+                        message = state.error ?: "Gagal memuat data ranked",
+                        onRetry = {
+                            haptic.mediumTap()
+                            viewModel.loadRankedStats()
+                        }
+                    )
+                }
+                else -> {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -118,7 +142,7 @@ fun RankedScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     
                     LinearProgressIndicator(
-                        progress = state.rankedPoints / 100f,
+                        progress = { state.rankedPoints / 100f },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(8.dp),
@@ -144,7 +168,7 @@ fun RankedScreen(
                     modifier = Modifier.weight(1f),
                     label = "Win Rate",
                     value = "${state.winRate}%",
-                    icon = Icons.Default.TrendingUp
+                    icon = Icons.AutoMirrored.Filled.TrendingUp
                 )
                 
                 StatCard(
@@ -180,7 +204,10 @@ fun RankedScreen(
             
             // Play Button
             Button(
-                onClick = onStartRanked,
+                onClick = {
+                    haptic.mediumTap()
+                    onStartRanked()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
@@ -192,6 +219,9 @@ fun RankedScreen(
                     text = "Play Ranked",
                     style = MaterialTheme.typography.titleMedium
                 )
+            }
+        }
+                }
             }
         }
     }

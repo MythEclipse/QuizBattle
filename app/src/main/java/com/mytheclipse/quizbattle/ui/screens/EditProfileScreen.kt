@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,6 +14,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mytheclipse.quizbattle.viewmodel.ProfileViewModel
+import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
+import com.mytheclipse.quizbattle.ui.components.ErrorState
+import com.mytheclipse.quizbattle.ui.components.LoadingState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -21,6 +25,7 @@ fun EditProfileScreen(
     viewModel: ProfileViewModel = viewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val haptic = rememberHapticFeedback()
     
     var username by remember { mutableStateOf(state.username) }
     var email by remember { mutableStateOf(state.email) }
@@ -38,7 +43,7 @@ fun EditProfileScreen(
                 title = { Text("Edit Profile") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                     }
                 }
             )
@@ -49,6 +54,21 @@ fun EditProfileScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
+            // Show full-screen states on initial load/error
+            when {
+                state.isLoading && state.username.isEmpty() && state.email.isEmpty() -> {
+                    LoadingState(message = "Memuat profil...")
+                }
+                state.error != null && state.username.isEmpty() && state.email.isEmpty() -> {
+                    ErrorState(
+                        message = state.error ?: "Gagal memuat profil",
+                        onRetry = {
+                            haptic.mediumTap()
+                            viewModel.loadProfile()
+                        }
+                    )
+                }
+                else -> {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -101,6 +121,7 @@ fun EditProfileScreen(
                         // Save Button
                         Button(
                             onClick = {
+                                haptic.mediumTap()
                                 viewModel.updateProfile(username, email)
                                 showSuccessDialog = true
                             },
@@ -189,6 +210,8 @@ fun EditProfileScreen(
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
                     }
+                }
+            }
                 }
             }
 

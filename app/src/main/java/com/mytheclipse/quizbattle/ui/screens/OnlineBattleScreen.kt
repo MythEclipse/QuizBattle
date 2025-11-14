@@ -13,7 +13,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
 import com.mytheclipse.quizbattle.viewmodel.OnlineGameViewModel
+import com.mytheclipse.quizbattle.ui.components.ErrorState
+import com.mytheclipse.quizbattle.ui.components.LoadingState
 
 @Composable
 fun OnlineBattleScreen(
@@ -22,6 +25,7 @@ fun OnlineBattleScreen(
     viewModel: OnlineGameViewModel = viewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val haptic = rememberHapticFeedback()
     
     LaunchedEffect(matchId) {
         viewModel.connectToMatch(matchId)
@@ -75,17 +79,18 @@ fun OnlineBattleScreen(
                 QuestionSection(
                     question = state.currentQuestion!!,
                     onAnswerSelected = { answer ->
+                        haptic.mediumTap()
                         viewModel.submitAnswer(answer)
                     },
                     isAnswered = state.isAnswered
                 )
+            } else if (state.error != null) {
+                ErrorState(
+                    message = state.error ?: "Koneksi terputus",
+                    onRetry = { viewModel.connectToMatch(matchId) }
+                )
             } else {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
+                LoadingState("Menunggu pertanyaan...")
             }
         }
         

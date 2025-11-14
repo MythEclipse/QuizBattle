@@ -17,6 +17,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mytheclipse.quizbattle.ui.components.EmptyState
+import com.mytheclipse.quizbattle.ui.components.ErrorState
+import com.mytheclipse.quizbattle.ui.components.LoadingState
 import com.mytheclipse.quizbattle.viewmodel.NotificationViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,37 +54,24 @@ fun NotificationScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            if (state.isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
+            when {
+                state.isLoading -> {
+                    LoadingState(message = "Memuat notifikasi...")
                 }
-            } else if (state.notifications.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Icon(
-                            Icons.Default.Notifications,
-                            contentDescription = null,
-                            modifier = Modifier.size(64.dp),
-                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            "No notifications yet",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                        )
-                    }
+                state.error != null -> {
+                    ErrorState(
+                        message = state.error ?: "Gagal memuat notifikasi",
+                        onRetry = { viewModel.loadNotifications() }
+                    )
                 }
-            } else {
+                state.notifications.isEmpty() -> {
+                    EmptyState(
+                        icon = Icons.Default.Notifications,
+                        title = "Belum Ada Notifikasi",
+                        message = "Notifikasi Anda akan muncul di sini"
+                    )
+                }
+                else -> {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(16.dp),
@@ -94,6 +84,7 @@ fun NotificationScreen(
                             onDelete = { viewModel.deleteNotification(notification.notificationId) }
                         )
                     }
+                }
                 }
             }
         }

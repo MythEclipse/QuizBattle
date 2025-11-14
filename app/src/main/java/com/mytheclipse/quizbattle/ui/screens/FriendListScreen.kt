@@ -21,6 +21,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mytheclipse.quizbattle.ui.theme.*
+import com.mytheclipse.quizbattle.ui.components.EmptyState
+import com.mytheclipse.quizbattle.ui.components.SkeletonList
+import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
 
 data class Friend(
     val name: String,
@@ -32,6 +35,8 @@ fun FriendListScreen(
     onNavigateBack: () -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    val haptic = rememberHapticFeedback()
     
     // Sample friends data
     val friends = remember {
@@ -82,7 +87,10 @@ fun FriendListScreen(
                 color = Color.Black
             )
             
-            IconButton(onClick = { /* Add friend */ }) {
+            IconButton(onClick = { 
+                haptic.lightTap()
+                /* Add friend */ 
+            }) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Add friend",
@@ -123,21 +131,71 @@ fun FriendListScreen(
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        // Friends list
-        LazyColumn(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            items(filteredFriends) { friend ->
-                FriendItem(
-                    friend = friend,
-                    onClick = { /* Handle friend click */ }
-                )
-                
-                Divider(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    color = BorderSeparator,
-                    thickness = 1.dp
-                )
+        // Friends list with states
+        Box(modifier = Modifier.fillMaxSize()) {
+            when {
+                isLoading -> {
+                    SkeletonList(
+                        itemCount = 8,
+                        itemSkeleton = {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(CircleShape)
+                                        .background(Color.LightGray)
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .width(150.dp)
+                                        .height(20.dp)
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(Color.LightGray)
+                                )
+                            }
+                        }
+                    )
+                }
+                filteredFriends.isEmpty() && searchQuery.isNotEmpty() -> {
+                    EmptyState(
+                        icon = Icons.Default.Search,
+                        title = "Tidak ada teman ditemukan",
+                        message = "Coba kata kunci lain"
+                    )
+                }
+                friends.isEmpty() -> {
+                    EmptyState(
+                        icon = Icons.Default.Add,
+                        title = "Belum ada teman",
+                        message = "Tambahkan teman untuk bermain bersama",
+                        actionText = "Cari Teman",
+                        onAction = { /* Navigate to search */ }
+                    )
+                }
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(filteredFriends) { friend ->
+                            FriendItem(
+                                friend = friend,
+                                onClick = { /* Handle friend click */ }
+                            )
+                            
+                            Divider(
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                                color = BorderSeparator,
+                                thickness = 1.dp
+                            )
+                        }
+                    }
+                }
             }
         }
     }

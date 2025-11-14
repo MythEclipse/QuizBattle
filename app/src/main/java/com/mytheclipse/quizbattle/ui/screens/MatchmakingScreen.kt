@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mytheclipse.quizbattle.ui.components.ErrorState
+import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
 import com.mytheclipse.quizbattle.viewmodel.MatchmakingViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,6 +29,7 @@ fun MatchmakingScreen(
     viewModel: MatchmakingViewModel = viewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val haptic = rememberHapticFeedback()
     
     LaunchedEffect(state.matchFound) {
         if (state.matchFound != null) {
@@ -81,7 +84,10 @@ fun MatchmakingScreen(
                     Spacer(modifier = Modifier.height(48.dp))
                     
                     Button(
-                        onClick = { viewModel.cancelMatchmaking() },
+                        onClick = {
+                            haptic.mediumTap()
+                            viewModel.cancelMatchmaking()
+                        },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.error
                         )
