@@ -13,6 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mytheclipse.quizbattle.ui.components.EmptyState
+import com.mytheclipse.quizbattle.ui.components.ErrorState
+import com.mytheclipse.quizbattle.ui.components.LobbyItemSkeleton
+import com.mytheclipse.quizbattle.ui.components.SkeletonList
 import com.mytheclipse.quizbattle.viewmodel.LobbyViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,46 +75,38 @@ fun LobbyListScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            if (state.isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            } else if (state.lobbies.isEmpty()) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(32.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        Icons.Default.MeetingRoom,
-                        contentDescription = null,
-                        modifier = Modifier.size(64.dp),
-                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        "No lobbies available",
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        "Create one or join by code",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            when {
+                state.isLoading -> {
+                    SkeletonList(itemCount = 6) {
+                        LobbyItemSkeleton()
+                    }
+                }
+                state.error != null -> {
+                    ErrorState(
+                        message = state.error ?: "Gagal memuat lobby",
+                        onRetry = { viewModel.listLobbies() }
                     )
                 }
-            } else {
-                LazyColumn(
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(state.lobbies) { lobby ->
-                        LobbyItem(
-                            lobby = lobby,
-                            onJoin = { viewModel.joinLobby(lobby.lobbyId) }
-                        )
+                state.lobbies.isEmpty() -> {
+                    EmptyState(
+                        icon = Icons.Default.MeetingRoom,
+                        title = "Belum Ada Lobby",
+                        message = "Buat lobby baru atau join dengan kode",
+                        actionText = "Buat Lobby",
+                        onAction = { showCreateDialog = true }
+                    )
+                }
+                else -> {
+                    LazyColumn(
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(state.lobbies) { lobby ->
+                            LobbyItem(
+                                lobby = lobby,
+                                onJoin = { viewModel.joinLobby(lobby.lobbyId) }
+                            )
+                        }
                     }
                 }
             }

@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,6 +28,7 @@ fun OnlineMenuScreen(
     onMissions: () -> Unit,
     onNotifications: () -> Unit
 ) {
+    val haptic = rememberHapticFeedback()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -95,7 +97,10 @@ fun OnlineMenuScreen(
                 title = "Quick Match",
                 description = "Find a random opponent quickly",
                 icon = Icons.Default.Bolt,
-                onClick = onQuickMatch
+                onClick = {
+                    haptic.lightTap()
+                    onQuickMatch()
+                }
             )
             
             // Ranked match
@@ -103,7 +108,10 @@ fun OnlineMenuScreen(
                 title = "Ranked Match",
                 description = "Compete for rank and rating",
                 icon = Icons.Default.EmojiEvents,
-                onClick = onRankedMatch
+                onClick = {
+                    haptic.lightTap()
+                    onRankedMatch()
+                }
             )
             
             // Lobbies
@@ -111,7 +119,10 @@ fun OnlineMenuScreen(
                 title = "Lobbies",
                 description = "Create or join custom lobbies",
                 icon = Icons.Default.MeetingRoom,
-                onClick = onLobbyList
+                onClick = {
+                    haptic.lightTap()
+                    onLobbyList()
+                }
             )
             
             Spacer(modifier = Modifier.height(8.dp))

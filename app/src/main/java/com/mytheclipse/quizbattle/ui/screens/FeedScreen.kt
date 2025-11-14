@@ -17,6 +17,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mytheclipse.quizbattle.ui.components.EmptyState
+import com.mytheclipse.quizbattle.ui.components.ErrorState
+import com.mytheclipse.quizbattle.ui.components.PostItemSkeleton
+import com.mytheclipse.quizbattle.ui.components.SkeletonList
 import com.mytheclipse.quizbattle.viewmodel.SocialMediaViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,49 +65,41 @@ fun FeedScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            if (state.isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            } else if (state.posts.isEmpty()) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(32.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        Icons.Default.Article,
-                        contentDescription = null,
-                        modifier = Modifier.size(64.dp),
-                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        "No posts yet",
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        "Be the first to share something!",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            when {
+                state.isLoading -> {
+                    SkeletonList(itemCount = 5) {
+                        PostItemSkeleton()
+                    }
+                }
+                state.error != null -> {
+                    ErrorState(
+                        message = state.error ?: "Gagal memuat postingan",
+                        onRetry = { viewModel.loadPosts() }
                     )
                 }
-            } else {
-                LazyColumn(
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(state.posts) { post ->
-                        PostItem(
-                            post = post,
-                            onLike = { viewModel.likePost(post.postId) },
-                            onUnlike = { viewModel.unlikePost(post.postId) },
-                            onComment = { /* Navigate to comments */ },
-                            onDelete = { viewModel.deletePost(post.postId) }
-                        )
+                state.posts.isEmpty() -> {
+                    EmptyState(
+                        icon = Icons.Default.Article,
+                        title = "Belum Ada Postingan",
+                        message = "Jadilah yang pertama berbagi sesuatu!",
+                        actionText = "Buat Postingan",
+                        onAction = onCreatePost
+                    )
+                }
+                else -> {
+                    LazyColumn(
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(state.posts) { post ->
+                            PostItem(
+                                post = post,
+                                onLike = { viewModel.likePost(post.postId) },
+                                onUnlike = { viewModel.unlikePost(post.postId) },
+                                onComment = { /* Navigate to comments */ },
+                                onDelete = { viewModel.deletePost(post.postId) }
+                            )
+                        }
                     }
                 }
             }

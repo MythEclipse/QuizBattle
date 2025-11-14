@@ -17,6 +17,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mytheclipse.quizbattle.ui.components.EmptyState
+import com.mytheclipse.quizbattle.ui.components.ErrorState
+import com.mytheclipse.quizbattle.ui.components.LeaderboardItemSkeleton
+import com.mytheclipse.quizbattle.ui.components.SkeletonList
 import com.mytheclipse.quizbattle.viewmodel.OnlineLeaderboardViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -112,41 +116,52 @@ fun LeaderboardScreen(
             }
             
             Box(modifier = Modifier.fillMaxSize()) {
-                if (state.isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                } else if (state.leaderboard.isEmpty()) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(32.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Icon(
-                            Icons.Default.Leaderboard,
-                            contentDescription = null,
-                            modifier = Modifier.size(64.dp),
-                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            "No rankings yet",
-                            style = MaterialTheme.typography.titleLarge
+                when {
+                    state.isLoading -> {
+                        // Show skeleton loading
+                        SkeletonList(itemCount = 10) {
+                            LeaderboardItemSkeleton()
+                        }
+                    }
+                    state.error != null -> {
+                        // Show error state
+                        ErrorState(
+                            message = state.error ?: "Terjadi kesalahan",
+                            onRetry = {
+                                if (selectedTab == 0) {
+                                    viewModel.loadGlobalLeaderboard()
+                                } else {
+                                    viewModel.loadFriendsLeaderboard()
+                                }
+                            }
                         )
                     }
-                } else {
-                    LazyColumn(
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        itemsIndexed(state.leaderboard) { index, entry ->
-                            LeaderboardItem(
-                                rank = index + 1,
-                                entry = entry,
-                                isCurrentUser = entry.isCurrentUser
-                            )
+                    state.leaderboard.isEmpty() -> {
+                        // Show empty state
+                        EmptyState(
+                            icon = Icons.Default.Leaderboard,
+                            title = if (selectedTab == 0) "Belum Ada Ranking" else "Belum Ada Teman",
+                            message = if (selectedTab == 0) 
+                                "Belum ada pemain di leaderboard" 
+                            else 
+                                "Tambahkan teman untuk melihat ranking mereka",
+                            actionText = if (selectedTab == 1) "Cari Teman" else null,
+                            onAction = if (selectedTab == 1) { { /* Navigate to friends */ } } else null
+                        )
+                    }
+                    else -> {
+                        // Show leaderboard list
+                        LazyColumn(
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            itemsIndexed(state.leaderboard) { index, entry ->
+                                LeaderboardItem(
+                                    rank = index + 1,
+                                    entry = entry,
+                                    isCurrentUser = entry.isCurrentUser
+                                )
+                            }
                         }
                     }
                 }

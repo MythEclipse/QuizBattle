@@ -13,6 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mytheclipse.quizbattle.ui.components.ChatRoomItemSkeleton
+import com.mytheclipse.quizbattle.ui.components.EmptyState
+import com.mytheclipse.quizbattle.ui.components.ErrorState
+import com.mytheclipse.quizbattle.ui.components.SkeletonList
 import com.mytheclipse.quizbattle.viewmodel.ChatViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,40 +56,38 @@ fun ChatListScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            if (state.isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            } else if (state.rooms.isEmpty()) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(32.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        Icons.Default.ChatBubbleOutline,
-                        contentDescription = null,
-                        modifier = Modifier.size(64.dp),
-                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        "No chats yet",
-                        style = MaterialTheme.typography.titleLarge
+            when {
+                state.isLoading -> {
+                    SkeletonList(itemCount = 8) {
+                        ChatRoomItemSkeleton()
+                    }
+                }
+                state.error != null -> {
+                    ErrorState(
+                        message = state.error ?: "Gagal memuat chat",
+                        onRetry = { viewModel.loadChatRooms() }
                     )
                 }
-            } else {
-                LazyColumn(
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(state.rooms) { room ->
-                        ChatRoomItem(
-                            room = room,
-                            onClick = { onRoomSelected(room.roomId, room.roomName) }
-                        )
+                state.rooms.isEmpty() -> {
+                    EmptyState(
+                        icon = Icons.Default.ChatBubbleOutline,
+                        title = "Belum Ada Chat",
+                        message = "Mulai percakapan baru dengan teman Anda",
+                        actionText = "Buat Chat Baru",
+                        onAction = { /* Show create room dialog */ }
+                    )
+                }
+                else -> {
+                    LazyColumn(
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(state.rooms) { room ->
+                            ChatRoomItem(
+                                room = room,
+                                onClick = { onRoomSelected(room.roomId, room.roomName) }
+                            )
+                        }
                     }
                 }
             }
