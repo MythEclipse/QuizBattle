@@ -453,31 +453,38 @@ dokumentasi api "D:\QuizBattle\api.md"
 ## 🧪 Phase 12: Testing & Error Handling
 
 ### 12.1 Error Handling
-- [ ] Buat `data/remote/ApiException.kt` untuk custom exceptions
-- [ ] Implement global error handler di Retrofit
-- [ ] Handle network errors:
-  - [ ] No internet connection
-  - [ ] Timeout
-  - [ ] Server errors (500)
-  - [ ] Authentication errors (401)
-  - [ ] Not found (404)
+- [x] Buat `data/remote/ApiException.kt` untuk custom exceptions
+- [x] Implement global error handler di Retrofit
+- [x] Handle network errors:
+  - [x] No internet connection
+  - [x] Timeout
+  - [x] Server errors (500)
+  - [x] Authentication errors (401)
+  - [x] Not found (404)
 
 ### 12.2 Loading States
-- [ ] Buat `data/model/Resource.kt` untuk wrapper (Loading, Success, Error)
+- [x] Buat `data/model/Resource.kt` untuk wrapper (Loading, Success, Error)
+- [x] Buat UI components untuk error/loading/empty states
+- [x] Buat loading skeleton components (shimmer effect)
 - [ ] Update semua ViewModels untuk emit loading states
-- [ ] UI loading indicators di semua screens
 
 ### 12.3 WebSocket Reliability
-- [ ] Auto-reconnect saat connection lost
+- [x] Auto-reconnect saat connection lost (already in WebSocketManager)
 - [ ] Queue messages saat disconnected
 - [ ] Show connection status di UI
-- [ ] Handle "opponent disconnected" scenario
+- [x] Handle "opponent disconnected" scenario (already handled)
 
 ### 12.4 Testing
 - [ ] Unit tests untuk repositories
 - [ ] Integration tests untuk API calls
 - [ ] UI tests untuk critical flows (login, matchmaking, game)
 - [ ] WebSocket connection tests
+
+### 12.5 Feedback & UX
+- [x] Buat HapticFeedback utility untuk vibration
+- [x] Buat SoundEffects manager (skeleton, needs audio files)
+- [x] Buat NetworkMonitor untuk connection status
+- [x] Add VIBRATE permission to AndroidManifest
 
 ---
 
@@ -508,16 +515,20 @@ dokumentasi api "D:\QuizBattle\api.md"
 ### 14.1 Animations
 - [ ] Match found celebration animation
 - [ ] Victory/defeat animations untuk online
-- [ ] Loading skeletons untuk list screens
+- [x] Loading skeletons untuk list screens (shimmer effect done)
 - [ ] Smooth transitions antar screens
 
 ### 14.2 Feedback
-- [ ] Haptic feedback untuk button clicks
-- [ ] Sound effects untuk game events
+- [x] Haptic feedback untuk button clicks (utility ready)
+- [x] Sound effects untuk game events (skeleton ready, needs audio)
 - [ ] Toast messages untuk success/error
 - [ ] Dialogs untuk confirmations
 
 ### 14.3 Empty States
+- [x] Empty state component (generic)
+- [x] Error state component with retry
+- [x] Loading state component
+- [ ] Apply to all screens
 - [ ] Empty leaderboard
 - [ ] No friends yet
 - [ ] No notifications
@@ -681,11 +692,21 @@ dokumentasi api "D:\QuizBattle\api.md"
    - SettingsScreen.kt with preferences
    - ProfileViewModel.kt with local DB integration
 
-### 📝 PENDING (Minor Polish)
-- Error handling UI improvements
-- Loading skeleton screens
-- Push notifications (FCM integration)
-- Analytics tracking
+7. **Error Handling & UX** ✅
+   - ApiException for custom error types
+   - Resource wrapper (Loading/Success/Error)
+   - ErrorHandlerInterceptor for Retrofit
+   - StateComponents (Error/Loading/Empty states)
+   - SkeletonLoading with shimmer effect
+   - HapticFeedback utility
+   - SoundEffects manager (skeleton)
+   - NetworkMonitor for connectivity
+
+### 📝 PENDING (Polish & Testing)
+- Apply loading states to all ViewModels
+- Unit & integration tests
+- UI animations & transitions
+- Sound effect audio files
 - Beta testing & bug fixes
 
 ### 📊 Overall Status
@@ -693,17 +714,20 @@ dokumentasi api "D:\QuizBattle\api.md"
 - **UI Screens**: ✅ 100% COMPLETE (18 screens implemented)
 - **Navigation**: ✅ COMPLETE
 - **Profile System**: ✅ COMPLETE
+- **Error Handling**: ✅ COMPLETE
+- **UX Components**: ✅ 90% COMPLETE
 - **Ready for Testing**: ✅ YES
 
-**Next Priority**: Integration testing with real API server
+**Next Priority**: Apply error handling & loading states to existing screens
 
 ---
 
 **Created**: November 13, 2025
 **Last Updated**: November 14, 2025
-**Version**: 2.1
+**Version**: 2.2
 **Backend Status**: ✅ COMPLETE
 **UI Status**: ✅ 100% COMPLETE
-**Estimated Full Completion**: 1-2 days (polish & testing)
+**Error Handling**: ✅ COMPLETE
+**Estimated Full Completion**: 1 day (testing & polish)
 
 
