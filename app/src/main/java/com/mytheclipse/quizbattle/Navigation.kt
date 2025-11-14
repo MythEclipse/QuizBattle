@@ -42,6 +42,7 @@ sealed class Screen(val route: String) {
     object CreatePost : Screen("create_post")
     object Notifications : Screen("notifications")
     object Profile : Screen("profile")
+    object EditProfile : Screen("edit_profile")
     object Settings : Screen("settings")
     object Missions : Screen("missions")
     object Ranked : Screen("ranked")
@@ -291,6 +292,36 @@ fun QuizBattleNavigation(
         composable(Screen.Leaderboard.route) {
             LeaderboardScreen(
                 onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        
+        composable(Screen.Profile.route) {
+            ProfileScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToEdit = { navController.navigate(Screen.EditProfile.route) },
+                onNavigateToSettings = { navController.navigate(Screen.Settings.route) },
+                onLogout = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
+        }
+        
+        composable(Screen.EditProfile.route) {
+            EditProfileScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        
+        composable(Screen.Settings.route) {
+            SettingsScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onDeleteAccount = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
             )
         }
     }
