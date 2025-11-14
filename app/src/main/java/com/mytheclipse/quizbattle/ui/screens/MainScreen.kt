@@ -32,6 +32,10 @@ import com.mytheclipse.quizbattle.viewmodel.MainViewModel
 fun MainScreen(
     onNavigateToBattle: () -> Unit,
     onNavigateToFriendList: () -> Unit,
+    onNavigateToOnlineMenu: () -> Unit = {},
+    onNavigateToFeed: () -> Unit = {},
+    onNavigateToNotifications: () -> Unit = {},
+    onNavigateToProfile: () -> Unit = {},
     viewModel: MainViewModel = viewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -167,19 +171,31 @@ fun MainScreen(
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        QuizBattleOutlinedButton(
-            text = "Main Online (Coming Soon)",
-            onClick = { /* Coming Soon */ },
+        QuizBattleButton(
+            text = "Main Online",
+            onClick = onNavigateToOnlineMenu,
+            backgroundColor = MaterialTheme.colorScheme.tertiary,
             modifier = Modifier.fillMaxWidth()
         )
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        QuizBattleOutlinedButton(
-            text = "Tantangan Teman (Coming Soon)",
-            onClick = { /* Coming Soon */ },
-            modifier = Modifier.fillMaxWidth()
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            QuizBattleOutlinedButton(
+                text = "Feed",
+                onClick = onNavigateToFeed,
+                modifier = Modifier.weight(1f)
+            )
+            
+            QuizBattleOutlinedButton(
+                text = "Profil",
+                onClick = onNavigateToProfile,
+                modifier = Modifier.weight(1f)
+            )
+        }
         
         Spacer(modifier = Modifier.height(24.dp))
     }

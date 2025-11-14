@@ -20,6 +20,32 @@ sealed class Screen(val route: String) {
         fun createRoute(isVictory: Boolean) = "battle_result/$isVictory"
     }
     object FriendList : Screen("friend_list")
+    
+    // Online Mode Screens
+    object OnlineMenu : Screen("online_menu")
+    object Matchmaking : Screen("matchmaking")
+    object OnlineBattle : Screen("online_battle/{matchId}") {
+        fun createRoute(matchId: String) = "online_battle/$matchId"
+    }
+    object OnlineBattleResult : Screen("online_battle_result/{isVictory}") {
+        fun createRoute(isVictory: Boolean) = "online_battle_result/$isVictory"
+    }
+    object LobbyList : Screen("lobby_list")
+    object Lobby : Screen("lobby/{lobbyId}") {
+        fun createRoute(lobbyId: String) = "lobby/$lobbyId"
+    }
+    object ChatList : Screen("chat_list")
+    object ChatRoom : Screen("chat_room/{roomId}") {
+        fun createRoute(roomId: String) = "chat_room/$roomId"
+    }
+    object Feed : Screen("feed")
+    object CreatePost : Screen("create_post")
+    object Notifications : Screen("notifications")
+    object Profile : Screen("profile")
+    object Settings : Screen("settings")
+    object Missions : Screen("missions")
+    object Ranked : Screen("ranked")
+    object Leaderboard : Screen("leaderboard")
 }
 
 @Composable
@@ -87,6 +113,18 @@ fun QuizBattleNavigation(
                 },
                 onNavigateToFriendList = {
                     navController.navigate(Screen.FriendList.route)
+                },
+                onNavigateToOnlineMenu = {
+                    navController.navigate(Screen.OnlineMenu.route)
+                },
+                onNavigateToFeed = {
+                    navController.navigate(Screen.Feed.route)
+                },
+                onNavigateToNotifications = {
+                    navController.navigate(Screen.Notifications.route)
+                },
+                onNavigateToProfile = {
+                    navController.navigate(Screen.Profile.route)
                 }
             )
         }
@@ -128,6 +166,131 @@ fun QuizBattleNavigation(
                 onNavigateBack = {
                     navController.popBackStack()
                 }
+            )
+        }
+        
+        // Online Mode Screens
+        composable(Screen.OnlineMenu.route) {
+            OnlineMenuScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onQuickMatch = { navController.navigate(Screen.Matchmaking.route) },
+                onRankedMatch = { navController.navigate(Screen.Ranked.route) },
+                onLobbyList = { navController.navigate(Screen.LobbyList.route) },
+                onLeaderboard = { navController.navigate(Screen.Leaderboard.route) },
+                onFeed = { navController.navigate(Screen.Feed.route) },
+                onChat = { navController.navigate(Screen.ChatList.route) },
+                onMissions = { navController.navigate(Screen.Missions.route) },
+                onNotifications = { navController.navigate(Screen.Notifications.route) }
+            )
+        }
+        
+        composable(Screen.Matchmaking.route) {
+            MatchmakingScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onMatchFound = { matchId ->
+                    navController.navigate(Screen.OnlineBattle.createRoute(matchId)) {
+                        popUpTo(Screen.Matchmaking.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+        
+        composable(
+            route = Screen.OnlineBattle.route,
+            arguments = listOf(navArgument("matchId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val matchId = backStackEntry.arguments?.getString("matchId") ?: ""
+            OnlineBattleScreen(
+                matchId = matchId,
+                onGameFinished = {
+                    navController.navigate(Screen.OnlineMenu.route) {
+                        popUpTo(Screen.OnlineBattle.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+        
+        composable(Screen.LobbyList.route) {
+            LobbyListScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onLobbyJoined = { lobbyId ->
+                    navController.navigate(Screen.Lobby.createRoute(lobbyId))
+                }
+            )
+        }
+        
+        composable(
+            route = Screen.Lobby.route,
+            arguments = listOf(navArgument("lobbyId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val lobbyId = backStackEntry.arguments?.getString("lobbyId") ?: ""
+            LobbyRoomScreen(
+                lobbyId = lobbyId,
+                onNavigateBack = { navController.popBackStack() },
+                onGameStarting = { matchId ->
+                    navController.navigate(Screen.OnlineBattle.createRoute(matchId)) {
+                        popUpTo(Screen.Lobby.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+        
+        composable(Screen.ChatList.route) {
+            ChatListScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onRoomSelected = { roomId, roomName ->
+                    navController.navigate(Screen.ChatRoom.createRoute(roomId))
+                }
+            )
+        }
+        
+        composable(
+            route = Screen.ChatRoom.route,
+            arguments = listOf(navArgument("roomId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val roomId = backStackEntry.arguments?.getString("roomId") ?: ""
+            ChatRoomScreen(
+                roomId = roomId,
+                roomName = "Chat Room", // TODO: Pass room name
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        
+        composable(Screen.Feed.route) {
+            FeedScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onCreatePost = { navController.navigate(Screen.CreatePost.route) }
+            )
+        }
+        
+        composable(Screen.CreatePost.route) {
+            CreatePostScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        
+        composable(Screen.Notifications.route) {
+            NotificationScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        
+        composable(Screen.Missions.route) {
+            MissionsScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        
+        composable(Screen.Ranked.route) {
+            RankedScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onStartRanked = { navController.navigate(Screen.Matchmaking.route) }
+            )
+        }
+        
+        composable(Screen.Leaderboard.route) {
+            LeaderboardScreen(
+                onNavigateBack = { navController.popBackStack() }
             )
         }
     }

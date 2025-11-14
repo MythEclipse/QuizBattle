@@ -5,6 +5,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.mytheclipse.quizbattle.data.local.QuizBattleDatabase
 import com.mytheclipse.quizbattle.data.local.entity.User
+import com.mytheclipse.quizbattle.data.remote.ApiConfig
+import com.mytheclipse.quizbattle.data.remote.api.AuthApiService
+import com.mytheclipse.quizbattle.data.remote.api.LoginRequest
+import com.mytheclipse.quizbattle.data.remote.api.RegisterRequest
+import com.mytheclipse.quizbattle.data.repository.TokenRepository
 import com.mytheclipse.quizbattle.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,6 +27,8 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     
     private val database = QuizBattleDatabase.getDatabase(application)
     private val userRepository = UserRepository(database.userDao())
+    private val tokenRepository = TokenRepository(application)
+    private val authApiService = ApiConfig.createService(AuthApiService::class.java)
     
     private val _authState = MutableStateFlow(AuthState())
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
@@ -33,9 +40,13 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     private fun checkLoggedInUser() {
         viewModelScope.launch {
             try {
-                val user = userRepository.getLoggedInUser()
-                if (user != null) {
-                    _authState.value = AuthState(user = user)
+                val token = tokenRepository.getToken()
+                if (token != null) {
+                    ApiConfig.setAuthToken(token)
+                    val user = userRepository.getLoggedInUser()
+                    if (user != null) {
+                        _authState.value = AuthState(user = user)
+                    }
                 }
             } catch (e: Exception) {
                 // User not logged in
@@ -63,12 +74,47 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 return@launch
             }
             
-            // Register user
-            val result = userRepository.registerUser(username, email, password)
-            result.onSuccess { user ->
-                _authState.value = AuthState(isSuccess = true, user = user)
-            }.onFailure { exception ->
-                _authState.value = AuthState(error = exception.message ?: "Registrasi gagal")
+            try {
+                // Call API
+                val response = authApiService.register(
+                    RegisterRequest(name = username, email = email, password = password)
+                )
+                
+                if (response.success && response.data != null) {
+                    val authData = response.data
+                    
+                    // Save token
+                    tokenRepository.saveToken(authData.token)
+                    tokenRepository.saveUserId(authData.user.id)
+                    tokenRepository.saveUserName(authData.user.name ?: username)
+                    tokenRepository.saveUserEmail(authData.user.email ?: email)
+                    ApiConfig.setAuthToken(authData.token)
+                    
+                    // Save user to local database
+                    val localUser = User(
+                        id = 0,
+                        username = authData.user.name ?: username,
+                        email = authData.user.email ?: email,
+                        password = password,
+                        points = 0,
+                        wins = 0,
+                        losses = 0,
+                        totalGames = 0,
+                        isLoggedIn = true
+                    )
+                    
+                    val result = userRepository.registerUser(username, email, password)
+                    result.onSuccess { user ->
+                        _authState.value = AuthState(isSuccess = true, user = user)
+                    }.onFailure { exception ->
+                        _authState.value = AuthState(error = exception.message ?: "Registrasi gagal")
+                    }
+                } else {
+                    _authState.value = AuthState(error = response.error ?: "Registrasi gagal")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _authState.value = AuthState(error = e.message ?: "Terjadi kesalahan koneksi")
             }
         }
     }
@@ -83,18 +129,58 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 return@launch
             }
             
-            // Login user
-            val result = userRepository.loginUser(email, password)
-            result.onSuccess { user ->
-                _authState.value = AuthState(isSuccess = true, user = user)
-            }.onFailure { exception ->
-                _authState.value = AuthState(error = exception.message ?: "Login gagal")
+            try {
+                // Call API
+                val response = authApiService.login(
+                    LoginRequest(email = email, password = password)
+                )
+                
+                if (response.success && response.data != null) {
+                    val authData = response.data
+                    
+                    // Save token
+                    tokenRepository.saveToken(authData.token)
+                    tokenRepository.saveUserId(authData.user.id)
+                    tokenRepository.saveUserName(authData.user.name ?: "User")
+                    tokenRepository.saveUserEmail(authData.user.email ?: email)
+                    ApiConfig.setAuthToken(authData.token)
+                    
+                    // Login or create user in local database
+                    val result = userRepository.loginUser(email, password)
+                    
+                    if (result.isFailure) {
+                        // User doesn't exist locally, create it
+                        val registerResult = userRepository.registerUser(
+                            authData.user.name ?: "User",
+                            email,
+                            password
+                        )
+                        registerResult.onSuccess { user ->
+                            _authState.value = AuthState(isSuccess = true, user = user)
+                        }.onFailure { exception ->
+                            _authState.value = AuthState(error = exception.message ?: "Login gagal")
+                        }
+                    } else {
+                        result.onSuccess { user ->
+                            _authState.value = AuthState(isSuccess = true, user = user)
+                        }.onFailure { exception ->
+                            _authState.value = AuthState(error = exception.message ?: "Login gagal")
+                        }
+                    }
+                } else {
+                    _authState.value = AuthState(error = response.error ?: "Login gagal")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _authState.value = AuthState(error = e.message ?: "Terjadi kesalahan koneksi")
             }
         }
     }
     
     fun logout() {
         viewModelScope.launch {
+            tokenRepository.clearAll()
+            ApiConfig.setAuthToken(null)
             userRepository.logoutUser()
             _authState.value = AuthState()
         }
