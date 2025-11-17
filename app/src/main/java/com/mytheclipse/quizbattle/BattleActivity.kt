@@ -32,6 +32,7 @@ class BattleActivity : AppCompatActivity() {
     private var lastKnightTranslation: Float = 0f
     private var lastGoblinTranslation: Float = 0f
     private var advanceScheduled: Boolean = false
+    private var isNavigatingToResult: Boolean = false
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +86,9 @@ class BattleActivity : AppCompatActivity() {
                 }
                 
                 // Game over - wait for death animation to complete before navigating
-                if (state.isGameOver) {
+                if (state.isGameOver && !isNavigatingToResult) {
+                    isNavigatingToResult = true
+                    
                     val isVictory = when {
                         state.opponentHealth <= 0 && state.playerHealth > 0 -> true
                         state.playerHealth <= 0 && state.opponentHealth > 0 -> false
@@ -95,10 +98,16 @@ class BattleActivity : AppCompatActivity() {
                     // Calculate death animation duration
                     // Knight dead: 6 frames × 150ms = 900ms
                     // Goblin dead: 10 frames × 80ms = 800ms
-                    val deathAnimationDelay = if (isVictory) 900L else 900L // Always wait for full animation
+                    val deathAnimationDelay = 1500L
                     
                     handler.postDelayed({
-                        navigateToResult(isVictory)
+                        if (!isFinishing) {
+                            val intent = Intent(this@BattleActivity, BattleResultActivity::class.java).apply {
+                                putExtra(BattleResultActivity.EXTRA_IS_VICTORY, isVictory)
+                            }
+                            startActivity(intent)
+                            finish()
+                        }
                     }, deathAnimationDelay)
                     
                     return@collect
@@ -362,6 +371,8 @@ class BattleActivity : AppCompatActivity() {
     }
     
     private fun navigateToResult(isVictory: Boolean) {
+        if (isFinishing) return
+        
         val intent = Intent(this, BattleResultActivity::class.java).apply {
             putExtra(BattleResultActivity.EXTRA_IS_VICTORY, isVictory)
         }
@@ -372,5 +383,6 @@ class BattleActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         stopTimer()
+        handler.removeCallbacksAndMessages(null) // Cancel all pending handlers
     }
 }
