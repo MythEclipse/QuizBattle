@@ -1,93 +1,109 @@
-name: Android Release Workflow
+name: Auto Increment Release Android AAB and APK
 
 on:
   push:
     branches:
       - main
-    paths-ignore:
-      - '**.md'
 
 jobs:
-  release:
+  build_and_auto_release_android:
+    name: Build Android AAB & APK and Auto Increment Release
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Diperlukan untuk membuat tag dan release
-      
+      contents: write
+
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Penting untuk versioning berdasarkan git history
+          fetch-depth: 0
 
-      # --- STEP 1: AUTO VERSIONING & TAGGING ---
-      # Menghitung versi berikutnya (vX.Y.Z) berdasarkan commit messages
-      - name: Auto Versioning and Tagging
-        id: versioning
-        uses: mathieudutour/github-tag-action@v6.2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          default_bump: patch # 'fix:' -> PATCH, 'feat:' -> MINOR
-          
-      # --- STEP 2: SETUP JAVA & GRADLE ---
-      - name: Set up JDK 17
+      - name: Get Next Version
+        id: get_next_version
+        run: |
+          LATEST_TAG=$(gh release list --limit 1 --json tagName -q '.[0].tagName' || echo "v0.0.0")
+
+          if [[ "$LATEST_TAG" == "null" || -z "$LATEST_TAG" ]]; then
+            LATEST_TAG="v0.0.0"
+          fi
+          echo "Latest Release Tag: $LATEST_TAG"
+
+          VERSION_CORE=${LATEST_TAG#v}
+
+          IFS='.' read -r -a VERSION_PARTS <<< "$VERSION_CORE"
+          MAJOR=${VERSION_PARTS[0]:-0}
+          MINOR=${VERSION_PARTS[1]:-0}
+          PATCH=${VERSION_PARTS[2]:-0}
+
+          PATCH=$((PATCH + 1))
+
+          NEW_VERSION="v$MAJOR.$MINOR.$PATCH"
+          echo "Calculated New Version: $NEW_VERSION"
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "version_name=$MAJOR.$MINOR.$PATCH" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
-          
-      - name: Grant execute permission for gradlew
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Make gradlew executable
         run: chmod +x gradlew
 
-      # --- STEP 3: MENGATUR VERSION CODE & VERSION NAME ---
-      # Mengambil versi baru dan menginjeksikannya ke file build.gradle.kts
-      - name: Update Version in build.gradle.kts
+      - name: Update Android Version in build.gradle.kts
         run: |
-          VERSION_NAME=${{ steps.versioning.outputs.new_tag }} # Contoh: v1.0.1
-          SHORT_VERSION_NAME=${VERSION_NAME//v/}             # Contoh: 1.0.1
-          
-          # Version Code: 10001 untuk v1.0.1. Logika: Major * 10000 + Minor * 100 + Patch
-          VERSION_CODE=$(echo $SHORT_VERSION_NAME | awk -F'.' '{printf "%d%02d%02d", $1, $2, $3}')
-          
-          echo "New Version Name: $SHORT_VERSION_NAME (for versionName)"
-          echo "New Version Code: $VERSION_CODE (for versionCode)"
-          
-          # Contoh: Mengganti placeholder di build.gradle.kts (asumsi Kotlin DSL)
-          # Ini adalah asumsi struktur umum Android Gradle file
-          sed -i "s/versionName \".*\"/versionName \"$SHORT_VERSION_NAME\"/" app/build.gradle.kts
-          sed -i "s/versionCode [0-9]*/versionCode $VERSION_CODE/" app/build.gradle.kts
+          VERSION_NAME_FROM_STEP="${{ steps.get_next_version.outputs.version_name }}"
+          VERSION_CODE_FROM_RUN_NUMBER=${{ github.run_number }}
+          echo "Updating app/build.gradle.kts with versionName: $VERSION_NAME_FROM_STEP and versionCode: $VERSION_CODE_FROM_RUN_NUMBER"
+          GRADLE_FILE_PATH="app/build.gradle.kts"
+          sed -i "s/versionName = \".*\"/versionName = \"$VERSION_NAME_FROM_STEP\"/" $GRADLE_FILE_PATH
+          sed -i "s/versionCode = .*/versionCode = $VERSION_CODE_FROM_RUN_NUMBER/" $GRADLE_FILE_PATH
+          echo "build.gradle.kts updated."
 
-      # --- STEP 4: MENYIAPKAN PENANDATANGANAN APLIKASI (SIGNING) ---
-      # Memulihkan keystore dari GitHub Secrets
-      - name: Import Keystore
-        uses: sergey-shpak/restore-and-save-key-store@v1
-        with:
-          keystore-data: ${{ secrets.KEYSTORE_BASE64 }}
-          keystore-password: ${{ secrets.KEYSTORE_PASSWORD }}
-          alias: ${{ secrets.KEY_ALIAS }}
-          alias-password: ${{ secrets.KEY_ALIAS_PASSWORD }}
-          # Output: file keystore.jks di root proyek
+      - name: Decode Keystore and Place it
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_FILE_PATH: app/keystore/release-keystore.jks
+        run: |
+          mkdir -p app/keystore
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > $KEYSTORE_FILE_PATH
+          echo "Keystore file created at $KEYSTORE_FILE_PATH"
 
-      # --- STEP 5: BUILD RELEASE ARTIFACTS ---
-      # Menggunakan Gradle untuk membangun APK dan AAB
-      - name: Build Release APK and AAB
-        run: ./gradlew assembleRelease bundleRelease
+      - name: Set Android Signing Environment Variables
+        run: |
+          echo "ANDROID_KEYSTORE_PATH=keystore/release-keystore.jks" >> $GITHUB_ENV 
+          echo "ANDROID_KEYSTORE_PASSWORD=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >> $GITHUB_ENV
+          echo "ANDROID_KEY_ALIAS=${{ secrets.ANDROID_KEY_ALIAS }}" >> $GITHUB_ENV
+          echo "ANDROID_KEY_PASSWORD=${{ secrets.ANDROID_KEY_PASSWORD }}" >> $GITHUB_ENV
 
-      # --- STEP 6: CREATE GITHUB RELEASE ---
-      # Membuat Release di GitHub dan melampirkan file build
-      - name: Create GitHub Release
+      - name: Build Android App Bundle (AAB)
+        run: ./gradlew bundleRelease --no-daemon
+
+      - name: Build Android APK
+        run: ./gradlew assembleRelease --no-daemon
+
+      - name: Create Release
+        id: create_release
         uses: softprops/action-gh-release@v2
-        if: startsWith(steps.versioning.outputs.new_tag, 'v')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.versioning.outputs.new_tag }}
-          name: Android Release ${{ steps.versioning.outputs.new_tag }}
+          tag_name: ${{ steps.get_next_version.outputs.version }}
+          name: Release ${{ steps.get_next_version.outputs.version }} (AAB + APK)
           body: |
-            ## 🎉 Rilis Android Otomatis ${{ steps.versioning.outputs.new_tag }}
+            🎉 Rilis otomatis AAB dan APK versi ${{ steps.get_next_version.outputs.version }}
             
-            Rilis ini dihasilkan secara otomatis berdasarkan log perubahan (*commit log*).
-            
-            **Changelog:** https://github.com/${{ github.repository }}/compare/${{ steps.versioning.outputs.previous_tag }}...${{ steps.versioning.outputs.new_tag }}
-            
-          # Lampirkan artifact build (APK dan AAB) dari folder output Gradle
-          files: app/build/outputs/apk/release/*.apk app/build/outputs/bundle/release/*.aab
+            **Commit:** ${{ github.sha }}
+            **Version Code:** ${{ github.run_number }}
+            **Version Name:** ${{ steps.get_next_version.outputs.version_name }}
           draft: false
           prerelease: false
+          files: |
+            app/build/outputs/bundle/release/app-release.aab
+            app/build/outputs/apk/release/app-release.apk
