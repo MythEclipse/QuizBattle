@@ -3,6 +3,7 @@ package com.mytheclipse.quizbattle
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.mytheclipse.quizbattle.databinding.ActivityBattleResultBinding
 
 class BattleResultActivity : AppCompatActivity() {
@@ -23,11 +24,11 @@ class BattleResultActivity : AppCompatActivity() {
     private fun setupUI(isVictory: Boolean) {
         if (isVictory) {
             binding.resultTitleTextView.text = getString(R.string.victory)
-            binding.resultTitleTextView.setTextColor(getColor(R.color.primary_blue))
+            binding.resultTitleTextView.setTextColor(ContextCompat.getColor(this, R.color.primary_blue))
             binding.scoreValueTextView.text = "1000" // TODO: Get actual score
         } else {
             binding.resultTitleTextView.text = getString(R.string.defeat)
-            binding.resultTitleTextView.setTextColor(getColor(R.color.defeat_red))
+            binding.resultTitleTextView.setTextColor(ContextCompat.getColor(this, R.color.defeat_red))
             binding.scoreValueTextView.text = "500" // TODO: Get actual score
         }
     }

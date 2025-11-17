@@ -1,5 +1,6 @@
 package com.mytheclipse.quizbattle
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.AnimationDrawable
@@ -10,6 +11,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import com.mytheclipse.quizbattle.databinding.ActivityBattleBinding
@@ -163,8 +165,8 @@ class BattleActivity : AppCompatActivity() {
                 
                 // Reset ALL visual states to default
                 setBackgroundColor(Color.TRANSPARENT)
-                strokeColor = getColorStateList(R.color.primary_blue)
-                setTextColor(getColor(R.color.text_primary))
+                strokeColor = ContextCompat.getColorStateList(context, R.color.primary_blue)
+                setTextColor(ContextCompat.getColor(context, R.color.text_primary))
                 alpha = 1f
                 
                 // Show correct/incorrect after answer
@@ -173,23 +175,23 @@ class BattleActivity : AppCompatActivity() {
                         when {
                             index == currentQuestion.correctAnswerIndex -> {
                                 // Correct answer - blue background with white text
-                                setBackgroundColor(getColor(R.color.primary_blue))
-                                setTextColor(getColor(R.color.white))
+                                setBackgroundColor(ContextCompat.getColor(context, R.color.primary_blue))
+                                setTextColor(ContextCompat.getColor(context, R.color.white))
                             }
                             index == selected && index != currentQuestion.correctAnswerIndex -> {
                                 // Wrong selected answer - red background with white text
-                                setBackgroundColor(getColor(R.color.primary_red))
-                                setTextColor(getColor(R.color.white))
+                                setBackgroundColor(ContextCompat.getColor(context, R.color.primary_red))
+                                setTextColor(ContextCompat.getColor(context, R.color.white))
                             }
                             else -> {
                                 // Other buttons - keep default style
-                                setTextColor(getColor(R.color.text_primary))
+                                setTextColor(ContextCompat.getColor(context, R.color.text_primary))
                             }
                         }
                     }
                 } else {
                     // Ensure text is visible when question is not answered
-                    setTextColor(getColor(R.color.text_primary))
+                    setTextColor(ContextCompat.getColor(context, R.color.text_primary))
                 }
             }
         }
@@ -253,10 +255,8 @@ class BattleActivity : AppCompatActivity() {
             
             // Apply flash effect on damage
             if (state.playerTookDamage) {
-                // Vibrate on damage
-                @Suppress("DEPRECATION")
-                val vibrator = getSystemService(VIBRATOR_SERVICE) as? android.os.Vibrator
-                vibrator?.vibrate(200)
+                // Vibrate on damage using modern API
+                vibrateDevice(200)
                 flashCharacter(binding.knightImageView)
             }
         }
@@ -378,6 +378,29 @@ class BattleActivity : AppCompatActivity() {
         }
         startActivity(intent)
         finish()
+    }
+    
+    private fun vibrateDevice(durationMs: Long) {
+        // Min SDK 26 supports VibrationEffect, so we can simplify
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            // Android 12+ (API 31+): Use VibratorManager
+            val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? android.os.VibratorManager
+            vibratorManager?.defaultVibrator?.vibrate(
+                android.os.VibrationEffect.createOneShot(
+                    durationMs,
+                    android.os.VibrationEffect.DEFAULT_AMPLITUDE
+                )
+            )
+        } else {
+            // Android 8-11 (API 26-30): Use getSystemService with class reference
+            val vibrator = getSystemService(android.os.Vibrator::class.java)
+            vibrator?.vibrate(
+                android.os.VibrationEffect.createOneShot(
+                    durationMs,
+                    android.os.VibrationEffect.DEFAULT_AMPLITUDE
+                )
+            )
+        }
     }
     
     override fun onDestroy() {
