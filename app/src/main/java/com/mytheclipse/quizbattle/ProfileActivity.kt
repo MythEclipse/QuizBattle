@@ -41,7 +41,8 @@ class ProfileActivity : AppCompatActivity() {
         }
         
         binding.editProfileButton?.setOnClickListener {
-            // TODO: Navigate to edit profile screen
+            val intent = Intent(this, EditProfileActivity::class.java)
+            startActivity(intent)
         }
     }
     

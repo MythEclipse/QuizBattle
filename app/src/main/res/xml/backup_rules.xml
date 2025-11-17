@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-   Sample backup rules file; uncomment and customize as necessary.
+   Backup rules for QuizBattle app
    See https://developer.android.com/guide/topics/data/autobackup
    for details.
    Note: This file is ignored for devices older than API 31
    See https://developer.android.com/about/versions/12/backup-restore
 -->
 <full-backup-content>
-    <!--
-   <include domain="sharedpref" path="."/>
-   <exclude domain="sharedpref" path="device.xml"/>
--->
+    <!-- Include DataStore preferences for auth and user data -->
+    <include domain="sharedpref" path="datastore/auth_preferences.preferences_pb"/>
+    
+    <!-- Include SQLite database for user data, game history, and questions -->
+    <include domain="database" path="quiz_battle_database"/>
+    
+    <!-- Exclude temporary session data and offline action queue -->
+    <exclude domain="sharedpref" path="datastore/offline_actions.preferences_pb"/>
+    
+    <!-- Exclude cache files -->
+    <exclude domain="cache" path="."/>
 </full-backup-content>

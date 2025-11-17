@@ -10,6 +10,7 @@
     <dimen name="spacing_xxl">48dp</dimen>
 
     <!-- Text sizes -->
+    <dimen name="text_size_xs">10sp</dimen>
     <dimen name="text_size_small">12sp</dimen>
     <dimen name="text_size_normal">14sp</dimen>
     <dimen name="text_size_medium">16sp</dimen>
