@@ -16,6 +16,8 @@ import androidx.compose.ui.unit.dp
 import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
 import com.mytheclipse.quizbattle.utils.NetworkMonitor
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mytheclipse.quizbattle.viewmodel.NotificationViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,6 +36,8 @@ fun OnlineMenuScreen(
     val context = LocalContext.current
     val networkMonitor = remember { NetworkMonitor(context) }
     val isConnected by networkMonitor.isConnected.collectAsState(initial = true)
+    val notificationViewModel: NotificationViewModel = viewModel()
+    val notifState by notificationViewModel.state.collectAsState()
     
     Scaffold(
         topBar = {
@@ -57,11 +61,11 @@ fun OnlineMenuScreen(
                 },
                 actions = {
                     IconButton(onClick = onNotifications) {
-                        BadgedBox(
-                            badge = {
-                                Badge { Text("3") } // TODO: Get from NotificationViewModel
+                        if (notifState.unreadCount > 0) {
+                            BadgedBox(badge = { Badge { Text(notifState.unreadCount.toString()) } }) {
+                                Icon(Icons.Default.Notifications, contentDescription = "Notifications")
                             }
-                        ) {
+                        } else {
                             Icon(Icons.Default.Notifications, contentDescription = "Notifications")
                         }
                     }

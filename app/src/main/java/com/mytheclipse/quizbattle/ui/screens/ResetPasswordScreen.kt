@@ -16,6 +16,11 @@ import com.mytheclipse.quizbattle.ui.components.QuizBattleButton
 import com.mytheclipse.quizbattle.ui.components.QuizBattleTextField
 import com.mytheclipse.quizbattle.ui.theme.*
 import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
+import androidx.compose.runtime.rememberCoroutineScope
+import com.mytheclipse.quizbattle.data.remote.ApiConfig
+import com.mytheclipse.quizbattle.data.remote.api.AuthApiService
+import com.mytheclipse.quizbattle.data.remote.api.ResetPasswordRequest
+import kotlinx.coroutines.launch
 
 @Composable
 fun ResetPasswordScreen(
@@ -24,7 +29,9 @@ fun ResetPasswordScreen(
 ) {
     var email by remember { mutableStateOf("") }
     var showSuccessDialog by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
     val haptic = rememberHapticFeedback()
+    val scope = rememberCoroutineScope()
     
     Box(
         modifier = Modifier
@@ -80,13 +87,40 @@ fun ResetPasswordScreen(
                 text = "Kirim",
                 onClick = {
                     haptic.mediumTap()
-                    // TODO: Add email validation and reset password logic
-                    showSuccessDialog = true
+                    error = null
+                    val emailTrim = email.trim()
+                    val isEmailValid = android.util.Patterns.EMAIL_ADDRESS.matcher(emailTrim).matches()
+                    if (!isEmailValid) {
+                        error = "Format email tidak valid"
+                        return@QuizBattleButton
+                    }
+                    scope.launch {
+                        try {
+                            val service = ApiConfig.createService(AuthApiService::class.java)
+                            val resp = service.resetPassword(ResetPasswordRequest(emailTrim))
+                            if (resp.success) {
+                                showSuccessDialog = true
+                            } else {
+                                error = resp.error ?: "Gagal mengirim tautan reset"
+                            }
+                        } catch (e: Exception) {
+                            error = e.message ?: "Terjadi kesalahan koneksi"
+                        }
+                    }
                 },
                 modifier = Modifier.fillMaxWidth()
             )
             
             Spacer(modifier = Modifier.height(24.dp))
+
+            if (error != null) {
+                Text(
+                    text = error!!,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
         }
         
         // Back button

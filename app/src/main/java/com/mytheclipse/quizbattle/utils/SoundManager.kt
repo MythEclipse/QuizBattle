@@ -2,7 +2,9 @@ package com.mytheclipse.quizbattle.utils
 
 import android.content.Context
 import android.media.AudioAttributes
+import android.media.AudioManager
 import android.media.SoundPool
+import android.media.ToneGenerator
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
@@ -21,6 +23,7 @@ class SoundManager(private val context: Context) {
     private var soundPool: SoundPool? = null
     private val soundMap = mutableMapOf<SoundEffect, Int>()
     private var soundEnabled = true
+    private var toneGenerator: ToneGenerator? = null
     
     init {
         initializeSoundPool()
@@ -36,14 +39,21 @@ class SoundManager(private val context: Context) {
             .setMaxStreams(5)
             .setAudioAttributes(audioAttributes)
             .build()
+
+        // Prepare tone generator for fallback when raw assets are not present
+        toneGenerator = try {
+            ToneGenerator(AudioManager.STREAM_MUSIC, 80)
+        } catch (e: Exception) {
+            null
+        }
         
-        // Load sound effects here when audio files are available
-        // For now, we prepare the structure
+        // Load sound effects here when audio files are available in res/raw.
+        // When raw assets are absent, ToneGenerator fallback below ensures audible feedback.
         loadSounds()
     }
     
     private fun loadSounds() {
-        // TODO: Load actual sound files from res/raw when available
+        // When adding raw audio assets, map them to SoundEffect here, e.g.:
         // Example:
         // soundMap[SoundEffect.BUTTON_CLICK] = soundPool?.load(context, R.raw.button_click, 1) ?: 0
         // soundMap[SoundEffect.CORRECT_ANSWER] = soundPool?.load(context, R.raw.correct_answer, 1) ?: 0
@@ -59,9 +69,34 @@ class SoundManager(private val context: Context) {
      */
     fun playSound(effect: SoundEffect, volume: Float = 1.0f) {
         if (!soundEnabled) return
-        
-        soundMap[effect]?.let { soundId ->
+
+        val soundId = soundMap[effect]
+        if (soundId != null && soundId != 0) {
             soundPool?.play(soundId, volume, volume, 1, 0, 1.0f)
+        } else {
+            // Fallback to tone generator if raw assets are not available
+            playFallbackTone(effect)
+        }
+    }
+
+    private fun playFallbackTone(effect: SoundEffect) {
+        val tg = toneGenerator ?: return
+        val (tone, duration) = when (effect) {
+            SoundEffect.BUTTON_CLICK -> ToneGenerator.TONE_PROP_BEEP2 to 50
+            SoundEffect.CORRECT_ANSWER -> ToneGenerator.TONE_PROP_ACK to 120
+            SoundEffect.WRONG_ANSWER -> ToneGenerator.TONE_PROP_NACK to 150
+            SoundEffect.VICTORY -> ToneGenerator.TONE_PROP_PROMPT to 250
+            SoundEffect.DEFEAT -> ToneGenerator.TONE_PROP_BEEP to 200
+            SoundEffect.NOTIFICATION -> ToneGenerator.TONE_PROP_BEEP to 120
+            SoundEffect.MESSAGE_SENT -> ToneGenerator.TONE_PROP_BEEP to 60
+            SoundEffect.MESSAGE_RECEIVED -> ToneGenerator.TONE_PROP_BEEP2 to 80
+            SoundEffect.LEVEL_UP -> ToneGenerator.TONE_PROP_ACK to 180
+            SoundEffect.MATCH_FOUND -> ToneGenerator.TONE_PROP_PROMPT to 220
+        }
+        try {
+            tg.startTone(tone, duration)
+        } catch (_: Exception) {
+            // Ignore tone errors
         }
     }
     
@@ -98,6 +133,8 @@ class SoundManager(private val context: Context) {
         soundPool?.release()
         soundPool = null
         soundMap.clear()
+        toneGenerator?.release()
+        toneGenerator = null
     }
     
     companion object {

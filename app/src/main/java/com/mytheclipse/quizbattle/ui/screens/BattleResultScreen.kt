@@ -4,7 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -17,6 +17,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mytheclipse.quizbattle.R
 import com.mytheclipse.quizbattle.ui.components.QuizBattleButton
+import com.mytheclipse.quizbattle.ui.components.ConfettiBurst
+import com.mytheclipse.quizbattle.ui.components.FallingConfetti
+import com.mytheclipse.quizbattle.ui.components.PulseRings
 import com.mytheclipse.quizbattle.ui.theme.*
 import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
 
@@ -27,6 +30,17 @@ fun BattleResultScreen(
     onRematch: () -> Unit
 ) {
     val haptic = rememberHapticFeedback()
+    var showFx by remember { mutableStateOf(true) }
+    // Auto-hide victory burst after it finishes to avoid overdraw
+    LaunchedEffect(isVictory) {
+        showFx = true
+        if (isVictory) {
+            kotlinx.coroutines.delay(1000)
+        } else {
+            kotlinx.coroutines.delay(1400)
+        }
+        showFx = false
+    }
     
     Box(
         modifier = Modifier
@@ -34,6 +48,15 @@ fun BattleResultScreen(
             .padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
+        if (showFx) {
+            if (isVictory) {
+                PulseRings(modifier = Modifier.fillMaxSize(), color = GradientRedStart)
+                ConfettiBurst(modifier = Modifier.fillMaxSize())
+            } else {
+                FallingConfetti(modifier = Modifier.fillMaxSize())
+            }
+        }
+        
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,

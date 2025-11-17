@@ -39,7 +39,7 @@ fun ChatRoomScreen(
     
     LaunchedEffect(roomId) {
         viewModel.connectToRoom(roomId)
-        viewModel.loadMessages(roomId)
+        viewModel.loadRoomMessages(roomId)
     }
     
     LaunchedEffect(state.messages.size) {
@@ -122,7 +122,7 @@ fun ChatRoomScreen(
                 state.error != null -> {
                     ErrorState(
                         message = state.error ?: "Gagal memuat pesan",
-                        onRetry = { viewModel.loadMessages(roomId) }
+                        onRetry = { viewModel.loadRoomMessages(roomId) }
                     )
                 }
                 state.messages.isEmpty() -> {
@@ -142,7 +142,7 @@ fun ChatRoomScreen(
                         items(state.messages) { message ->
                             MessageItem(
                                 message = message,
-                                isOwnMessage = message.userId == "current_user_id" // TODO: Get from auth
+                                isOwnMessage = state.currentUserId != null && message.userId == state.currentUserId
                             )
                         }
                     }

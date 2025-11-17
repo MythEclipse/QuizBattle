@@ -24,6 +24,9 @@ import com.mytheclipse.quizbattle.ui.theme.*
 import com.mytheclipse.quizbattle.ui.components.EmptyState
 import com.mytheclipse.quizbattle.ui.components.SkeletonList
 import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mytheclipse.quizbattle.viewmodel.FriendListViewModel
+import com.mytheclipse.quizbattle.data.repository.FriendInfo
 
 data class Friend(
     val name: String,
@@ -32,31 +35,13 @@ data class Friend(
 
 @Composable
 fun FriendListScreen(
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    viewModel: FriendListViewModel = viewModel()
 ) {
     var searchQuery by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
     val haptic = rememberHapticFeedback()
-    
-    // Sample friends data
-    val friends = remember {
-        listOf(
-            Friend("Jane Cooper"),
-            Friend("Devon Lane"),
-            Friend("Darrell Steward"),
-            Friend("Devon Lane"),
-            Friend("Courtney Henry"),
-            Friend("Wade Warren"),
-            Friend("Bessie Cooper"),
-            Friend("Robert Fox"),
-            Friend("Jacob Jones"),
-            Friend("Jenny Wilson")
-        )
-    }
-    
-    val filteredFriends = friends.filter {
-        it.name.contains(searchQuery, ignoreCase = true)
-    }
+    val state by viewModel.state.collectAsState()
+    val filteredFriends = state.friends.filter { it.username.contains(searchQuery, ignoreCase = true) }
     
     Column(
         modifier = Modifier
@@ -134,7 +119,7 @@ fun FriendListScreen(
         // Friends list with states
         Box(modifier = Modifier.fillMaxSize()) {
             when {
-                isLoading -> {
+                state.isLoading -> {
                     SkeletonList(
                         itemCount = 8,
                         itemSkeleton = {
@@ -169,7 +154,7 @@ fun FriendListScreen(
                         message = "Coba kata kunci lain"
                     )
                 }
-                friends.isEmpty() -> {
+                state.friends.isEmpty() -> {
                     EmptyState(
                         icon = Icons.Default.Add,
                         title = "Belum ada teman",
@@ -183,7 +168,7 @@ fun FriendListScreen(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         items(filteredFriends) { friend ->
-                            FriendItem(
+                            FriendInfoItem(
                                 friend = friend,
                                 onClick = { /* Handle friend click */ }
                             )
@@ -231,5 +216,50 @@ fun FriendItem(
             ),
             color = Color.Black
         )
+    }
+}
+
+@Composable
+fun FriendInfoItem(
+    friend: FriendInfo,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Avatar with initials fallback
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(Color(0xFF90A4AE)),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = friend.username.firstOrNull()?.uppercase() ?: "?",
+                color = Color.White,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        Spacer(modifier = Modifier.width(12.dp))
+        Column {
+            Text(
+                text = friend.username,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = 17.sp
+                ),
+                color = Color.Black
+            )
+            Text(
+                text = "${friend.wins}W / ${friend.losses}L · ${friend.status}",
+                style = MaterialTheme.typography.bodySmall,
+                color = TextTertiary
+            )
+        }
     }
 }

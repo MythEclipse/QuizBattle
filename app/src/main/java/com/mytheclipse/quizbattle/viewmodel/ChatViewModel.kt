@@ -14,7 +14,8 @@ data class ChatState(
     val messages: List<ChatMessage> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null,
-    val typingUsers: List<String> = emptyList()
+    val typingUsers: List<String> = emptyList(),
+    val currentUserId: String? = null
 )
 
 class ChatViewModel(application: Application) : AndroidViewModel(application) {
@@ -28,6 +29,10 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     init {
         loadChatRooms()
         observeChatMessages()
+        // Load current user id for message ownership checks
+        viewModelScope.launch {
+            _state.value = _state.value.copy(currentUserId = tokenRepository.getUserId())
+        }
     }
     
     private fun observeChatMessages() {
@@ -127,26 +132,12 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
     
-    fun loadMessages(roomId: String) {
-        viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true, error = null)
-            
-            // Mock data for now - replace with actual API call
-            val mockMessages = listOf(
-                ChatMessage("1", "user1", "John", "Hello!", System.currentTimeMillis()),
-                ChatMessage("2", "user2", "Jane", "Hi there!", System.currentTimeMillis())
-            )
-            
-            _state.value = _state.value.copy(
-                messages = mockMessages,
-                isLoading = false
-            )
-        }
-    }
-    
     fun connectToRoom(roomId: String) {
-        // WebSocket connection logic
-        loadMessages(roomId)
+        viewModelScope.launch {
+            repository.joinRoom(roomId)
+            // Load actual room messages from API
+            loadRoomMessages(roomId)
+        }
     }
     
     fun sendTypingIndicator(roomId: String) {

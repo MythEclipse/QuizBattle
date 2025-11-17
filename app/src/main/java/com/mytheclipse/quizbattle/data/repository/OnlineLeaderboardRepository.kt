@@ -1,7 +1,5 @@
 package com.mytheclipse.quizbattle.data.repository
 
-import com.mytheclipse.quizbattle.data.remote.ApiConfig
-import com.mytheclipse.quizbattle.data.remote.api.UsersApiService
 import com.mytheclipse.quizbattle.data.remote.websocket.WebSocketManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
@@ -9,35 +7,7 @@ import kotlinx.coroutines.flow.map
 
 class OnlineLeaderboardRepository {
     
-    private val apiService = ApiConfig.createService(UsersApiService::class.java)
     private val webSocketManager = WebSocketManager.getInstance()
-    
-    suspend fun getGlobalLeaderboard(limit: Int = 50, offset: Int = 0): Result<List<DataModels.LeaderboardEntry>> {
-        return try {
-            val response = apiService.getAllUsers()
-            if (response.success) {
-                // Convert users to leaderboard entries
-                val entries = response.users
-                    .sortedByDescending { it.role } // Placeholder sorting
-                    .mapIndexed { index, user ->
-                        DataModels.LeaderboardEntry(
-                            userId = user.id,
-                            userName = user.name ?: "Unknown",
-                            score = 0, // Default
-                            wins = 0,
-                            losses = 0,
-                            mmr = 0 // Default
-                        )
-                    }
-                    .take(limit)
-                Result.success(entries)
-            } else {
-                Result.failure(Exception("Failed to fetch leaderboard"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
     
     fun syncGlobalLeaderboard(userId: String, limit: Int = 50, offset: Int = 0) {
         val message = mapOf(

@@ -18,6 +18,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mytheclipse.quizbattle.ui.components.ErrorState
+import com.mytheclipse.quizbattle.ui.components.ConfettiBurst
+import com.mytheclipse.quizbattle.ui.components.DimmedOverlay
 import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
 import com.mytheclipse.quizbattle.viewmodel.MatchmakingViewModel
 
@@ -30,9 +32,15 @@ fun MatchmakingScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val haptic = rememberHapticFeedback()
+    var showCelebration by remember { mutableStateOf(false) }
     
     LaunchedEffect(state.matchFound) {
         if (state.matchFound != null) {
+            // Play a short celebration before navigating
+            showCelebration = true
+            haptic.success()
+            kotlinx.coroutines.delay(900)
+            showCelebration = false
             onMatchFound(state.matchFound?.matchId ?: "")
         }
     }
@@ -126,6 +134,10 @@ fun MatchmakingScreen(
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
+            }
+            if (showCelebration) {
+                DimmedOverlay()
+                ConfettiBurst(modifier = Modifier.fillMaxSize())
             }
         }
     }

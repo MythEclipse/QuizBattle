@@ -84,7 +84,7 @@ fun AnimatedGoblin(
     val animDuration = when (animation) {
         GoblinAnimation.IDLE -> 1600   // 40 frames
         GoblinAnimation.ATTACK -> 900  // 26 frames
-        GoblinAnimation.HURT -> 300    // 1 frame (placeholder)
+        GoblinAnimation.HURT -> 300    // short hurt reaction across available frames
         GoblinAnimation.DEAD -> 1200   // 24 frames
     }
 

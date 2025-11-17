@@ -19,6 +19,11 @@ interface AuthApiService {
     
     @POST("api/auth/refresh")
     suspend fun refreshToken(): ApiResponse<String>
+
+    @POST("api/auth/reset-password")
+    suspend fun resetPassword(
+        @Body request: ResetPasswordRequest
+    ): ApiResponse<String>
 }
 
 data class LoginRequest(
@@ -30,4 +35,8 @@ data class RegisterRequest(
     val name: String,
     val email: String,
     val password: String
+)
+
+data class ResetPasswordRequest(
+    val email: String
 )

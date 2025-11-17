@@ -273,7 +273,7 @@ fun QuizBattleNavigation(
             val roomId = backStackEntry.arguments?.getString("roomId") ?: ""
             ChatRoomScreen(
                 roomId = roomId,
-                roomName = "Chat Room", // TODO: Pass room name
+                roomName = "Room #${roomId.take(6)}",
                 onNavigateBack = { navController.popBackStack() }
             )
         }
