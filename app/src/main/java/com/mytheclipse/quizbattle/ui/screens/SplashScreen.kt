@@ -39,7 +39,7 @@ fun SplashScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Image(
-                painter = painterResource(id = R.mipmap.ic_launcher),
+                painter = painterResource(id = R.drawable.ic_quiz_battle_logo),
                 contentDescription = "App logo",
                 modifier = Modifier.size(120.dp),
                 contentScale = ContentScale.Fit
