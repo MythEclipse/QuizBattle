@@ -2,7 +2,6 @@ package com.mytheclipse.quizbattle.data.remote
 
 import com.google.gson.GsonBuilder
 import android.util.Log
-import com.mytheclipse.quizbattle.BuildConfig
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -32,26 +31,37 @@ object ApiConfig {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
-    // Custom API logging. Wrap with BuildConfig debug so it won't flood release builds
+    // Custom API logging. Wrap with debug detection so it won't flood release builds
     private val apiLoggingInterceptor = ApiLoggingInterceptor("API")
     
     private val errorHandlerInterceptor = ErrorHandlerInterceptor()
     
+    // Use reflection to avoid compile-time dependency on BuildConfig in edge cases
+    private val isDebug: Boolean = try {
+        val buildConfigClass = Class.forName("com.mytheclipse.quizbattle.BuildConfig")
+        val field = buildConfigClass.getDeclaredField("DEBUG")
+        field.isAccessible = true
+        field.getBoolean(null)
+    } catch (e: Exception) {
+        false
+    }
+
     private val okHttpClientBuilder = OkHttpClient.Builder()
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .writeTimeout(30, TimeUnit.SECONDS)
         .addInterceptor(authInterceptor)
         .addInterceptor(loggingInterceptor)
         .addInterceptor(errorHandlerInterceptor)
 
     // Add more verbose API logging only for debug builds
-    private val okHttpClient = okHttpClientBuilder.apply {
-        if (BuildConfig.DEBUG) {
-            addInterceptor(apiLoggingInterceptor)
+    init {
+        if (isDebug) {
+            okHttpClientBuilder.addInterceptor(apiLoggingInterceptor)
         }
-    }.build()
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
-        .writeTimeout(30, TimeUnit.SECONDS)
-        .build()
+    }
+
+    private val okHttpClient = okHttpClientBuilder.build()
     
     private val gson = GsonBuilder()
         .setLenient()
