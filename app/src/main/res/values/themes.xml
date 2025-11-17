@@ -1,6 +1,13 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.QuizBattle" parent="android:Theme.Material.Light.NoActionBar">
-        <!-- Customize your light theme here. -->
+    <style name="Theme.QuizBattle" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/primary_blue</item>
+        <item name="colorPrimaryVariant">@color/secondary_blue</item>
+        <item name="colorSecondary">@color/primary_red</item>
+        <item name="colorAccent">@color/primary_blue</item>
+        <item name="colorError">@color/primary_red</item>
+        <item name="android:statusBarColor">@color/background_white</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowBackground">@color/background_white</item>
     </style>
 </resources>

@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
+    // alias(libs.plugins.kotlin.compose) // Removed - migrated to XML layouts
     alias(libs.plugins.ksp)
 }
 
@@ -51,7 +51,8 @@ android {
         jvmTarget = "11"
     }
     buildFeatures {
-        compose = true
+        compose = false // Disabled - migrated to XML layouts
+        viewBinding = true
     }
     packaging {
         resources {
@@ -64,24 +65,31 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     
-    // Compose
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.material.icons)
-    implementation(libs.androidx.activity.compose)
+    // Activity & AppCompat for XML layouts
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.appcompat)
     
-    // Lifecycle
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.androidx.lifecycle.runtime.compose)
+    // Compose - Removed (migrated to XML layouts)
+    // implementation(platform(libs.androidx.compose.bom))
+    // implementation(libs.androidx.compose.ui)
+    // implementation(libs.androidx.compose.ui.graphics)
+    // implementation(libs.androidx.compose.ui.tooling.preview)
+    // implementation(libs.androidx.compose.material3)
+    // implementation(libs.androidx.compose.material.icons)
+    // implementation(libs.androidx.activity.compose)
     
-    // Navigation
-    implementation(libs.androidx.navigation.compose)
+    // Lifecycle - Removed Compose variants
+    // implementation(libs.androidx.lifecycle.viewmodel.compose)
+    // implementation(libs.androidx.lifecycle.runtime.compose)
     
-    // Coil for images
-    implementation(libs.coil.compose)
+    // Navigation - Removed Compose navigation
+    // implementation(libs.androidx.navigation.compose)
+    
+    // Coil - Removed Compose integration
+    // implementation(libs.coil.compose)
+    
+    // Material Components for XML layouts
+    implementation(libs.material)
     
     // Room Database
     implementation(libs.androidx.room.runtime)
@@ -102,6 +110,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    debugImplementation(libs.androidx.compose.ui.tooling)
+    // androidTestImplementation(platform(libs.androidx.compose.bom)) // Removed
+    // debugImplementation(libs.androidx.compose.ui.tooling) // Removed
 }

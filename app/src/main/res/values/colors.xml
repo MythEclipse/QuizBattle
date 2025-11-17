@@ -1,5 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
+    <!-- Primary colors from Figma -->
+    <color name="primary_blue">#01D0FF</color>
+    <color name="primary_red">#E2220D</color>
+    <color name="secondary_blue">#0095FF</color>
+
+    <!-- Text colors -->
+    <color name="text_primary">#333333</color>
+    <color name="text_secondary">#768893</color>
+    <color name="text_tertiary">#8D9CA5</color>
+    <color name="text_disabled">#A1AEB6</color>
+    <color name="text_placeholder">#83939D</color>
+
+    <!-- Background colors -->
+    <color name="background_white">#FFFFFF</color>
+    <color name="background_gray">#EFEFEF</color>
+
+    <!-- Border colors -->
+    <color name="border_gray">#A1AEB6</color>
+    <color name="border_light">#D9D9D9</color>
+    <color name="border_separator">#B9B9B9</color>
+
+    <!-- Other colors -->
+    <color name="orange_warning">#FFAA01</color>
+    <color name="defeat_red">#8D0707</color>
+    <color name="progress_track">#33787878</color>
+    <color name="black_overlay">#D9D9D9</color>
+
+    <!-- Gradient colors -->
+    <color name="gradient_red_start">#FF0101</color>
+    <color name="gradient_blue_end">#00B3FF</color>
+    <color name="gradient_text_red_start">#E2220D</color>
+    <color name="gradient_text_blue_end">#0095FF</color>
+
+    <!-- Material theme colors -->
+    <color name="colorPrimary">@color/primary_blue</color>
+    <color name="colorPrimaryVariant">@color/secondary_blue</color>
+    <color name="colorSecondary">@color/primary_red</color>
+    <color name="colorAccent">@color/primary_blue</color>
+    <color name="colorError">@color/primary_red</color>
+
+    <!-- Common colors -->
     <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+    <color name="transparent">#00000000</color>
 </resources>

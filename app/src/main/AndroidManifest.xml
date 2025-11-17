@@ -28,10 +28,70 @@
             android:name=".MainActivity"
             android:exported="false" />
         <activity
+            android:name=".LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ResetPasswordActivity"
+            android:exported="false" />
+        <activity
             android:name=".BattleActivity"
             android:exported="false" />
         <activity
             android:name=".BattleResultActivity"
+            android:exported="false" />
+        <activity
+            android:name=".OnlineMenuActivity"
+            android:exported="false" />
+        <activity
+            android:name=".FeedActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".EditProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".LeaderboardActivity"
+            android:exported="false" />
+        <activity
+            android:name=".NotificationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ChatListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ChatRoomActivity"
+            android:exported="false" />
+        <activity
+            android:name=".FriendListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CreatePostActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MissionsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".RankedActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MatchmakingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".OnlineBattleActivity"
+            android:exported="false" />
+        <activity
+            android:name=".LobbyListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".LobbyRoomActivity"
             android:exported="false" />
     </application>
 

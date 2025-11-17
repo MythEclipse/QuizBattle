@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="true">
+    <item android:drawable="@drawable/goblin_atk1_0070" android:duration="50" />
+    <item android:drawable="@drawable/goblin_atk1_0071" android:duration="50" />
+    <item android:drawable="@drawable/goblin_atk1_0072" android:duration="50" />
+    <item android:drawable="@drawable/goblin_atk1_0073" android:duration="50" />
+    <item android:drawable="@drawable/goblin_atk1_0074" android:duration="50" />
+    <item android:drawable="@drawable/goblin_atk1_0075" android:duration="50" />
+    <item android:drawable="@drawable/goblin_atk1_0076" android:duration="50" />
+    <item android:drawable="@drawable/goblin_atk1_0077" android:duration="50" />
+    <item android:drawable="@drawable/goblin_atk1_0078" android:duration="50" />
+    <item android:drawable="@drawable/goblin_atk1_0079" android:duration="50" />
+</animation-list>
