@@ -35,6 +35,8 @@ class BattleActivity : AppCompatActivity() {
     private var lastGoblinTranslation: Float = 0f
     private var advanceScheduled: Boolean = false
     private var isNavigatingToResult: Boolean = false
+    private var playerScore: Int = 0
+    private var opponentScore: Int = 0
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -375,6 +377,9 @@ class BattleActivity : AppCompatActivity() {
         
         val intent = Intent(this, BattleResultActivity::class.java).apply {
             putExtra(BattleResultActivity.EXTRA_IS_VICTORY, isVictory)
+            putExtra("PLAYER_SCORE", playerScore)
+            putExtra("OPPONENT_SCORE", opponentScore)
+            putExtra("IS_ONLINE", false)
         }
         startActivity(intent)
         finish()

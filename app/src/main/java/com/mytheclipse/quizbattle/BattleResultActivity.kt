@@ -22,14 +22,23 @@ class BattleResultActivity : AppCompatActivity() {
     }
     
     private fun setupUI(isVictory: Boolean) {
+        val playerScore = intent.getIntExtra("PLAYER_SCORE", 0)
+        val opponentScore = intent.getIntExtra("OPPONENT_SCORE", 0)
+        val isOnline = intent.getBooleanExtra("IS_ONLINE", false)
+        
         if (isVictory) {
             binding.resultTitleTextView.text = getString(R.string.victory)
             binding.resultTitleTextView.setTextColor(ContextCompat.getColor(this, R.color.primary_blue))
-            binding.scoreValueTextView.text = "1000" // TODO: Get actual score
+            binding.scoreValueTextView.text = playerScore.toString()
         } else {
             binding.resultTitleTextView.text = getString(R.string.defeat)
             binding.resultTitleTextView.setTextColor(ContextCompat.getColor(this, R.color.defeat_red))
-            binding.scoreValueTextView.text = "500" // TODO: Get actual score
+            binding.scoreValueTextView.text = playerScore.toString()
+        }
+        
+        // Show opponent score if online battle
+        if (isOnline && opponentScore > 0) {
+            binding.scoreValueTextView.text = "$playerScore (You) - $opponentScore (Opponent)"
         }
     }
     

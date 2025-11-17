@@ -3,6 +3,7 @@
     <!-- Primary colors from Figma -->
     <color name="primary_blue">#01D0FF</color>
     <color name="primary_red">#E2220D</color>
+    <color name="primary_green">#4CAF50</color>
     <color name="secondary_blue">#0095FF</color>
 
     <!-- Text colors -->

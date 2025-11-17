@@ -32,9 +32,7 @@ class ResetPasswordActivity : AppCompatActivity() {
                 binding.emailInputLayout.error = "Email tidak boleh kosong"
             } else {
                 binding.emailInputLayout.error = null
-                // TODO: Implement reset password in AuthViewModel
-                // authViewModel.resetPassword(email)
-                Toast.makeText(this, "Fitur reset password akan datang", Toast.LENGTH_SHORT).show()
+                authViewModel.resetPassword(email)
             }
         }
         
@@ -48,6 +46,16 @@ class ResetPasswordActivity : AppCompatActivity() {
             authViewModel.authState.collect { state ->
                 binding.progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
                 binding.sendResetLinkButton.isEnabled = !state.isLoading
+                
+                if (state.isSuccess) {
+                    Toast.makeText(
+                        this@ResetPasswordActivity,
+                        "Link reset password telah dikirim ke email Anda",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    authViewModel.resetState()
+                    finish()
+                }
                 
                 state.error?.let { error ->
                     Toast.makeText(this@ResetPasswordActivity, error, Toast.LENGTH_LONG).show()

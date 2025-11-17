@@ -1,26 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center"
-    android:padding="@dimen/spacing_large"
     android:background="@color/background_white">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Online Menu"
-        android:textSize="@dimen/text_size_title"
-        android:textColor="@color/text_primary"
-        android:textStyle="bold" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="@dimen/spacing_medium">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_medium"
-        android:text="Coming Soon"
-        android:textSize="@dimen/text_size_medium"
-        android:textColor="@color/text_secondary" />
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:text="←"
+            android:textSize="24sp"
+            android:contentDescription="Back" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Online Battle"
+            android:textSize="@dimen/text_size_title"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold"
+            android:layout_marginStart="@dimen/spacing_small" />
+
+    </LinearLayout>
+
+    <!-- Content -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="@dimen/spacing_xlarge">
+
+        <TextView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:gravity="center"
+            android:text="⚔️"
+            android:textSize="80sp"
+            android:contentDescription="Online Battle" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_large"
+            android:text="Choose Game Mode"
+            android:textSize="20sp"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:text="Battle against other players online"
+            android:textSize="@dimen/text_size_medium"
+            android:textColor="@color/text_secondary"
+            android:gravity="center" />
+
+        <!-- Quick Match Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/quickMatchButton"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:layout_marginTop="@dimen/spacing_xlarge"
+            android:text="⚡ Quick Match"
+            android:textSize="@dimen/text_size_large"
+            android:textStyle="bold"
+            app:cornerRadius="12dp" />
+
+        <!-- Create Room Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/createRoomButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:text="Create Room"
+            android:textSize="@dimen/text_size_medium"
+            app:cornerRadius="12dp"
+            style="@style/Widget.Material3.Button.OutlinedButton" />
+
+        <!-- Join Room Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/joinRoomButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:text="Join Room"
+            android:textSize="@dimen/text_size_medium"
+            app:cornerRadius="12dp"
+            style="@style/Widget.Material3.Button.OutlinedButton" />
+
+    </LinearLayout>
 
 </LinearLayout>

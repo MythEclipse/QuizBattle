@@ -1,23 +1,290 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
     android:padding="@dimen/spacing_large"
     android:background="@color/background_white">
+
+    <!-- Match Info -->
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Online Battle"
-        android:textSize="@dimen/text_size_title"
-        android:textColor="@color/text_primary"
-        android:textStyle="bold" />
-    <TextView
+        android:id="@+id/matchIdTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_medium"
-        android:text="Coming Soon"
+        android:text="Match #12345"
+        android:textSize="@dimen/text_size_small"
+        android:textStyle="bold"
+        android:textColor="@color/text_secondary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Question Progress -->
+    <TextView
+        android:id="@+id/questionProgressTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Question 1/10"
         android:textSize="@dimen/text_size_medium"
-        android:textColor="@color/text_secondary" />
-</LinearLayout>
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/matchIdTextView" />
+
+    <!-- Timer -->
+    <TextView
+        android:id="@+id/timerTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_small"
+        android:text="⏱ 30s"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/primary_red"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/matchIdTextView" />
+
+    <!-- Battle Arena Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/battleArenaCard"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="@dimen/spacing_large"
+        app:cardCornerRadius="16dp"
+        app:cardBackgroundColor="#2C2C2C"
+        app:cardElevation="4dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/timerTextView">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!-- Player Knight (Left) -->
+            <ImageView
+                android:id="@+id/playerKnightImageView"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                android:layout_gravity="bottom|start"
+                android:layout_marginStart="24dp"
+                android:layout_marginBottom="12dp"
+                android:scaleType="fitCenter" />
+
+            <TextView
+                android:id="@+id/playerNameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|start"
+                android:layout_marginStart="60dp"
+                android:layout_marginBottom="4dp"
+                android:text="YOU"
+                android:textSize="11sp"
+                android:textColor="@color/primary_blue"
+                android:textStyle="bold" />
+
+            <!-- Opponent Goblin (Right) -->
+            <ImageView
+                android:id="@+id/opponentGoblinImageView"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="bottom|end"
+                android:layout_marginEnd="70dp"
+                android:layout_marginBottom="12dp"
+                android:scaleType="fitCenter"
+                android:scaleX="-1" />
+
+            <TextView
+                android:id="@+id/opponentNameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_marginEnd="80dp"
+                android:layout_marginBottom="4dp"
+                android:text="OPPONENT"
+                android:textSize="11sp"
+                android:textColor="@color/primary_red"
+                android:textStyle="bold" />
+
+            <!-- Waiting indicator for opponent -->
+            <ProgressBar
+                android:id="@+id/opponentWaitingIndicator"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="top|end"
+                android:layout_margin="16dp"
+                android:visibility="gone"
+                android:indeterminateTint="@color/primary_red" />
+
+        </FrameLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Scores Layout -->
+    <LinearLayout
+        android:id="@+id/scoresLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_medium"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/battleArenaCard">
+
+        <!-- Player Score -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="YOUR SCORE"
+                android:textSize="@dimen/text_size_small"
+                android:textColor="@color/primary_blue"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/playerScoreTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="0"
+                android:textSize="32sp"
+                android:textColor="@color/primary_blue"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- VS Divider -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="VS"
+            android:textSize="20sp"
+            android:textColor="@color/text_secondary"
+            android:textStyle="bold"
+            android:paddingHorizontal="16dp" />
+
+        <!-- Opponent Score -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="OPPONENT"
+                android:textSize="@dimen/text_size_small"
+                android:textColor="@color/primary_red"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/opponentScoreTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="0"
+                android:textSize="32sp"
+                android:textColor="@color/primary_red"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Question Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/questionCard"
+        style="@style/Widget.QuizBattle.Card"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_medium"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/scoresLayout">
+
+        <TextView
+            android:id="@+id/questionTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/spacing_large"
+            android:text="Waiting for question..."
+            android:textSize="@dimen/text_size_large"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:gravity="center" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Answer Buttons -->
+    <LinearLayout
+        android:id="@+id/answersLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_medium"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/questionCard">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/answerButton1"
+            style="@style/Widget.QuizBattle.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginBottom="@dimen/spacing_small"
+            android:text="Answer 1"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_size_medium"
+            android:gravity="center" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/answerButton2"
+            style="@style/Widget.QuizBattle.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginBottom="@dimen/spacing_small"
+            android:text="Answer 2"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_size_medium"
+            android:gravity="center" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/answerButton3"
+            style="@style/Widget.QuizBattle.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginBottom="@dimen/spacing_small"
+            android:text="Answer 3"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_size_medium"
+            android:gravity="center" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/answerButton4"
+            style="@style/Widget.QuizBattle.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Answer 4"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_size_medium"
+            android:gravity="center" />
+    </LinearLayout>
+
+    <!-- Loading Progress Bar -->
+    <ProgressBar
+        android:id="@+id/loadingProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

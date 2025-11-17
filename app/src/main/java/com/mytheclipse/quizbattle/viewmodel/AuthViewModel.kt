@@ -193,4 +193,30 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     fun clearError() {
         _authState.value = _authState.value.copy(error = null)
     }
+    
+    fun resetPassword(email: String) {
+        viewModelScope.launch {
+            _authState.value = AuthState(isLoading = true)
+            
+            if (email.isBlank()) {
+                _authState.value = AuthState(error = "Email tidak boleh kosong")
+                return@launch
+            }
+            
+            try {
+                val response = authApiService.resetPassword(
+                    com.mytheclipse.quizbattle.data.remote.api.ResetPasswordRequest(email = email)
+                )
+                
+                if (response.success) {
+                    _authState.value = AuthState(isSuccess = true)
+                } else {
+                    _authState.value = AuthState(error = response.error ?: "Reset password gagal")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _authState.value = AuthState(error = e.message ?: "Terjadi kesalahan koneksi")
+            }
+        }
+    }
 }
