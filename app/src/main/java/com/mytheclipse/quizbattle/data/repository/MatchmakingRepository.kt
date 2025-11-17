@@ -43,7 +43,7 @@ class MatchmakingRepository {
                     opponentId = opponentMap["userId"] as? String ?: "",
                     opponentName = opponentMap["username"] as? String ?: "",
                     opponentLevel = (opponentMap["level"] as? Double)?.toInt() ?: 1,
-                    opponentAvatar = opponentMap["avatar"] as? String,
+                    opponentAvatar = null, // Avatar disabled for user management
                     difficulty = settingsMap["difficulty"] as? String ?: "medium",
                     category = settingsMap["category"] as? String ?: "general",
                     totalQuestions = (settingsMap["totalQuestions"] as? Double)?.toInt() ?: 10,

@@ -40,7 +40,7 @@ class MatchmakingRepositoryTest {
             opponentId = "opponent_456",
             opponentName = "TestOpponent",
             opponentLevel = 10,
-            opponentAvatar = "avatar_url",
+            opponentAvatar = null, // Avatar disabled for user management
             difficulty = "hard",
             category = "science",
             totalQuestions = 15,
@@ -52,7 +52,7 @@ class MatchmakingRepositoryTest {
         assertEquals("opponent_456", event.opponentId)
         assertEquals("TestOpponent", event.opponentName)
         assertEquals(10, event.opponentLevel)
-        assertEquals("avatar_url", event.opponentAvatar)
+        assertNull(event.opponentAvatar) // Avatar should always be null
         assertEquals("hard", event.difficulty)
         assertEquals("science", event.category)
         assertEquals(15, event.totalQuestions)

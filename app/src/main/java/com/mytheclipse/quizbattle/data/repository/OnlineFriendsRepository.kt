@@ -121,7 +121,7 @@ class OnlineFriendsRepository {
                         userId = item["userId"] as? String ?: "",
                         username = item["username"] as? String ?: "",
                         level = (item["level"] as? Double)?.toInt() ?: 1,
-                        avatar = item["avatar"] as? String,
+                        avatar = null, // Avatar disabled for user management
                         status = item["status"] as? String ?: "offline",
                         wins = (item["wins"] as? Double)?.toInt() ?: 0,
                         losses = (item["losses"] as? Double)?.toInt() ?: 0
