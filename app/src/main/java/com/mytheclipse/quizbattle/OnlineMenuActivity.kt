@@ -3,11 +3,13 @@ package com.mytheclipse.quizbattle
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.mytheclipse.quizbattle.databinding.ActivityOnlineMenuBinding
 
-class OnlineMenuActivity : AppCompatActivity() {
+class OnlineMenuActivity : BaseActivity() {
     
     private lateinit var binding: ActivityOnlineMenuBinding
     
@@ -15,8 +17,10 @@ class OnlineMenuActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityOnlineMenuBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        
-        setupListeners()
+        lifecycleScope.launch {
+            if (!requireLoginOrRedirect(LoginActivity.REDIRECT_ONLINE_MENU)) return@launch
+            setupListeners()
+        }
     }
     
     private fun setupListeners() {

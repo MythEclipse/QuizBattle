@@ -11,6 +11,8 @@ import com.mytheclipse.quizbattle.data.remote.api.LoginRequest
 import com.mytheclipse.quizbattle.data.remote.api.RegisterRequest
 import com.mytheclipse.quizbattle.data.repository.TokenRepository
 import com.mytheclipse.quizbattle.data.repository.UserRepository
+import android.util.Log
+import com.mytheclipse.quizbattle.BuildConfig
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -75,12 +77,14 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             }
             
             try {
+                if (BuildConfig.DEBUG) Log.d("API", "AuthViewModel.register - start email=$email username=$username")
                 // Call API
                 val response = authApiService.register(
                     RegisterRequest(name = username, email = email, password = password)
                 )
                 
                 if (response.success && response.data != null) {
+                    if (BuildConfig.DEBUG) Log.d("API", "AuthViewModel.register - success userId=${response.data.user.id}")
                     val authData = response.data
                     
                     // Save token
@@ -110,10 +114,12 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                         _authState.value = AuthState(error = exception.message ?: "Registrasi gagal")
                     }
                 } else {
+                    if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.register - failed: ${response.error}")
                     _authState.value = AuthState(error = response.error ?: "Registrasi gagal")
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+                if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.register - exception: ${e.message}", e)
                 _authState.value = AuthState(error = e.message ?: "Terjadi kesalahan koneksi")
             }
         }
@@ -130,12 +136,14 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             }
             
             try {
+                if (BuildConfig.DEBUG) Log.d("API", "AuthViewModel.login - start email=$email")
                 // Call API
                 val response = authApiService.login(
                     LoginRequest(email = email, password = password)
                 )
                 
                 if (response.success && response.data != null) {
+                    if (BuildConfig.DEBUG) Log.d("API", "AuthViewModel.login - success userId=${response.data.user.id}")
                     val authData = response.data
                     
                     // Save token
@@ -168,10 +176,12 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                         }
                     }
                 } else {
+                    if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.login - failed: ${response.error}")
                     _authState.value = AuthState(error = response.error ?: "Login gagal")
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+                if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.login - exception: ${e.message}", e)
                 _authState.value = AuthState(error = e.message ?: "Terjadi kesalahan koneksi")
             }
         }
@@ -204,17 +214,21 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             }
             
             try {
+                if (BuildConfig.DEBUG) Log.d("API", "AuthViewModel.resetPassword - start email=$email")
                 val response = authApiService.resetPassword(
                     com.mytheclipse.quizbattle.data.remote.api.ResetPasswordRequest(email = email)
                 )
                 
                 if (response.success) {
+                    if (BuildConfig.DEBUG) Log.d("API", "AuthViewModel.resetPassword - success email=$email")
                     _authState.value = AuthState(isSuccess = true)
                 } else {
+                    if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.resetPassword - failed: ${response.error}")
                     _authState.value = AuthState(error = response.error ?: "Reset password gagal")
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+                if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.resetPassword - exception: ${e.message}", e)
                 _authState.value = AuthState(error = e.message ?: "Terjadi kesalahan koneksi")
             }
         }

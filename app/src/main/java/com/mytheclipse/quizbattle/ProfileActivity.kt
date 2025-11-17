@@ -4,14 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.mytheclipse.quizbattle.databinding.ActivityProfileBinding
 import com.mytheclipse.quizbattle.viewmodel.AuthViewModel
 import com.mytheclipse.quizbattle.viewmodel.ProfileViewModel
 import kotlinx.coroutines.launch
 
-class ProfileActivity : AppCompatActivity() {
+class ProfileActivity : BaseActivity() {
     
     private lateinit var binding: ActivityProfileBinding
     private val profileViewModel: ProfileViewModel by viewModels()
@@ -21,10 +20,12 @@ class ProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        
-        setupListeners()
-        observeProfileData()
-        profileViewModel.loadProfile()
+        lifecycleScope.launch {
+            if (!requireLoginOrRedirect(LoginActivity.REDIRECT_PROFILE)) return@launch
+            setupListeners()
+            observeProfileData()
+            profileViewModel.loadProfile()
+        }
     }
     
     private fun setupListeners() {

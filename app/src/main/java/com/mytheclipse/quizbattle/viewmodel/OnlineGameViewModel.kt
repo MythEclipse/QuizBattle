@@ -5,6 +5,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.mytheclipse.quizbattle.data.repository.DataModels.Question
 import com.mytheclipse.quizbattle.data.repository.*
+import android.util.Log
+import com.mytheclipse.quizbattle.BuildConfig
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,6 +44,7 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
     fun connectToMatch(matchId: String) {
         _state.value = _state.value.copy(matchId = matchId)
         viewModelScope.launch {
+            if (BuildConfig.DEBUG) Log.d("API", "OnlineGameViewModel.connectToMatch - matchId=$matchId")
             gameRepository.connectToMatch(matchId)
         }
     }
@@ -94,6 +97,7 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
     
     fun submitAnswer(questionId: String, answer: String, timeSpent: Int) {
         viewModelScope.launch {
+            if (BuildConfig.DEBUG) Log.d("API", "OnlineGameViewModel.submitAnswer - matchId=${_state.value.matchId} questionId=$questionId answer=$answer timeSpent=$timeSpent")
             val userId = tokenRepository.getUserId() ?: return@launch
             gameRepository.submitAnswer(
                 userId = userId,

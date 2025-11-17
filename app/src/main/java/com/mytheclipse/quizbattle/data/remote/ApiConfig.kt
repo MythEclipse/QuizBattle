@@ -1,6 +1,8 @@
 package com.mytheclipse.quizbattle.data.remote
 
 import com.google.gson.GsonBuilder
+import android.util.Log
+import com.mytheclipse.quizbattle.BuildConfig
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -29,13 +31,23 @@ object ApiConfig {
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
+
+    // Custom API logging. Wrap with BuildConfig debug so it won't flood release builds
+    private val apiLoggingInterceptor = ApiLoggingInterceptor("API")
     
     private val errorHandlerInterceptor = ErrorHandlerInterceptor()
     
-    private val okHttpClient = OkHttpClient.Builder()
+    private val okHttpClientBuilder = OkHttpClient.Builder()
         .addInterceptor(authInterceptor)
         .addInterceptor(loggingInterceptor)
         .addInterceptor(errorHandlerInterceptor)
+
+    // Add more verbose API logging only for debug builds
+    private val okHttpClient = okHttpClientBuilder.apply {
+        if (BuildConfig.DEBUG) {
+            addInterceptor(apiLoggingInterceptor)
+        }
+    }.build()
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
         .writeTimeout(30, TimeUnit.SECONDS)

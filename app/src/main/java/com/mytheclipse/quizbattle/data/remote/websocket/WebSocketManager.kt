@@ -1,5 +1,6 @@
 package com.mytheclipse.quizbattle.data.remote.websocket
 
+import android.util.Log
 import com.google.gson.Gson
 import com.mytheclipse.quizbattle.data.remote.ApiConfig
 import kotlinx.coroutines.*
@@ -54,6 +55,8 @@ class WebSocketManager {
         val request = Request.Builder()
             .url(ApiConfig.WEBSOCKET_URL)
             .build()
+
+        if (com.mytheclipse.quizbattle.BuildConfig.DEBUG) Log.d("WebSocket", "Connecting to ${ApiConfig.WEBSOCKET_URL} (user=$userId)")
         
         webSocket = client.newWebSocket(request, object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
@@ -69,6 +72,8 @@ class WebSocketManager {
                     )
                 )
                 sendMessage(authMessage)
+
+                if (com.mytheclipse.quizbattle.BuildConfig.DEBUG) Log.d("WebSocket", "onOpen: auth message sent for user=$userId")
                 
                 // Send queued messages
                 sendQueuedMessages()
@@ -78,6 +83,7 @@ class WebSocketManager {
                 try {
                     @Suppress("UNCHECKED_CAST")
                     val message = gson.fromJson(text, Map::class.java) as Map<String, Any>
+                    if (com.mytheclipse.quizbattle.BuildConfig.DEBUG) Log.d("WebSocket", "onMessage: $text")
                     scope.launch {
                         _messages.emit(message)
                     }
@@ -89,11 +95,13 @@ class WebSocketManager {
             override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
                 webSocket.close(1000, null)
                 _connectionState.value = ConnectionState.Disconnected
+                if (com.mytheclipse.quizbattle.BuildConfig.DEBUG) Log.d("WebSocket", "onClosing: code=$code reason=$reason")
             }
             
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 _connectionState.value = ConnectionState.Error(t.message ?: "Connection failed")
                 attemptReconnect(userId, token)
+                if (com.mytheclipse.quizbattle.BuildConfig.DEBUG) Log.e("WebSocket", "onFailure: ${t.message}", t)
             }
         })
     }
@@ -118,14 +126,17 @@ class WebSocketManager {
             val isConnected = _connectionState.value is ConnectionState.Connected
             
             if (isConnected && webSocket != null) {
+                if (com.mytheclipse.quizbattle.BuildConfig.DEBUG) Log.d("WebSocket", "sendMessage sending: $json")
                 webSocket?.send(json)
             } else {
                 // Queue message if not connected
+                if (com.mytheclipse.quizbattle.BuildConfig.DEBUG) Log.d("WebSocket", "sendMessage queueing (not connected): $json")
                 queueMessage(message)
             }
         } catch (e: Exception) {
             e.printStackTrace()
             // Queue message on error
+            if (com.mytheclipse.quizbattle.BuildConfig.DEBUG) Log.e("WebSocket", "sendMessage exception; queueing: ${e.message}", e)
             queueMessage(message)
         }
     }
@@ -153,9 +164,11 @@ class WebSocketManager {
                         delay(100) // Small delay between messages
                         try {
                             val json = gson.toJson(message)
+                            if (com.mytheclipse.quizbattle.BuildConfig.DEBUG) Log.d("WebSocket", "sendQueuedMessages sending: $json")
                             webSocket?.send(json)
                         } catch (e: Exception) {
                             e.printStackTrace()
+                            if (com.mytheclipse.quizbattle.BuildConfig.DEBUG) Log.e("WebSocket", "sendQueuedMessages error: ${e.message}", e)
                             // Re-queue failed message
                             queueMessage(message)
                         }

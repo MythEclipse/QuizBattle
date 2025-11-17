@@ -1,6 +1,8 @@
 package com.mytheclipse.quizbattle.data.repository
 
+import android.util.Log
 import com.mytheclipse.quizbattle.data.remote.ApiConfig
+import com.mytheclipse.quizbattle.BuildConfig
 import com.mytheclipse.quizbattle.data.remote.api.*
 import com.mytheclipse.quizbattle.data.remote.websocket.WebSocketManager
 import kotlinx.coroutines.flow.Flow
@@ -14,26 +16,34 @@ class ChatRepository {
     
     suspend fun getChatRooms(): Result<List<ChatRoomResponse>> {
         return try {
+            if (BuildConfig.DEBUG) Log.d("API", "ChatRepository.getChatRooms - start")
             val response = apiService.getChatRooms()
             if (response.success) {
+                if (BuildConfig.DEBUG) Log.d("API", "ChatRepository.getChatRooms - success rooms=${response.rooms.size}")
                 Result.success(response.rooms)
             } else {
+                if (BuildConfig.DEBUG) Log.e("API", "ChatRepository.getChatRooms - failed: ${response}")
                 Result.failure(Exception("Failed to fetch chat rooms"))
             }
         } catch (e: Exception) {
+            if (BuildConfig.DEBUG) Log.e("API", "ChatRepository.getChatRooms - exception: ${e.message}", e)
             Result.failure(e)
         }
     }
     
     suspend fun createChatRoom(name: String, description: String? = null, isPrivate: Boolean = false): Result<ChatRoomResponse> {
         return try {
+            if (BuildConfig.DEBUG) Log.d("API", "ChatRepository.createChatRoom - start name=$name isPrivate=$isPrivate")
             val response = apiService.createChatRoom(CreateRoomRequest(name, description, isPrivate))
             if (response.success) {
+                if (BuildConfig.DEBUG) Log.d("API", "ChatRepository.createChatRoom - success roomId=${response.room.id}")
                 Result.success(response.room)
             } else {
+                if (BuildConfig.DEBUG) Log.e("API", "ChatRepository.createChatRoom - failed: ${response}")
                 Result.failure(Exception("Failed to create chat room"))
             }
         } catch (e: Exception) {
+            if (BuildConfig.DEBUG) Log.e("API", "ChatRepository.createChatRoom - exception: ${e.message}", e)
             Result.failure(e)
         }
     }
@@ -53,52 +63,68 @@ class ChatRepository {
     
     suspend fun sendMessage(roomId: String, content: String): Result<ChatMessageResponse> {
         return try {
+            if (BuildConfig.DEBUG) Log.d("API", "ChatRepository.sendMessage - start roomId=$roomId contentLen=${content.length}")
             val response = apiService.sendMessage(roomId, SendMessageRequest(content))
             if (response.success) {
+                if (BuildConfig.DEBUG) Log.d("API", "ChatRepository.sendMessage - success messageId=${response.message.id}")
                 Result.success(response.message)
             } else {
+                if (BuildConfig.DEBUG) Log.e("API", "ChatRepository.sendMessage - failed: ${response}")
                 Result.failure(Exception("Failed to send message"))
             }
         } catch (e: Exception) {
+            if (BuildConfig.DEBUG) Log.e("API", "ChatRepository.sendMessage - exception: ${e.message}", e)
             Result.failure(e)
         }
     }
     
     suspend fun joinRoom(roomId: String): Result<Boolean> {
         return try {
+            if (BuildConfig.DEBUG) Log.d("API", "ChatRepository.joinRoom - start roomId=$roomId")
             val response = apiService.joinRoom(roomId)
             if (response.success) {
+                if (BuildConfig.DEBUG) Log.d("API", "ChatRepository.joinRoom - success")
                 Result.success(true)
             } else {
+                if (BuildConfig.DEBUG) Log.e("API", "ChatRepository.joinRoom - failed: ${response}")
                 Result.failure(Exception(response.message))
             }
         } catch (e: Exception) {
+            if (BuildConfig.DEBUG) Log.e("API", "ChatRepository.joinRoom - exception: ${e.message}", e)
             Result.failure(e)
         }
     }
     
     suspend fun leaveRoom(roomId: String): Result<Boolean> {
         return try {
+            if (BuildConfig.DEBUG) Log.d("API", "ChatRepository.leaveRoom - start roomId=$roomId")
             val response = apiService.leaveRoom(roomId)
             if (response.success) {
+                if (BuildConfig.DEBUG) Log.d("API", "ChatRepository.leaveRoom - success")
                 Result.success(true)
             } else {
+                if (BuildConfig.DEBUG) Log.e("API", "ChatRepository.leaveRoom - failed: ${response}")
                 Result.failure(Exception(response.message))
             }
         } catch (e: Exception) {
+            if (BuildConfig.DEBUG) Log.e("API", "ChatRepository.leaveRoom - exception: ${e.message}", e)
             Result.failure(e)
         }
     }
     
     suspend fun deleteMessage(messageId: String): Result<Boolean> {
         return try {
+            if (BuildConfig.DEBUG) Log.d("API", "ChatRepository.deleteMessage - start messageId=$messageId")
             val response = apiService.deleteMessage(messageId)
             if (response.success) {
+                if (BuildConfig.DEBUG) Log.d("API", "ChatRepository.deleteMessage - success")
                 Result.success(true)
             } else {
+                if (BuildConfig.DEBUG) Log.e("API", "ChatRepository.deleteMessage - failed: ${response}")
                 Result.failure(Exception(response.message))
             }
         } catch (e: Exception) {
+            if (BuildConfig.DEBUG) Log.e("API", "ChatRepository.deleteMessage - exception: ${e.message}", e)
             Result.failure(e)
         }
     }

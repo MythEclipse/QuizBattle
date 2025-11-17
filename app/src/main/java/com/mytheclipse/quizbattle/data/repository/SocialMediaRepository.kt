@@ -1,6 +1,8 @@
 package com.mytheclipse.quizbattle.data.repository
 
+import android.util.Log
 import com.mytheclipse.quizbattle.data.remote.ApiConfig
+import com.mytheclipse.quizbattle.BuildConfig
 import com.mytheclipse.quizbattle.data.remote.api.*
 import com.mytheclipse.quizbattle.data.remote.model.CommentResponse
 import com.mytheclipse.quizbattle.data.remote.model.LikeResponse
@@ -12,26 +14,34 @@ class SocialMediaRepository {
     
     suspend fun getPosts(): Result<List<PostResponse>> {
         return try {
+            if (BuildConfig.DEBUG) Log.d("API", "SocialMediaRepository.getPosts - start")
             val response = apiService.getPosts()
             if (response.success) {
+                if (BuildConfig.DEBUG) Log.d("API", "SocialMediaRepository.getPosts - success count=${response.posts.size}")
                 Result.success(response.posts)
             } else {
+                if (BuildConfig.DEBUG) Log.e("API", "SocialMediaRepository.getPosts - failed: ${response}")
                 Result.failure(Exception("Failed to fetch posts"))
             }
         } catch (e: Exception) {
+            if (BuildConfig.DEBUG) Log.e("API", "SocialMediaRepository.getPosts - exception: ${e.message}", e)
             Result.failure(e)
         }
     }
     
     suspend fun createPost(content: String, imageUrl: String? = null): Result<PostResponse> {
         return try {
+            if (BuildConfig.DEBUG) Log.d("API", "SocialMediaRepository.createPost - start contentLen=${content.length}")
             val response = apiService.createPost(CreatePostRequest(content, imageUrl))
             if (response.success) {
+                if (BuildConfig.DEBUG) Log.d("API", "SocialMediaRepository.createPost - success postId=${response.post.id}")
                 Result.success(response.post)
             } else {
+                if (BuildConfig.DEBUG) Log.e("API", "SocialMediaRepository.createPost - failed: ${response}")
                 Result.failure(Exception("Failed to create post"))
             }
         } catch (e: Exception) {
+            if (BuildConfig.DEBUG) Log.e("API", "SocialMediaRepository.createPost - exception: ${e.message}", e)
             Result.failure(e)
         }
     }

@@ -5,9 +5,11 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
+import com.mytheclipse.quizbattle.util.AuthUtils
+import com.mytheclipse.quizbattle.data.repository.TokenRepository
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
 import com.mytheclipse.quizbattle.databinding.ActivityMainBinding
 import com.mytheclipse.quizbattle.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
@@ -34,15 +36,40 @@ class MainActivity : AppCompatActivity() {
         }
         
         binding.onlineButton.setOnClickListener {
-            startActivity(Intent(this, OnlineMenuActivity::class.java))
+            // Require login before going to Online
+            lifecycleScope.launchWhenCreated {
+                val tokenRepo = TokenRepository(application)
+                val token = tokenRepo.getToken()
+                if (token == null) {
+                    startActivity(AuthUtils.createLoginIntent(this@MainActivity, LoginActivity.REDIRECT_ONLINE_MENU))
+                } else {
+                    startActivity(Intent(this@MainActivity, OnlineMenuActivity::class.java))
+                }
+            }
         }
         
         binding.feedButton.setOnClickListener {
-            startActivity(Intent(this, FeedActivity::class.java))
+            lifecycleScope.launchWhenCreated {
+                val tokenRepo = TokenRepository(application)
+                val token = tokenRepo.getToken()
+                if (token == null) {
+                    startActivity(AuthUtils.createLoginIntent(this@MainActivity, LoginActivity.REDIRECT_FEED))
+                } else {
+                    startActivity(Intent(this@MainActivity, FeedActivity::class.java))
+                }
+            }
         }
         
         binding.profileButton.setOnClickListener {
-            startActivity(Intent(this, ProfileActivity::class.java))
+            lifecycleScope.launchWhenCreated {
+                val tokenRepo = TokenRepository(application)
+                val token = tokenRepo.getToken()
+                if (token == null) {
+                    startActivity(AuthUtils.createLoginIntent(this@MainActivity, LoginActivity.REDIRECT_PROFILE))
+                } else {
+                    startActivity(Intent(this@MainActivity, ProfileActivity::class.java))
+                }
+            }
         }
     }
     
@@ -63,6 +90,12 @@ class MainActivity : AppCompatActivity() {
                 
                 // Update leaderboard
                 updateLeaderboard(state.topUsers)
+
+                // Disable online/feed/profile if not logged in
+                val isLoggedIn = state.currentUser != null
+                binding.onlineButton.isEnabled = isLoggedIn
+                binding.feedButton.isEnabled = isLoggedIn
+                binding.profileButton.isEnabled = isLoggedIn
             }
         }
     }

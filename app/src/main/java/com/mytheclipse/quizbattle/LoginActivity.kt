@@ -69,13 +69,41 @@ class LoginActivity : AppCompatActivity() {
                 }
                 
                 if (state.isSuccess && state.user != null) {
-                    val intent = Intent(this@LoginActivity, MainActivity::class.java).apply {
-                        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                    // If the LoginActivity was launched with a redirect target, resume it
+                    val redirectTarget = intent.getStringExtra(EXTRA_REDIRECT)
+                    val matchId = intent.getStringExtra(EXTRA_MATCH_ID)
+                    if (redirectTarget != null) {
+                        when (redirectTarget) {
+                            REDIRECT_ONLINE_MENU -> startActivity(Intent(this@LoginActivity, OnlineMenuActivity::class.java))
+                            REDIRECT_FEED -> startActivity(Intent(this@LoginActivity, FeedActivity::class.java))
+                            REDIRECT_PROFILE -> startActivity(Intent(this@LoginActivity, ProfileActivity::class.java))
+                            REDIRECT_ONLINE_BATTLE -> {
+                                val redirectIntent = Intent(this@LoginActivity, OnlineBattleActivity::class.java)
+                                if (!matchId.isNullOrBlank()) redirectIntent.putExtra(OnlineBattleActivity.EXTRA_MATCH_ID, matchId)
+                                startActivity(redirectIntent)
+                            }
+                            else -> startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                        }
+                    } else {
+                        val intentMain = Intent(this@LoginActivity, MainActivity::class.java).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                        startActivity(intentMain)
                     }
-                    startActivity(intent)
+
                     finish()
                 }
             }
         }
+    }
+
+    companion object {
+        const val EXTRA_REDIRECT = "extra_redirect"
+        const val EXTRA_MATCH_ID = "extra_match_id"
+
+        const val REDIRECT_ONLINE_MENU = "online_menu"
+        const val REDIRECT_FEED = "feed"
+        const val REDIRECT_PROFILE = "profile"
+        const val REDIRECT_ONLINE_BATTLE = "online_battle"
     }
 }

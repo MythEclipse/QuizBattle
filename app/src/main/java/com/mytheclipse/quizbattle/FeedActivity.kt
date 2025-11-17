@@ -11,7 +11,7 @@ import com.mytheclipse.quizbattle.databinding.ActivityFeedBinding
 import com.mytheclipse.quizbattle.viewmodel.GameHistoryViewModel
 import kotlinx.coroutines.launch
 
-class FeedActivity : AppCompatActivity() {
+class FeedActivity : BaseActivity() {
     
     private lateinit var binding: ActivityFeedBinding
     private val gameHistoryViewModel: GameHistoryViewModel by viewModels()
@@ -21,10 +21,12 @@ class FeedActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityFeedBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        
-        setupRecyclerView()
-        setupListeners()
-        observeGameHistory()
+        lifecycleScope.launch {
+            if (!requireLoginOrRedirect(LoginActivity.REDIRECT_FEED)) return@launch
+            setupRecyclerView()
+            setupListeners()
+            observeGameHistory()
+        }
     }
     
     private fun setupRecyclerView() {

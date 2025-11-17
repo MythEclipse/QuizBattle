@@ -293,3 +293,22 @@ Proyek ini dibuat untuk keperluan tugas akademik Mata Kuliah Bahasa Pemrograman 
 
 ---
 
+## 🛠 Debugging & API Logs
+
+Untuk memudahkan debugging interaksi API (REST dan WebSocket), proyek ini sudah dilengkapi dengan beberapa log dan interceptor:
+
+- OkHttp HttpLoggingInterceptor: menampilkan header dan body HTTP di logcat (aktif di debug build).
+- ApiLoggingInterceptor: interceptor kustom yang mencatat request/response dengan format terstruktur, dan menyamarkan header Authorization (hanya aktif di debug build).
+- WebSocket logging: menampilkan koneksi WebSocket, pesan masuk/keluar, retry attempts untuk mempermudah tracing pada mode online.
+- safeApiCall logging: mencatat start/finish/exception pada panggilan API untuk melihat caller dan waktu eksekusi (hanya di debug build).
+
+Untuk melihat log di Android Studio, jalankan aplikasi pada emulator atau perangkat dan buka Logcat, lalu filter dengan tag `API` atau `WebSocket`.
+
+Contoh filter:
+```bash
+tag:API
+tag:WebSocket
+```
+
+Catatan: Semua log verbose hanya aktif pada debug builds; release builds tidak akan mencatat data sensitif.
+

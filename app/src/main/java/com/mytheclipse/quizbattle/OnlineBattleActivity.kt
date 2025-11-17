@@ -9,7 +9,6 @@ import android.os.Looper
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
@@ -17,7 +16,7 @@ import com.mytheclipse.quizbattle.databinding.ActivityOnlineBattleBinding
 import com.mytheclipse.quizbattle.viewmodel.OnlineGameViewModel
 import kotlinx.coroutines.launch
 
-class OnlineBattleActivity : AppCompatActivity() {
+class OnlineBattleActivity : BaseActivity() {
     
     private lateinit var binding: ActivityOnlineBattleBinding
     private val viewModel: OnlineGameViewModel by viewModels()
@@ -34,16 +33,18 @@ class OnlineBattleActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityOnlineBattleBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        
-        val matchId = intent.getStringExtra(EXTRA_MATCH_ID) ?: ""
-        if (matchId.isNotEmpty()) {
-            viewModel.setMatchId(matchId)
-            viewModel.connectToMatch(matchId)
+        lifecycleScope.launch {
+            val matchIdParam = intent.getStringExtra(EXTRA_MATCH_ID)
+            if (!requireLoginOrRedirect(LoginActivity.REDIRECT_ONLINE_BATTLE, matchIdParam)) return@launch
+            val matchId = matchIdParam ?: ""
+            if (matchId.isNotEmpty()) {
+                viewModel.setMatchId(matchId)
+                viewModel.connectToMatch(matchId)
+            }
+            setupCharacterAnimations()
+            setupAnswerButtons()
+            observeGameState()
         }
-        
-        setupCharacterAnimations()
-        setupAnswerButtons()
-        observeGameState()
     }
     
     private fun setupCharacterAnimations() {
