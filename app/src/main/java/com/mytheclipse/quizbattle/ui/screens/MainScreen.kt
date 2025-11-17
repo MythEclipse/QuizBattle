@@ -33,6 +33,7 @@ import com.mytheclipse.quizbattle.viewmodel.MainViewModel
 import com.mytheclipse.quizbattle.ui.components.ErrorState
 import com.mytheclipse.quizbattle.ui.components.LoadingState
 import androidx.compose.ui.platform.LocalContext
+import com.mytheclipse.quizbattle.utils.androidViewModel
 
 @Suppress("UNUSED_PARAMETER")
 @Composable
@@ -43,7 +44,7 @@ fun MainScreen(
     onNavigateToFeed: () -> Unit = {},
     onNavigateToNotifications: () -> Unit = {},
     onNavigateToProfile: () -> Unit = {},
-    viewModel: MainViewModel = viewModel()
+    viewModel: MainViewModel = androidViewModel()
 ) {
     val state by viewModel.state.collectAsState()
     val haptic = rememberHapticFeedback()

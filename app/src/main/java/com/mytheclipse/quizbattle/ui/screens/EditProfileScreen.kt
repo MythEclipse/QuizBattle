@@ -17,12 +17,13 @@ import com.mytheclipse.quizbattle.viewmodel.ProfileViewModel
 import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
 import com.mytheclipse.quizbattle.ui.components.ErrorState
 import com.mytheclipse.quizbattle.ui.components.LoadingState
+import com.mytheclipse.quizbattle.utils.androidViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileScreen(
     onNavigateBack: () -> Unit,
-    viewModel: ProfileViewModel = viewModel()
+    viewModel: ProfileViewModel = androidViewModel()
 ) {
     val state by viewModel.state.collectAsState()
     val haptic = rememberHapticFeedback()

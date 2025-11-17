@@ -22,12 +22,13 @@ import com.mytheclipse.quizbattle.ui.components.ErrorState
 import com.mytheclipse.quizbattle.ui.components.LeaderboardItemSkeleton
 import com.mytheclipse.quizbattle.ui.components.SkeletonList
 import com.mytheclipse.quizbattle.viewmodel.OnlineLeaderboardViewModel
+import com.mytheclipse.quizbattle.utils.androidViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LeaderboardScreen(
     onNavigateBack: () -> Unit,
-    viewModel: OnlineLeaderboardViewModel = viewModel()
+    viewModel: OnlineLeaderboardViewModel = androidViewModel()
 ) {
     val state by viewModel.state.collectAsState()
     var selectedTab by remember { mutableStateOf(0) }

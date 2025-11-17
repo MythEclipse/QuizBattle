@@ -24,9 +24,9 @@ import com.mytheclipse.quizbattle.ui.theme.*
 import com.mytheclipse.quizbattle.ui.components.EmptyState
 import com.mytheclipse.quizbattle.ui.components.SkeletonList
 import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mytheclipse.quizbattle.viewmodel.FriendListViewModel
 import com.mytheclipse.quizbattle.data.repository.FriendInfo
+import com.mytheclipse.quizbattle.utils.androidViewModel
 
 data class Friend(
     val name: String,
@@ -36,7 +36,7 @@ data class Friend(
 @Composable
 fun FriendListScreen(
     onNavigateBack: () -> Unit,
-    viewModel: FriendListViewModel = viewModel()
+    viewModel: FriendListViewModel = androidViewModel()
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val haptic = rememberHapticFeedback()
@@ -167,17 +167,22 @@ fun FriendListScreen(
                     LazyColumn(
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        items(filteredFriends) { friend ->
-                            FriendInfoItem(
-                                friend = friend,
-                                onClick = { /* Handle friend click */ }
-                            )
-                            
-                            Divider(
-                                modifier = Modifier.padding(horizontal = 16.dp),
-                                color = BorderSeparator,
-                                thickness = 1.dp
-                            )
+                        items(
+                            items = filteredFriends,
+                            key = { friend -> friend.userId }
+                        ) { friend ->
+                            Column {
+                                FriendInfoItem(
+                                    friend = friend,
+                                    onClick = { /* Handle friend click */ }
+                                )
+
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    color = BorderSeparator,
+                                    thickness = 1.dp
+                                )
+                            }
                         }
                     }
                 }

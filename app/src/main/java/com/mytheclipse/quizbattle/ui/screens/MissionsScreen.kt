@@ -21,12 +21,13 @@ import com.mytheclipse.quizbattle.ui.components.EmptyState
 import com.mytheclipse.quizbattle.ui.components.ErrorState
 import com.mytheclipse.quizbattle.ui.components.LoadingState
 import com.mytheclipse.quizbattle.viewmodel.DailyMissionsViewModel
+import com.mytheclipse.quizbattle.utils.androidViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MissionsScreen(
     onNavigateBack: () -> Unit,
-    viewModel: DailyMissionsViewModel = viewModel()
+    viewModel: DailyMissionsViewModel = androidViewModel()
 ) {
     val state by viewModel.state.collectAsState()
     var selectedTab by remember { mutableStateOf(0) }

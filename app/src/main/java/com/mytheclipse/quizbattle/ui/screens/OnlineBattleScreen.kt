@@ -17,12 +17,13 @@ import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
 import com.mytheclipse.quizbattle.viewmodel.OnlineGameViewModel
 import com.mytheclipse.quizbattle.ui.components.ErrorState
 import com.mytheclipse.quizbattle.ui.components.LoadingState
+import com.mytheclipse.quizbattle.utils.androidViewModel
 
 @Composable
 fun OnlineBattleScreen(
     matchId: String,
     onGameFinished: () -> Unit,
-    viewModel: OnlineGameViewModel = viewModel()
+    viewModel: OnlineGameViewModel = androidViewModel()
 ) {
     val state by viewModel.state.collectAsState()
     val haptic = rememberHapticFeedback()

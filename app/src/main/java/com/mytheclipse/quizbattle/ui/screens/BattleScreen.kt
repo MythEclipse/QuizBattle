@@ -41,11 +41,12 @@ import com.mytheclipse.quizbattle.viewmodel.BattleViewModel
 import kotlinx.coroutines.delay
 import com.mytheclipse.quizbattle.ui.components.ErrorState
 import com.mytheclipse.quizbattle.ui.components.LoadingState
+import com.mytheclipse.quizbattle.utils.androidViewModel
 
 @Composable
 fun BattleScreen(
     onNavigateToResult: (Boolean) -> Unit, // true for victory, false for defeat
-    viewModel: BattleViewModel = viewModel()
+    viewModel: BattleViewModel = androidViewModel()
 ) {
     val state by viewModel.state.collectAsState()
     val haptic = rememberHapticFeedback()

@@ -18,13 +18,14 @@ import com.mytheclipse.quizbattle.ui.components.ErrorState
 import com.mytheclipse.quizbattle.ui.components.LobbyItemSkeleton
 import com.mytheclipse.quizbattle.ui.components.SkeletonList
 import com.mytheclipse.quizbattle.viewmodel.LobbyViewModel
+import com.mytheclipse.quizbattle.utils.androidViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LobbyListScreen(
     onNavigateBack: () -> Unit,
     onLobbyJoined: (String) -> Unit,
-    viewModel: LobbyViewModel = viewModel()
+    viewModel: LobbyViewModel = androidViewModel()
 ) {
     val state by viewModel.state.collectAsState()
     var showCreateDialog by remember { mutableStateOf(false) }

@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -49,16 +48,11 @@ fun SplashScreen(
             
             // Quiz Battle text with gradient
             Text(
-                text = "Quiz\nBattle",
+                text = "Quiz Battle",
                 style = MaterialTheme.typography.displayLarge.copy(
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            GradientTextRedStart,
-                            GradientTextBlueEnd
-                        )
-                    ),
                     fontSize = 64.sp,
-                    fontWeight = FontWeight.Normal
+                    fontWeight = FontWeight.Bold,
+                    color = PrimaryBlue
                 ),
                 modifier = Modifier.padding(16.dp)
             )

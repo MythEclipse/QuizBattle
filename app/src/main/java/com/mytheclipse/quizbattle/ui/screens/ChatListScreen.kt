@@ -18,13 +18,14 @@ import com.mytheclipse.quizbattle.ui.components.EmptyState
 import com.mytheclipse.quizbattle.ui.components.ErrorState
 import com.mytheclipse.quizbattle.ui.components.SkeletonList
 import com.mytheclipse.quizbattle.viewmodel.ChatViewModel
+import com.mytheclipse.quizbattle.utils.androidViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatListScreen(
     onNavigateBack: () -> Unit,
     onRoomSelected: (String, String) -> Unit,
-    viewModel: ChatViewModel = viewModel()
+    viewModel: ChatViewModel = androidViewModel()
 ) {
     val state by viewModel.state.collectAsState()
     

@@ -22,13 +22,14 @@ import com.mytheclipse.quizbattle.ui.components.ErrorState
 import com.mytheclipse.quizbattle.ui.components.PostItemSkeleton
 import com.mytheclipse.quizbattle.ui.components.SkeletonList
 import com.mytheclipse.quizbattle.viewmodel.SocialMediaViewModel
+import com.mytheclipse.quizbattle.utils.androidViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedScreen(
     onNavigateBack: () -> Unit,
     onCreatePost: () -> Unit,
-    viewModel: SocialMediaViewModel = viewModel()
+    viewModel: SocialMediaViewModel = androidViewModel()
 ) {
     val state by viewModel.state.collectAsState()
     

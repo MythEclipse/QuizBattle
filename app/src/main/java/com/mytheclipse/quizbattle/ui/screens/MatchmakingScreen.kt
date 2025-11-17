@@ -22,13 +22,14 @@ import com.mytheclipse.quizbattle.ui.components.ConfettiBurst
 import com.mytheclipse.quizbattle.ui.components.DimmedOverlay
 import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
 import com.mytheclipse.quizbattle.viewmodel.MatchmakingViewModel
+import com.mytheclipse.quizbattle.utils.androidViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MatchmakingScreen(
     onNavigateBack: () -> Unit,
     onMatchFound: (String) -> Unit,
-    viewModel: MatchmakingViewModel = viewModel()
+    viewModel: MatchmakingViewModel = androidViewModel()
 ) {
     val state by viewModel.state.collectAsState()
     val haptic = rememberHapticFeedback()

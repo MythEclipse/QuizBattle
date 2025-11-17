@@ -13,12 +13,13 @@ import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import com.mytheclipse.quizbattle.ui.components.ErrorState
 import com.mytheclipse.quizbattle.ui.components.LoadingState
+import com.mytheclipse.quizbattle.utils.androidViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreatePostScreen(
     onNavigateBack: () -> Unit,
-    viewModel: SocialMediaViewModel = viewModel()
+    viewModel: SocialMediaViewModel = androidViewModel()
 ) {
     val state by viewModel.state.collectAsState()
     var content by remember { mutableStateOf("") }

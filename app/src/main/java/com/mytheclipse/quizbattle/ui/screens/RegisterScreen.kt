@@ -22,12 +22,13 @@ import com.mytheclipse.quizbattle.ui.components.LoadingState
 import com.mytheclipse.quizbattle.ui.theme.*
 import com.mytheclipse.quizbattle.viewmodel.AuthViewModel
 import com.mytheclipse.quizbattle.utils.rememberHapticFeedback
+import com.mytheclipse.quizbattle.utils.androidViewModel
 
 @Composable
 fun RegisterScreen(
     onNavigateToLogin: () -> Unit,
     onNavigateToMain: () -> Unit,
-    viewModel: AuthViewModel = viewModel()
+    viewModel: AuthViewModel = androidViewModel()
 ) {
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
