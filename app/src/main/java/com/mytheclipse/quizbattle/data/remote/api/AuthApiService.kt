@@ -1,7 +1,10 @@
 package com.mytheclipse.quizbattle.data.remote.api
 
 import com.mytheclipse.quizbattle.data.remote.model.ApiResponse
-import com.mytheclipse.quizbattle.data.remote.model.AuthResponseData
+import com.mytheclipse.quizbattle.data.remote.model.LoginResponseData
+import com.mytheclipse.quizbattle.data.remote.model.RegisterResponseData
+import com.mytheclipse.quizbattle.data.remote.model.RefreshTokenResponseData
+import com.google.gson.annotations.SerializedName
 import retrofit2.http.Body
 import retrofit2.http.POST
 
@@ -10,16 +13,23 @@ interface AuthApiService {
     @POST("api/auth/login")
     suspend fun login(
         @Body request: LoginRequest
-    ): ApiResponse<AuthResponseData>
+    ): LoginResponseData
     
     @POST("api/auth/register")
     suspend fun register(
         @Body request: RegisterRequest
-    ): ApiResponse<AuthResponseData>
+    ): RegisterResponseData
     
-    @POST("api/auth/refresh")
-    suspend fun refreshToken(): ApiResponse<String>
+    @POST("api/auth/refresh-token")
+    suspend fun refreshToken(
+        @Body request: RefreshTokenRequest
+    ): RefreshTokenResponseData
 
+    @POST("api/auth/forgot-password")
+    suspend fun forgotPassword(
+        @Body request: ForgotPasswordRequest
+    ): ApiResponse<String>
+    
     @POST("api/auth/reset-password")
     suspend fun resetPassword(
         @Body request: ResetPasswordRequest
@@ -28,7 +38,8 @@ interface AuthApiService {
 
 data class LoginRequest(
     val email: String,
-    val password: String
+    val password: String,
+    val rememberMe: Boolean = false
 )
 
 data class RegisterRequest(
@@ -37,6 +48,18 @@ data class RegisterRequest(
     val password: String
 )
 
-data class ResetPasswordRequest(
+data class RefreshTokenRequest(
+    @SerializedName("refresh_token")
+    val refreshToken: String
+)
+
+data class ForgotPasswordRequest(
     val email: String
 )
+
+data class ResetPasswordRequest(
+    val token: String,
+    @SerializedName("new_password")
+    val newPassword: String
+)
+

@@ -53,6 +53,7 @@ android {
     buildFeatures {
         compose = false // Disabled - migrated to XML layouts
         viewBinding = true
+        buildConfig = true // Enable BuildConfig generation (disabled by default in AGP 8.0+)
     }
     packaging {
         resources {

@@ -35,6 +35,10 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, BattleActivity::class.java))
         }
         
+        binding.loginButton.setOnClickListener {
+            startActivity(Intent(this, LoginActivity::class.java))
+        }
+        
         binding.onlineButton.setOnClickListener {
             // Require login before going to Online
             lifecycleScope.launchWhenCreated {
@@ -80,8 +84,10 @@ class MainActivity : AppCompatActivity() {
                 
                 // Update user info
                 val currentUser = state.currentUser
-                if (currentUser != null) {
-                    binding.userNameTextView.text = "Halo, ${currentUser.username}!"
+                val isLoggedIn = currentUser != null
+                
+                if (isLoggedIn) {
+                    binding.userNameTextView.text = "Halo, ${currentUser!!.username}!"
                     binding.userPointsTextView.text = "Points: ${currentUser.points}"
                 } else {
                     binding.userNameTextView.text = "Mode: Guest"
@@ -91,11 +97,15 @@ class MainActivity : AppCompatActivity() {
                 // Update leaderboard
                 updateLeaderboard(state.topUsers)
 
-                // Disable online/feed/profile if not logged in
-                val isLoggedIn = state.currentUser != null
-                binding.onlineButton.isEnabled = isLoggedIn
-                binding.feedButton.isEnabled = isLoggedIn
-                binding.profileButton.isEnabled = isLoggedIn
+                // Hide login button when logged in, show online/feed/profile buttons
+                // Show login button when guest, hide online/feed/profile buttons
+                binding.loginButton.visibility = if (isLoggedIn) View.GONE else View.VISIBLE
+                binding.onlineButton.visibility = if (isLoggedIn) View.VISIBLE else View.GONE
+                binding.feedButton.visibility = if (isLoggedIn) View.VISIBLE else View.GONE
+                binding.profileButton.visibility = if (isLoggedIn) View.VISIBLE else View.GONE
+                
+                // Also hide the bottom buttons layout if not logged in
+                binding.bottomButtonsLayout.visibility = if (isLoggedIn) View.VISIBLE else View.GONE
             }
         }
     }

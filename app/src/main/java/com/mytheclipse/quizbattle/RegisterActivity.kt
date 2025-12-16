@@ -81,7 +81,11 @@ class RegisterActivity : AppCompatActivity() {
                     Toast.makeText(this@RegisterActivity, error, Toast.LENGTH_LONG).show()
                 }
                 
-                if (state.isSuccess) {
+                if (state.isSuccess && state.requiresEmailVerification) {
+                    val message = state.message ?: "Registrasi berhasil! Silakan cek email Anda untuk verifikasi."
+                    Toast.makeText(this@RegisterActivity, message, Toast.LENGTH_LONG).show()
+                    finish()
+                } else if (state.isSuccess) {
                     Toast.makeText(this@RegisterActivity, "Registrasi berhasil! Silakan login.", Toast.LENGTH_LONG).show()
                     finish()
                 }

@@ -105,17 +105,31 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Login Button (visible for guests only) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/loginButton"
+            style="@style/Widget.QuizBattle.Button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_large"
+            android:text="Login"
+            android:visibility="visible"
+            app:icon="@android:drawable/ic_menu_myplaces"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/userInfoCard" />
+
         <!-- Battle Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/battleButton"
             style="@style/Widget.QuizBattle.Button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_large"
+            android:layout_marginTop="@dimen/spacing_medium"
             android:text="Main Quiz (Offline)"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/userInfoCard" />
+            app:layout_constraintTop_toBottomOf="@id/loginButton" />
 
         <!-- Online Button -->
         <com.google.android.material.button.MaterialButton

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -16,6 +17,8 @@ class TokenRepository(private val context: Context) {
     
     companion object {
         private val TOKEN_KEY = stringPreferencesKey("auth_token")
+        private val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
+        private val TOKEN_EXPIRES_KEY = longPreferencesKey("token_expires_at")
         private val USER_ID_KEY = stringPreferencesKey("user_id")
         private val USER_NAME_KEY = stringPreferencesKey("user_name")
         private val USER_EMAIL_KEY = stringPreferencesKey("user_email")
@@ -37,6 +40,32 @@ class TokenRepository(private val context: Context) {
         return context.dataStore.data.map { preferences ->
             preferences[TOKEN_KEY]
         }
+    }
+    
+    suspend fun saveRefreshToken(token: String) {
+        context.dataStore.edit { preferences ->
+            preferences[REFRESH_TOKEN_KEY] = token
+        }
+    }
+    
+    suspend fun getRefreshToken(): String? {
+        return context.dataStore.data.map { preferences ->
+            preferences[REFRESH_TOKEN_KEY]
+        }.first()
+    }
+    
+    suspend fun saveTokenExpiry(expiresIn: Int) {
+        val expiresAt = System.currentTimeMillis() + (expiresIn * 1000L)
+        context.dataStore.edit { preferences ->
+            preferences[TOKEN_EXPIRES_KEY] = expiresAt
+        }
+    }
+    
+    suspend fun isTokenExpired(): Boolean {
+        val expiresAt = context.dataStore.data.map { preferences ->
+            preferences[TOKEN_EXPIRES_KEY] ?: 0L
+        }.first()
+        return System.currentTimeMillis() >= expiresAt
     }
     
     suspend fun saveUserId(userId: String) {
@@ -81,3 +110,4 @@ class TokenRepository(private val context: Context) {
         }
     }
 }
+

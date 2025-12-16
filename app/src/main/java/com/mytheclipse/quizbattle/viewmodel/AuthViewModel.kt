@@ -9,6 +9,7 @@ import com.mytheclipse.quizbattle.data.remote.ApiConfig
 import com.mytheclipse.quizbattle.data.remote.api.AuthApiService
 import com.mytheclipse.quizbattle.data.remote.api.LoginRequest
 import com.mytheclipse.quizbattle.data.remote.api.RegisterRequest
+import com.mytheclipse.quizbattle.data.remote.api.ForgotPasswordRequest
 import com.mytheclipse.quizbattle.data.repository.TokenRepository
 import com.mytheclipse.quizbattle.data.repository.UserRepository
 import android.util.Log
@@ -22,7 +23,9 @@ data class AuthState(
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false,
     val error: String? = null,
-    val user: User? = null
+    val user: User? = null,
+    val requiresEmailVerification: Boolean = false,
+    val message: String? = null
 )
 
 class AuthViewModel(application: Application) : AndroidViewModel(application) {
@@ -56,6 +59,16 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
     
+    private fun isValidPassword(password: String): Boolean {
+        // Elysia requires: 8+ chars, uppercase, lowercase, digit, special char
+        val hasMinLength = password.length >= 8
+        val hasUppercase = password.any { it.isUpperCase() }
+        val hasLowercase = password.any { it.isLowerCase() }
+        val hasDigit = password.any { it.isDigit() }
+        val hasSpecial = password.any { !it.isLetterOrDigit() }
+        return hasMinLength && hasUppercase && hasLowercase && hasDigit && hasSpecial
+    }
+    
     fun register(username: String, email: String, password: String, confirmPassword: String) {
         viewModelScope.launch {
             _authState.value = AuthState(isLoading = true)
@@ -71,8 +84,10 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 return@launch
             }
             
-            if (password.length < 6) {
-                _authState.value = AuthState(error = "Password minimal 6 karakter")
+            if (!isValidPassword(password)) {
+                _authState.value = AuthState(
+                    error = "Password minimal 8 karakter dengan huruf besar, kecil, angka, dan simbol"
+                )
                 return@launch
             }
             
@@ -83,39 +98,29 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     RegisterRequest(name = username, email = email, password = password)
                 )
                 
-                if (response.success && response.data != null) {
-                    if (BuildConfig.DEBUG) Log.d("API", "AuthViewModel.register - success userId=${response.data.user.id}")
-                    val authData = response.data
+                if (response.success) {
+                    if (BuildConfig.DEBUG) Log.d("API", "AuthViewModel.register - success userId=${response.user.id}")
                     
-                    // Save token
-                    tokenRepository.saveToken(authData.token)
-                    tokenRepository.saveUserId(authData.user.id)
-                    tokenRepository.saveUserName(authData.user.name ?: username)
-                    tokenRepository.saveUserEmail(authData.user.email ?: email)
-                    ApiConfig.setAuthToken(authData.token)
-                    
-                    // Save user to local database
-                    val localUser = User(
-                        id = 0,
-                        username = authData.user.name ?: username,
-                        email = authData.user.email ?: email,
-                        password = password,
-                        points = 0,
-                        wins = 0,
-                        losses = 0,
-                        totalGames = 0,
-                        isLoggedIn = true
-                    )
-                    
+                    // Registration successful, but email verification required
+                    // Save user to local database for later login
                     val result = userRepository.registerUser(username, email, password)
-                    result.onSuccess { user ->
-                        _authState.value = AuthState(isSuccess = true, user = user)
+                    result.onSuccess {
+                        _authState.value = AuthState(
+                            isSuccess = true,
+                            requiresEmailVerification = true,
+                            message = response.message
+                        )
                     }.onFailure { exception ->
-                        _authState.value = AuthState(error = exception.message ?: "Registrasi gagal")
+                        // Even if local save fails, registration was successful
+                        _authState.value = AuthState(
+                            isSuccess = true,
+                            requiresEmailVerification = true,
+                            message = response.message
+                        )
                     }
                 } else {
-                    if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.register - failed: ${response.error}")
-                    _authState.value = AuthState(error = response.error ?: "Registrasi gagal")
+                    if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.register - failed")
+                    _authState.value = AuthState(error = "Registrasi gagal")
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -142,16 +147,17 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     LoginRequest(email = email, password = password)
                 )
                 
-                if (response.success && response.data != null) {
-                    if (BuildConfig.DEBUG) Log.d("API", "AuthViewModel.login - success userId=${response.data.user.id}")
-                    val authData = response.data
+                if (response.success) {
+                    if (BuildConfig.DEBUG) Log.d("API", "AuthViewModel.login - success userId=${response.user.id}")
                     
-                    // Save token
-                    tokenRepository.saveToken(authData.token)
-                    tokenRepository.saveUserId(authData.user.id)
-                    tokenRepository.saveUserName(authData.user.name ?: "User")
-                    tokenRepository.saveUserEmail(authData.user.email ?: email)
-                    ApiConfig.setAuthToken(authData.token)
+                    // Save tokens
+                    tokenRepository.saveToken(response.accessToken)
+                    tokenRepository.saveRefreshToken(response.refreshToken)
+                    tokenRepository.saveTokenExpiry(response.expiresIn)
+                    tokenRepository.saveUserId(response.user.id)
+                    tokenRepository.saveUserName(response.user.name ?: "User")
+                    tokenRepository.saveUserEmail(response.user.email ?: email)
+                    ApiConfig.setAuthToken(response.accessToken)
                     
                     // Login or create user in local database
                     val result = userRepository.loginUser(email, password)
@@ -159,7 +165,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     if (result.isFailure) {
                         // User doesn't exist locally, create it
                         val registerResult = userRepository.registerUser(
-                            authData.user.name ?: "User",
+                            response.user.name ?: "User",
                             email,
                             password
                         )
@@ -176,8 +182,8 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                         }
                     }
                 } else {
-                    if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.login - failed: ${response.error}")
-                    _authState.value = AuthState(error = response.error ?: "Login gagal")
+                    if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.login - failed")
+                    _authState.value = AuthState(error = "Login gagal")
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -204,7 +210,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         _authState.value = _authState.value.copy(error = null)
     }
     
-    fun resetPassword(email: String) {
+    fun forgotPassword(email: String) {
         viewModelScope.launch {
             _authState.value = AuthState(isLoading = true)
             
@@ -214,23 +220,33 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             }
             
             try {
-                if (BuildConfig.DEBUG) Log.d("API", "AuthViewModel.resetPassword - start email=$email")
-                val response = authApiService.resetPassword(
-                    com.mytheclipse.quizbattle.data.remote.api.ResetPasswordRequest(email = email)
+                if (BuildConfig.DEBUG) Log.d("API", "AuthViewModel.forgotPassword - start email=$email")
+                val response = authApiService.forgotPassword(
+                    ForgotPasswordRequest(email = email)
                 )
                 
                 if (response.success) {
-                    if (BuildConfig.DEBUG) Log.d("API", "AuthViewModel.resetPassword - success email=$email")
-                    _authState.value = AuthState(isSuccess = true)
+                    if (BuildConfig.DEBUG) Log.d("API", "AuthViewModel.forgotPassword - success email=$email")
+                    _authState.value = AuthState(
+                        isSuccess = true,
+                        message = "Link reset password telah dikirim ke email Anda"
+                    )
                 } else {
-                    if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.resetPassword - failed: ${response.error}")
+                    if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.forgotPassword - failed: ${response.error}")
                     _authState.value = AuthState(error = response.error ?: "Reset password gagal")
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.resetPassword - exception: ${e.message}", e)
+                if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.forgotPassword - exception: ${e.message}", e)
                 _authState.value = AuthState(error = e.message ?: "Terjadi kesalahan koneksi")
             }
         }
     }
+    
+    // Deprecated: Use forgotPassword instead
+    @Deprecated("Use forgotPassword instead", ReplaceWith("forgotPassword(email)"))
+    fun resetPassword(email: String) {
+        forgotPassword(email)
+    }
 }
+

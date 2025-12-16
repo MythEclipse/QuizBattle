@@ -67,7 +67,7 @@ suspend fun <T> safeApiCall(
 
     return try {
         val result = apiCall()
-        val tookMs = kotlin.time.Duration.nanoseconds(System.nanoTime() - startTime).inWholeMilliseconds
+        val tookMs = (System.nanoTime() - startTime) / 1_000_000
         if (com.mytheclipse.quizbattle.BuildConfig.DEBUG) {
             Log.d("API", "safeApiCall success - caller=$caller took=${tookMs}ms")
         }
