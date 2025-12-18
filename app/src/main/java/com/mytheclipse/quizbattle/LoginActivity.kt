@@ -61,11 +61,13 @@ class LoginActivity : AppCompatActivity() {
     private fun observeAuthState() {
         lifecycleScope.launch {
             authViewModel.authState.collect { state ->
-                binding.progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
-                binding.loginButton.isEnabled = !state.isLoading
+                // Set loading state - disable all interactive elements
+                setLoadingState(state.isLoading)
                 
+                // Handle errors - show toast and clear error to prevent duplicate toasts
                 state.error?.let { error ->
                     Toast.makeText(this@LoginActivity, error, Toast.LENGTH_LONG).show()
+                    authViewModel.clearError()
                 }
                 
                 if (state.isSuccess && state.user != null) {
@@ -95,6 +97,21 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+    
+    private fun setLoadingState(isLoading: Boolean) {
+        // Show/hide progress bar
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        
+        // Disable/enable all interactive elements to prevent spam
+        binding.loginButton.isEnabled = !isLoading
+        binding.emailEditText.isEnabled = !isLoading
+        binding.passwordEditText.isEnabled = !isLoading
+        binding.forgotPasswordTextView.isClickable = !isLoading
+        binding.registerTextView.isClickable = !isLoading
+        
+        // Change button text to indicate loading
+        binding.loginButton.text = if (isLoading) "Loading..." else getString(R.string.login)
     }
 
     companion object {

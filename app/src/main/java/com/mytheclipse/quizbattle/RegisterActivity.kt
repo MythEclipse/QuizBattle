@@ -74,11 +74,13 @@ class RegisterActivity : AppCompatActivity() {
     private fun observeAuthState() {
         lifecycleScope.launch {
             authViewModel.authState.collect { state ->
-                binding.progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
-                binding.registerButton.isEnabled = !state.isLoading
+                // Set loading state - disable all interactive elements
+                setLoadingState(state.isLoading)
                 
+                // Handle errors - show toast and clear error to prevent duplicate toasts
                 state.error?.let { error ->
                     Toast.makeText(this@RegisterActivity, error, Toast.LENGTH_LONG).show()
+                    authViewModel.clearError()
                 }
                 
                 if (state.isSuccess && state.requiresEmailVerification) {
@@ -91,5 +93,21 @@ class RegisterActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+    
+    private fun setLoadingState(isLoading: Boolean) {
+        // Show/hide progress bar
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        
+        // Disable/enable all interactive elements to prevent spam
+        binding.registerButton.isEnabled = !isLoading
+        binding.usernameEditText.isEnabled = !isLoading
+        binding.emailEditText.isEnabled = !isLoading
+        binding.passwordEditText.isEnabled = !isLoading
+        binding.confirmPasswordEditText.isEnabled = !isLoading
+        binding.loginTextView.isClickable = !isLoading
+        
+        // Change button text to indicate loading
+        binding.registerButton.text = if (isLoading) "Loading..." else "Daftar"
     }
 }
