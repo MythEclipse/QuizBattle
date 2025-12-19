@@ -94,8 +94,14 @@ class MainActivity : AppCompatActivity() {
                     binding.userPointsTextView.text = "Login untuk menyimpan progress"
                 }
                 
-                // Update leaderboard
-                updateLeaderboard(state.topUsers)
+                // Hide leaderboard when offline (not logged in)
+                binding.leaderboardTitleTextView.visibility = if (isLoggedIn) View.VISIBLE else View.GONE
+                binding.leaderboardLayout.visibility = if (isLoggedIn) View.VISIBLE else View.GONE
+                
+                // Update leaderboard only if logged in
+                if (isLoggedIn) {
+                    updateLeaderboard(state.topUsers)
+                }
 
                 // Hide login button when logged in, show online/feed/profile buttons
                 // Show login button when guest, hide online/feed/profile buttons
@@ -144,9 +150,14 @@ class MainActivity : AppCompatActivity() {
         
         rankBadge.text = rank.toString()
         
-        // Since we don't have the User data class structure, use placeholder
-        playerName.text = "Player $rank"
-        points.text = "0 pts"
+        // Extract real user data if available
+        if (user != null && user is com.mytheclipse.quizbattle.data.local.entity.User) {
+            playerName.text = user.username
+            points.text = "${user.points} pts"
+        } else {
+            playerName.text = "-"
+            points.text = "0 pts"
+        }
         
         // Adjust avatar size for first place
         val layoutParams = avatar.layoutParams

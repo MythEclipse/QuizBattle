@@ -26,12 +26,13 @@ class OnlineGameRepository {
         val payload = message["payload"] as? Map<String, Any> ?: emptyMap()
         
         return when (type) {
-            "game.answer.result" -> {
+            // Backend sends "game.answer.received" not "game.answer.result"
+            "game.answer.received" -> {
                 GameEvent.AnswerResult(
                     isCorrect = payload["isCorrect"] as? Boolean ?: false,
-                    correctAnswer = payload["correctAnswer"] as? String ?: "",
+                    correctAnswer = ((payload["correctAnswerIndex"] as? Double)?.toInt() ?: 0).toString(),
                     points = (payload["points"] as? Double)?.toInt() ?: 0,
-                    timeBonus = (payload["timeBonus"] as? Double)?.toInt() ?: 0
+                    timeBonus = 0 // Backend doesn't send timeBonus separately
                 )
             }
             "lobby.game.starting" -> {
@@ -39,25 +40,29 @@ class OnlineGameRepository {
                     countdown = (payload["countdown"] as? Double)?.toInt() ?: 3
                 )
             }
-            "game.finished" -> {
+            // Backend sends "game.over" not "game.finished"
+            "game.over" -> {
                 @Suppress("UNCHECKED_CAST")
-                val playerStatsMap = payload["playerStats"] as? Map<String, Any> ?: emptyMap()
+                val winnerMap = payload["winner"] as? Map<String, Any> ?: emptyMap()
                 @Suppress("UNCHECKED_CAST")
-                val opponentStatsMap = payload["opponentStats"] as? Map<String, Any> ?: emptyMap()
+                val loserMap = payload["loser"] as? Map<String, Any> ?: emptyMap()
+                
+                val winnerId = winnerMap["userId"] as? String ?: ""
                 
                 GameEvent.GameFinished(
                     matchId = payload["matchId"] as? String ?: "",
-                    winner = payload["winner"] as? String ?: "",
-                    playerScore = (playerStatsMap["score"] as? Double)?.toInt() ?: 0,
-                    playerCorrect = (playerStatsMap["correctAnswers"] as? Double)?.toInt() ?: 0,
-                    opponentScore = (opponentStatsMap["score"] as? Double)?.toInt() ?: 0,
-                    opponentCorrect = (opponentStatsMap["correctAnswers"] as? Double)?.toInt() ?: 0
+                    winner = winnerId,
+                    playerScore = (winnerMap["finalScore"] as? Double)?.toInt() ?: 0,
+                    playerCorrect = (winnerMap["correctAnswers"] as? Double)?.toInt() ?: 0,
+                    opponentScore = (loserMap["finalScore"] as? Double)?.toInt() ?: 0,
+                    opponentCorrect = (loserMap["correctAnswers"] as? Double)?.toInt() ?: 0
                 )
             }
             "game.opponent.answered" -> {
                 GameEvent.OpponentAnswered
             }
-            "game.opponent.disconnected" -> {
+            // Backend sends "game.player.disconnected" not "game.opponent.disconnected"
+            "game.player.disconnected" -> {
                 GameEvent.OpponentDisconnected
             }
             else -> GameEvent.Unknown

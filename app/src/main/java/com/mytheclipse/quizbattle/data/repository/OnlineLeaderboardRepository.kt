@@ -55,13 +55,17 @@ class OnlineLeaderboardRepository {
                         score = (item["points"] as? Double)?.toInt() ?: 0,
                         wins = (item["wins"] as? Double)?.toInt() ?: 0,
                         losses = (item["losses"] as? Double)?.toInt() ?: 0,
-                        mmr = (item["mmr"] as? Double)?.toInt() ?: 0
+                        mmr = (item["points"] as? Double)?.toInt() ?: 0 // Use points as mmr
                     )
                 }
+                // userRank is an object: { rank: number, points: number, percentile: number }
+                val userRankObj = payload["userRank"] as? Map<String, Any>
+                val userRank = (userRankObj?.get("rank") as? Double)?.toInt() ?: 0
+                
                 LeaderboardEvent.GlobalData(
                     entries = entries,
-                    userRank = (payload["userRank"] as? Double)?.toInt() ?: 0,
-                    totalPlayers = (payload["totalPlayers"] as? Double)?.toInt() ?: 0
+                    userRank = userRank,
+                    totalPlayers = (payload["totalPlayers"] as? Double)?.toInt() ?: entries.size
                 )
             }
             "leaderboard.friends.data" -> {
@@ -73,13 +77,17 @@ class OnlineLeaderboardRepository {
                         score = (item["points"] as? Double)?.toInt() ?: 0,
                         wins = (item["wins"] as? Double)?.toInt() ?: 0,
                         losses = (item["losses"] as? Double)?.toInt() ?: 0,
-                        mmr = (item["mmr"] as? Double)?.toInt() ?: 0
+                        mmr = (item["points"] as? Double)?.toInt() ?: 0 // Use points as mmr
                     )
                 }
+                // userRank is an object: { rank: number, points: number }
+                val userRankObj = payload["userRank"] as? Map<String, Any>
+                val userRank = (userRankObj?.get("rank") as? Double)?.toInt() ?: 0
+                
                 LeaderboardEvent.FriendsData(
                     entries = entries,
-                    userRank = (payload["userRank"] as? Double)?.toInt() ?: 0,
-                    totalFriends = (payload["totalFriends"] as? Double)?.toInt() ?: 0
+                    userRank = userRank,
+                    totalFriends = (payload["totalFriends"] as? Double)?.toInt() ?: entries.size
                 )
             }
             else -> LeaderboardEvent.Unknown

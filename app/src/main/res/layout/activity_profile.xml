@@ -23,8 +23,7 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:text="←"
-                android:textSize="24sp"
+                android:src="@drawable/ic_back"
                 android:contentDescription="Back" />
 
             <TextView

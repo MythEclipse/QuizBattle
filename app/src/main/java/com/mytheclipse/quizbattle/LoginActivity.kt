@@ -99,6 +99,7 @@ class LoginActivity : AppCompatActivity() {
                 REDIRECT_ONLINE_MENU -> startActivity(Intent(this, OnlineMenuActivity::class.java))
                 REDIRECT_FEED -> startActivity(Intent(this, FeedActivity::class.java))
                 REDIRECT_PROFILE -> startActivity(Intent(this, ProfileActivity::class.java))
+                REDIRECT_LEADERBOARD -> startActivity(Intent(this, LeaderboardActivity::class.java))
                 REDIRECT_ONLINE_BATTLE -> {
                     val redirectIntent = Intent(this, OnlineBattleActivity::class.java)
                     if (!matchId.isNullOrBlank()) redirectIntent.putExtra(OnlineBattleActivity.EXTRA_MATCH_ID, matchId)
@@ -139,5 +140,6 @@ class LoginActivity : AppCompatActivity() {
         const val REDIRECT_FEED = "feed"
         const val REDIRECT_PROFILE = "profile"
         const val REDIRECT_ONLINE_BATTLE = "online_battle"
+        const val REDIRECT_LEADERBOARD = "leaderboard"
     }
 }

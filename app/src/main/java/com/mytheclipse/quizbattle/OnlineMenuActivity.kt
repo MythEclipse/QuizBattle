@@ -171,38 +171,16 @@ class OnlineMenuActivity : BaseActivity() {
     private fun showCreateRoomDialog() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Create Room")
-        builder.setMessage("Room ID: ROOM${System.currentTimeMillis()}")
-        builder.setPositiveButton("Create") { _, _ ->
-            val matchId = "ROOM${System.currentTimeMillis()}"
-            Toast.makeText(this, "Room created! Share ID: $matchId", Toast.LENGTH_LONG).show()
-            
-            val intent = Intent(this, OnlineBattleActivity::class.java)
-            intent.putExtra(OnlineBattleActivity.EXTRA_MATCH_ID, matchId)
-            startActivity(intent)
-        }
-        builder.setNegativeButton("Cancel", null)
+        builder.setMessage("Private room creation is coming soon!\n\nFor now, use Quick Match to play with other players.")
+        builder.setPositiveButton("OK", null)
         builder.show()
     }
     
     private fun showJoinRoomDialog() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Join Room")
-        
-        val input = android.widget.EditText(this)
-        input.hint = "Enter Room ID"
-        builder.setView(input)
-        
-        builder.setPositiveButton("Join") { _, _ ->
-            val roomId = input.text.toString().trim()
-            if (roomId.isNotEmpty()) {
-                val intent = Intent(this, OnlineBattleActivity::class.java)
-                intent.putExtra(OnlineBattleActivity.EXTRA_MATCH_ID, roomId)
-                startActivity(intent)
-            } else {
-                Toast.makeText(this, "Please enter a room ID", Toast.LENGTH_SHORT).show()
-            }
-        }
-        builder.setNegativeButton("Cancel", null)
+        builder.setMessage("Private room feature is coming soon!\n\nFor now, use Quick Match to play with other players.")
+        builder.setPositiveButton("OK", null)
         builder.show()
     }
     
@@ -216,4 +194,5 @@ class OnlineMenuActivity : BaseActivity() {
         }
     }
 }
+
 
