@@ -6,15 +6,9 @@
    See https://developer.android.com/about/versions/12/backup-restore
 -->
 <full-backup-content>
-    <!-- Include DataStore preferences for auth and user data -->
-    <include domain="sharedpref" path="datastore/auth_preferences.preferences_pb"/>
-    
     <!-- Include SQLite database for user data, game history, and questions -->
     <include domain="database" path="quiz_battle_database"/>
     
-    <!-- Exclude temporary session data and offline action queue -->
-    <exclude domain="sharedpref" path="datastore/offline_actions.preferences_pb"/>
-    
-    <!-- Exclude cache files -->
-    <exclude domain="cache" path="."/>
+    <!-- Include all shared preferences -->
+    <include domain="sharedpref" path="."/>
 </full-backup-content>

@@ -5,24 +5,16 @@
 -->
 <data-extraction-rules>
     <cloud-backup>
-        <!-- Include DataStore preferences for auth and user data -->
-        <include domain="sharedpref" path="datastore/auth_preferences.preferences_pb"/>
-        
         <!-- Include SQLite database for user data and game history -->
         <include domain="database" path="quiz_battle_database"/>
         
-        <!-- Exclude temporary offline actions and cache -->
-        <exclude domain="sharedpref" path="datastore/offline_actions.preferences_pb"/>
-        <exclude domain="cache" path="."/>
+        <!-- Include all shared preferences -->
+        <include domain="sharedpref" path="."/>
     </cloud-backup>
     
     <device-transfer>
         <!-- Include all user data for device transfer -->
-        <include domain="sharedpref" path="datastore/auth_preferences.preferences_pb"/>
         <include domain="database" path="quiz_battle_database"/>
-        
-        <!-- Exclude temporary data from device transfer -->
-        <exclude domain="sharedpref" path="datastore/offline_actions.preferences_pb"/>
-        <exclude domain="cache" path="."/>
+        <include domain="sharedpref" path="."/>
     </device-transfer>
 </data-extraction-rules>
