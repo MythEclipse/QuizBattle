@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
         
         binding.onlineButton.setOnClickListener {
             // Require login before going to Online
-            lifecycleScope.launchWhenCreated {
+            lifecycleScope.launch {
                 val tokenRepo = TokenRepository(application)
                 val token = tokenRepo.getToken()
                 if (token == null) {
@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity() {
         }
         
         binding.feedButton.setOnClickListener {
-            lifecycleScope.launchWhenCreated {
+            lifecycleScope.launch {
                 val tokenRepo = TokenRepository(application)
                 val token = tokenRepo.getToken()
                 if (token == null) {
@@ -65,7 +65,7 @@ class MainActivity : AppCompatActivity() {
         }
         
         binding.profileButton.setOnClickListener {
-            lifecycleScope.launchWhenCreated {
+            lifecycleScope.launch {
                 val tokenRepo = TokenRepository(application)
                 val token = tokenRepo.getToken()
                 if (token == null) {
