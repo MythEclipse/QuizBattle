@@ -2,6 +2,8 @@ package com.mytheclipse.quizbattle
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -17,6 +19,9 @@ class OnlineMenuActivity : BaseActivity() {
     private val matchmakingViewModel: MatchmakingViewModel by viewModels()
     
     private var isSearchingForMatch = false
+    private var searchStartTime: Long = 0
+    private val handler = Handler(Looper.getMainLooper())
+    private var timerRunnable: Runnable? = null
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +44,7 @@ class OnlineMenuActivity : BaseActivity() {
             if (isSearchingForMatch) {
                 // Cancel matchmaking if searching
                 matchmakingViewModel.cancelMatchmaking()
+                stopSearchTimer()
             }
             finish()
         }
@@ -47,6 +53,7 @@ class OnlineMenuActivity : BaseActivity() {
             if (isSearchingForMatch) {
                 // Cancel matchmaking
                 matchmakingViewModel.cancelMatchmaking()
+                stopSearchTimer()
             } else {
                 // Start real matchmaking
                 startRealMatchmaking()
@@ -72,6 +79,7 @@ class OnlineMenuActivity : BaseActivity() {
                 
                 // Handle match found
                 state.matchFound?.let { matchData ->
+                    stopSearchTimer()
                     navigateToOnlineBattle(
                         matchId = matchData.matchId,
                         opponentName = matchData.opponentName,
@@ -96,13 +104,45 @@ class OnlineMenuActivity : BaseActivity() {
             category = "general"
         )
         
+        // Start the search timer
+        startSearchTimer()
+        
         Toast.makeText(this, "Searching for opponent...", Toast.LENGTH_SHORT).show()
+    }
+    
+    private fun startSearchTimer() {
+        searchStartTime = System.currentTimeMillis()
+        
+        timerRunnable = object : Runnable {
+            override fun run() {
+                val elapsedSeconds = ((System.currentTimeMillis() - searchStartTime) / 1000).toInt()
+                val minutes = elapsedSeconds / 60
+                val seconds = elapsedSeconds % 60
+                
+                val timeText = if (minutes > 0) {
+                    String.format("Cancel Search (%d:%02d)", minutes, seconds)
+                } else {
+                    String.format("Cancel Search (%ds)", seconds)
+                }
+                
+                binding.quickMatchButton?.text = timeText
+                handler.postDelayed(this, 1000)
+            }
+        }
+        handler.post(timerRunnable!!)
+    }
+    
+    private fun stopSearchTimer() {
+        timerRunnable?.let { handler.removeCallbacks(it) }
+        timerRunnable = null
     }
     
     private fun updateSearchingUI(isSearching: Boolean) {
         binding.quickMatchButton?.apply {
-            text = if (isSearching) "Cancel Search" else "Quick Match"
-            // You could also show a progress indicator here
+            if (!isSearching) {
+                text = "Quick Match"
+            }
+            // Timer updates the text when searching
         }
         
         // Disable other buttons while searching
@@ -168,9 +208,12 @@ class OnlineMenuActivity : BaseActivity() {
     
     override fun onDestroy() {
         super.onDestroy()
+        stopSearchTimer()
+        handler.removeCallbacksAndMessages(null)
         // Cancel matchmaking if activity is destroyed
         if (isSearchingForMatch) {
             matchmakingViewModel.cancelMatchmaking()
         }
     }
 }
+
