@@ -47,8 +47,8 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: "temurin"
+          java-version: "17"
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
@@ -98,7 +98,7 @@ jobs:
           name: Release ${{ steps.get_next_version.outputs.version }} (AAB + APK)
           body: |
             🎉 Rilis otomatis AAB dan APK versi ${{ steps.get_next_version.outputs.version }}
-            
+
             **Commit:** ${{ github.sha }}
             **Version Code:** ${{ github.run_number }}
             **Version Name:** ${{ steps.get_next_version.outputs.version_name }}
@@ -106,4 +106,4 @@ jobs:
           prerelease: false
           files: |
             app/build/outputs/bundle/release/app-release.aab
-            app/build/outputs/apk/release/app-release.apk
+            app/build/outputs/apk/release/*.apk
