@@ -32,18 +32,22 @@ class MatchmakingRepository {
                     estimatedWaitTime = (payload["estimatedWaitTime"] as? Double)?.toInt() ?: 0
                 )
             }
-            "matchmaking.match_found" -> {
+            "matchmaking.found" -> {
                 @Suppress("UNCHECKED_CAST")
                 val opponentMap = payload["opponent"] as? Map<String, Any> ?: emptyMap()
                 @Suppress("UNCHECKED_CAST")
                 val settingsMap = payload["gameSettings"] as? Map<String, Any> ?: emptyMap()
                 
+                // Backend sends 'points' and 'wins', calculate level from points
+                val points = (opponentMap["points"] as? Double)?.toInt() ?: 0
+                val calculatedLevel = (points / 100) + 1 // Simple level calculation
+                
                 MatchmakingEvent.MatchFound(
                     matchId = payload["matchId"] as? String ?: "",
                     opponentId = opponentMap["userId"] as? String ?: "",
-                    opponentName = opponentMap["username"] as? String ?: "",
-                    opponentLevel = (opponentMap["level"] as? Double)?.toInt() ?: 1,
-                    opponentAvatar = null, // Avatar disabled for user management
+                    opponentName = opponentMap["username"] as? String ?: "Opponent",
+                    opponentLevel = calculatedLevel,
+                    opponentAvatar = opponentMap["avatarUrl"] as? String,
                     difficulty = settingsMap["difficulty"] as? String ?: "medium",
                     category = settingsMap["category"] as? String ?: "general",
                     totalQuestions = (settingsMap["totalQuestions"] as? Double)?.toInt() ?: 10,

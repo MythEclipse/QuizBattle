@@ -1,13 +1,12 @@
 package com.mytheclipse.quizbattle
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.mytheclipse.quizbattle.databinding.ActivityRegisterBinding
+import com.mytheclipse.quizbattle.utils.ResultDialogHelper
 import com.mytheclipse.quizbattle.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 
@@ -77,19 +76,31 @@ class RegisterActivity : AppCompatActivity() {
                 // Set loading state - disable all interactive elements
                 setLoadingState(state.isLoading)
                 
-                // Handle errors - show toast and clear error to prevent duplicate toasts
+                // Handle errors - show dialog and clear error to prevent duplicates
                 state.error?.let { error ->
-                    Toast.makeText(this@RegisterActivity, error, Toast.LENGTH_LONG).show()
+                    ResultDialogHelper.showError(
+                        context = this@RegisterActivity,
+                        title = "Registrasi Gagal",
+                        message = error
+                    )
                     authViewModel.clearError()
                 }
                 
                 if (state.isSuccess && state.requiresEmailVerification) {
                     val message = state.message ?: "Registrasi berhasil! Silakan cek email Anda untuk verifikasi."
-                    Toast.makeText(this@RegisterActivity, message, Toast.LENGTH_LONG).show()
-                    finish()
+                    ResultDialogHelper.showSuccess(
+                        context = this@RegisterActivity,
+                        title = "Registrasi Berhasil!",
+                        message = message,
+                        onDismiss = { finish() }
+                    )
                 } else if (state.isSuccess) {
-                    Toast.makeText(this@RegisterActivity, "Registrasi berhasil! Silakan login.", Toast.LENGTH_LONG).show()
-                    finish()
+                    ResultDialogHelper.showSuccess(
+                        context = this@RegisterActivity,
+                        title = "Registrasi Berhasil!",
+                        message = "Akun berhasil dibuat. Silakan login.",
+                        onDismiss = { finish() }
+                    )
                 }
             }
         }

@@ -13,6 +13,8 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import com.mytheclipse.quizbattle.databinding.ActivityOnlineBattleBinding
+import com.mytheclipse.quizbattle.data.repository.TokenRepository
+import com.mytheclipse.quizbattle.utils.MatchFoundDialogHelper
 import com.mytheclipse.quizbattle.viewmodel.OnlineGameViewModel
 import kotlinx.coroutines.launch
 
@@ -29,22 +31,85 @@ class OnlineBattleActivity : BaseActivity() {
     private var lastPlayerAnimRes: Int = -1
     private var lastOpponentAnimRes: Int = -1
     
+    private var matchFoundDialogShown = false
+    private var gameReady = false
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityOnlineBattleBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        
         lifecycleScope.launch {
             val matchIdParam = intent.getStringExtra(EXTRA_MATCH_ID)
             if (!requireLoginOrRedirect(LoginActivity.REDIRECT_ONLINE_BATTLE, matchIdParam)) return@launch
             val matchId = matchIdParam ?: ""
-            if (matchId.isNotEmpty()) {
-                viewModel.setMatchId(matchId)
-                viewModel.connectToMatch(matchId)
+            
+            // Get opponent info from intent extras
+            val opponentName = intent.getStringExtra(EXTRA_OPPONENT_NAME) ?: "Opponent"
+            val opponentLevel = intent.getIntExtra(EXTRA_OPPONENT_LEVEL, 1)
+            val category = intent.getStringExtra(EXTRA_CATEGORY) ?: "General"
+            val difficulty = intent.getStringExtra(EXTRA_DIFFICULTY) ?: "Normal"
+            
+            // Get player info
+            val tokenRepository = TokenRepository(application)
+            val playerName = tokenRepository.getUserName() ?: "You"
+            
+            // Show Match Found dialog before starting
+            if (!matchFoundDialogShown && matchId.isNotEmpty()) {
+                matchFoundDialogShown = true
+                showMatchFoundDialog(
+                    matchId = matchId,
+                    playerName = playerName,
+                    opponentName = opponentName,
+                    opponentLevel = opponentLevel,
+                    category = category,
+                    difficulty = difficulty
+                )
+            } else if (matchId.isNotEmpty()) {
+                startGame(matchId)
             }
-            setupCharacterAnimations()
-            setupAnswerButtons()
-            observeGameState()
         }
+    }
+    
+    private fun showMatchFoundDialog(
+        matchId: String,
+        playerName: String,
+        opponentName: String,
+        opponentLevel: Int,
+        category: String,
+        difficulty: String
+    ) {
+        MatchFoundDialogHelper.showMatchFoundDialog(
+            context = this,
+            playerInfo = MatchFoundDialogHelper.PlayerInfo(
+                name = playerName,
+                level = 1,
+                avatarRes = R.drawable.player_avatar
+            ),
+            opponentInfo = MatchFoundDialogHelper.PlayerInfo(
+                name = opponentName,
+                level = opponentLevel,
+                avatarRes = R.drawable.bot_avatar
+            ),
+            matchInfo = MatchFoundDialogHelper.MatchInfo(
+                matchId = matchId,
+                category = category,
+                difficulty = difficulty
+            ),
+            countdownSeconds = 5,
+            onCountdownComplete = {
+                startGame(matchId)
+            }
+        )
+    }
+    
+    private fun startGame(matchId: String) {
+        gameReady = true
+        viewModel.setMatchId(matchId)
+        viewModel.connectToMatch(matchId)
+        setupCharacterAnimations()
+        setupAnswerButtons()
+        observeGameState()
     }
     
     private fun setupCharacterAnimations() {
@@ -332,5 +397,9 @@ class OnlineBattleActivity : BaseActivity() {
     
     companion object {
         const val EXTRA_MATCH_ID = "extra_match_id"
+        const val EXTRA_OPPONENT_NAME = "extra_opponent_name"
+        const val EXTRA_OPPONENT_LEVEL = "extra_opponent_level"
+        const val EXTRA_CATEGORY = "extra_category"
+        const val EXTRA_DIFFICULTY = "extra_difficulty"
     }
 }

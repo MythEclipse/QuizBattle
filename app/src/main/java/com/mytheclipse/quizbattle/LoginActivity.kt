@@ -3,11 +3,11 @@ package com.mytheclipse.quizbattle
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.mytheclipse.quizbattle.databinding.ActivityLoginBinding
+import com.mytheclipse.quizbattle.utils.ResultDialogHelper
 import com.mytheclipse.quizbattle.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 
@@ -64,39 +64,56 @@ class LoginActivity : AppCompatActivity() {
                 // Set loading state - disable all interactive elements
                 setLoadingState(state.isLoading)
                 
-                // Handle errors - show toast and clear error to prevent duplicate toasts
+                // Handle errors - show dialog and clear error to prevent duplicates
                 state.error?.let { error ->
-                    Toast.makeText(this@LoginActivity, error, Toast.LENGTH_LONG).show()
+                    ResultDialogHelper.showError(
+                        context = this@LoginActivity,
+                        title = "Login Gagal",
+                        message = error
+                    )
                     authViewModel.clearError()
                 }
                 
                 if (state.isSuccess && state.user != null) {
-                    // If the LoginActivity was launched with a redirect target, resume it
-                    val redirectTarget = intent.getStringExtra(EXTRA_REDIRECT)
-                    val matchId = intent.getStringExtra(EXTRA_MATCH_ID)
-                    if (redirectTarget != null) {
-                        when (redirectTarget) {
-                            REDIRECT_ONLINE_MENU -> startActivity(Intent(this@LoginActivity, OnlineMenuActivity::class.java))
-                            REDIRECT_FEED -> startActivity(Intent(this@LoginActivity, FeedActivity::class.java))
-                            REDIRECT_PROFILE -> startActivity(Intent(this@LoginActivity, ProfileActivity::class.java))
-                            REDIRECT_ONLINE_BATTLE -> {
-                                val redirectIntent = Intent(this@LoginActivity, OnlineBattleActivity::class.java)
-                                if (!matchId.isNullOrBlank()) redirectIntent.putExtra(OnlineBattleActivity.EXTRA_MATCH_ID, matchId)
-                                startActivity(redirectIntent)
-                            }
-                            else -> startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                    // Show success dialog briefly then navigate
+                    ResultDialogHelper.showSuccess(
+                        context = this@LoginActivity,
+                        title = "Login Berhasil!",
+                        message = "Selamat datang, ${state.user.username}!",
+                        onDismiss = {
+                            navigateAfterLogin()
                         }
-                    } else {
-                        val intentMain = Intent(this@LoginActivity, MainActivity::class.java).apply {
-                            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-                        }
-                        startActivity(intentMain)
-                    }
-
-                    finish()
+                    )
                 }
             }
         }
+    }
+    
+    private fun navigateAfterLogin() {
+        // If the LoginActivity was launched with a redirect target, resume it
+        val redirectTarget = intent.getStringExtra(EXTRA_REDIRECT)
+        val matchId = intent.getStringExtra(EXTRA_MATCH_ID)
+        
+        if (redirectTarget != null) {
+            when (redirectTarget) {
+                REDIRECT_ONLINE_MENU -> startActivity(Intent(this, OnlineMenuActivity::class.java))
+                REDIRECT_FEED -> startActivity(Intent(this, FeedActivity::class.java))
+                REDIRECT_PROFILE -> startActivity(Intent(this, ProfileActivity::class.java))
+                REDIRECT_ONLINE_BATTLE -> {
+                    val redirectIntent = Intent(this, OnlineBattleActivity::class.java)
+                    if (!matchId.isNullOrBlank()) redirectIntent.putExtra(OnlineBattleActivity.EXTRA_MATCH_ID, matchId)
+                    startActivity(redirectIntent)
+                }
+                else -> startActivity(Intent(this, MainActivity::class.java))
+            }
+        } else {
+            val intentMain = Intent(this, MainActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            startActivity(intentMain)
+        }
+        
+        finish()
     }
     
     private fun setLoadingState(isLoading: Boolean) {

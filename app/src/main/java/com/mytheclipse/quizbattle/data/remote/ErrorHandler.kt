@@ -18,33 +18,21 @@ class ErrorHandlerInterceptor : Interceptor {
         val request = chain.request()
         
         try {
-            val response = chain.proceed(request)
-            
-            // Check if response is not successful
-            if (!response.isSuccessful) {
-                val code = response.code
-                val message = response.message
-                
-                throw when (code) {
-                    400 -> ApiException.BadRequestException(message)
-                    401 -> ApiException.AuthException(message)
-                    403 -> ApiException.ForbiddenException(message)
-                    404 -> ApiException.NotFoundException(message)
-                    409 -> ApiException.ConflictException(message)
-                    in 500..599 -> ApiException.ServerException(code, message)
-                    else -> ApiException.UnknownException(message)
-                }
-            }
-            
-            return response
+            // Don't throw exceptions for HTTP error responses.
+            // OkHttp interceptors run on dispatcher threads, and throwing here
+            // causes uncaught exceptions that crash the app.
+            // Error responses will be handled by safeApiCall at the call site.
+            return chain.proceed(request)
             
         } catch (e: Exception) {
+            // Only handle network-level exceptions (not HTTP errors)
+            // Log for debugging but rethrow as IOException to be caught by safeApiCall
+            Log.e("API", "ErrorHandlerInterceptor caught exception", e)
             throw when (e) {
-                is ApiException -> e
-                is UnknownHostException -> ApiException.NetworkException("No internet connection")
-                is SocketTimeoutException -> ApiException.TimeoutException("Request timeout")
-                is IOException -> ApiException.NetworkException("Network error: ${e.message}")
-                else -> ApiException.UnknownException(e.message ?: "Unknown error")
+                is UnknownHostException -> IOException("No internet connection", e)
+                is SocketTimeoutException -> IOException("Request timeout", e)
+                is IOException -> e
+                else -> IOException("Network error: ${e.message}", e)
             }
         }
     }
