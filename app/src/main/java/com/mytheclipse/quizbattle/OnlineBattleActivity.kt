@@ -364,22 +364,28 @@ class OnlineBattleActivity : BaseActivity() {
     }
     
     private fun vibrateDevice(durationMs: Long) {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-            val vibratorManager = getSystemService(android.os.VibratorManager::class.java)
-            vibratorManager?.defaultVibrator?.vibrate(
-                android.os.VibrationEffect.createOneShot(
-                    durationMs,
-                    android.os.VibrationEffect.DEFAULT_AMPLITUDE
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                val vibratorManager = getSystemService(android.os.VibratorManager::class.java)
+                vibratorManager?.defaultVibrator?.vibrate(
+                    android.os.VibrationEffect.createOneShot(
+                        durationMs,
+                        android.os.VibrationEffect.DEFAULT_AMPLITUDE
+                    )
                 )
-            )
-        } else {
-            val vibrator = getSystemService(android.os.Vibrator::class.java)
-            vibrator?.vibrate(
-                android.os.VibrationEffect.createOneShot(
-                    durationMs,
-                    android.os.VibrationEffect.DEFAULT_AMPLITUDE
+            } else {
+                @Suppress("DEPRECATION")
+                val vibrator = getSystemService(android.os.Vibrator::class.java)
+                vibrator?.vibrate(
+                    android.os.VibrationEffect.createOneShot(
+                        durationMs,
+                        android.os.VibrationEffect.DEFAULT_AMPLITUDE
+                    )
                 )
-            )
+            }
+        } catch (e: Exception) {
+            // Check for specific exceptions if needed, but for vibration it's safe to just ignore failure
+            Log.e("OnlineBattle", "Vibration failed", e)
         }
     }
     

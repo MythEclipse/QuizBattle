@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace = "com.mytheclipse.quizbattle"
-    compileSdk = 36
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.mytheclipse.quizbattle"
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
