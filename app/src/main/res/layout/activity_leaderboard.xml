@@ -39,7 +39,7 @@
             android:text="Global"
             android:textSize="12sp"
             app:cornerRadius="18dp"
-            style="@style/Widget.Material3.Button.OutlinedButton" />
+            style="@style/Widget.QuizBattle.Button.Outlined" />
     </LinearLayout>
 
     <!-- User Rank Card -->

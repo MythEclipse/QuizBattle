@@ -90,7 +90,7 @@
             android:text="Create Room"
             android:textSize="@dimen/text_size_medium"
             app:cornerRadius="12dp"
-            style="@style/Widget.Material3.Button.OutlinedButton" />
+            style="@style/Widget.QuizBattle.Button.Outlined" />
 
         <!-- Join Room Button -->
         <com.google.android.material.button.MaterialButton
@@ -101,7 +101,7 @@
             android:text="Join Room"
             android:textSize="@dimen/text_size_medium"
             app:cornerRadius="12dp"
-            style="@style/Widget.Material3.Button.OutlinedButton" />
+            style="@style/Widget.QuizBattle.Button.Outlined" />
 
     </LinearLayout>
 

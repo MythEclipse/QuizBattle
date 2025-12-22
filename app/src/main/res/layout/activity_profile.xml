@@ -283,7 +283,7 @@
             android:text="Logout"
             android:textSize="@dimen/text_size_medium"
             app:cornerRadius="8dp"
-            style="@style/Widget.Material3.Button.OutlinedButton" />
+            style="@style/Widget.QuizBattle.Button.Outlined" />
 
         <!-- Progress Bar -->
         <ProgressBar
