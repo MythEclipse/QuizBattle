@@ -22,6 +22,7 @@ class TokenRepository(private val context: Context) {
         private val USER_ID_KEY = stringPreferencesKey("user_id")
         private val USER_NAME_KEY = stringPreferencesKey("user_name")
         private val USER_EMAIL_KEY = stringPreferencesKey("user_email")
+        private val DEVICE_ID_KEY = stringPreferencesKey("device_id")
     }
     
     suspend fun saveToken(token: String) {
@@ -107,6 +108,20 @@ class TokenRepository(private val context: Context) {
     suspend fun clearAll() {
         context.dataStore.edit { preferences ->
             preferences.clear()
+        }
+    }
+    
+    suspend fun getOrCreateDeviceId(): String {
+        val existingId = context.dataStore.data.map { preferences ->
+            preferences[DEVICE_ID_KEY]
+        }.first()
+        
+        return existingId ?: run {
+            val newDeviceId = java.util.UUID.randomUUID().toString()
+            context.dataStore.edit { preferences ->
+                preferences[DEVICE_ID_KEY] = newDeviceId
+            }
+            newDeviceId
         }
     }
 }

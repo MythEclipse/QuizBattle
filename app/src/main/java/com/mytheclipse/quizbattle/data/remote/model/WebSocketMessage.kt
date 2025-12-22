@@ -14,7 +14,9 @@ data class AuthConnectMessage(
 
 data class AuthConnectPayload(
     val userId: String,
-    val token: String
+    val token: String,
+    val username: String,
+    val deviceId: String
 )
 
 data class AuthConnectedMessage(
@@ -36,7 +38,7 @@ data class MatchmakingFindMessage(
 
 data class MatchmakingFindPayload(
     val userId: String,
-    val gameMode: String = "quick",
+    val gameMode: String = "casual", // Options: ranked, casual, friend
     val difficulty: String? = null,
     val category: String? = null
 )

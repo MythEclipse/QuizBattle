@@ -61,7 +61,7 @@ class MatchmakingRepository {
         }
     }
     
-    fun findMatch(userId: String, gameMode: String = "quick", difficulty: String? = null, category: String? = null) {
+    fun findMatch(userId: String, gameMode: String = "casual", difficulty: String? = null, category: String? = null) {
         val message = buildMap {
             put("type", "matchmaking.find")
             put("payload", buildMap {

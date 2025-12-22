@@ -79,14 +79,16 @@ class MatchmakingViewModel(application: Application) : AndroidViewModel(applicat
         viewModelScope.launch {
             val userId = tokenRepository.getUserId() ?: return@launch
             val token = tokenRepository.getToken() ?: return@launch
-            webSocketManager.connect(userId, token)
+            val username = tokenRepository.getUserName() ?: "User"
+            val deviceId = tokenRepository.getOrCreateDeviceId()
+            webSocketManager.connect(userId, token, username, deviceId)
         }
     }
     
     fun findMatch(difficulty: String? = null, category: String? = null) {
         viewModelScope.launch {
             val userId = tokenRepository.getUserId() ?: return@launch
-            matchmakingRepository.findMatch(userId, "quick", difficulty, category)
+            matchmakingRepository.findMatch(userId, "casual", difficulty, category)
             _state.value = _state.value.copy(isSearching = true)
         }
     }

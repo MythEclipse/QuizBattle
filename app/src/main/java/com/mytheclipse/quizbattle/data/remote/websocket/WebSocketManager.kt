@@ -45,7 +45,7 @@ class WebSocketManager {
         data class Error(val message: String) : ConnectionState()
     }
     
-    fun connect(userId: String, token: String) {
+    fun connect(userId: String, token: String, username: String, deviceId: String) {
         if (_connectionState.value is ConnectionState.Connected) {
             return
         }
@@ -63,12 +63,14 @@ class WebSocketManager {
                 _connectionState.value = ConnectionState.Connected
                 reconnectAttempts = 0
                 
-                // Send auth message
+                // Send auth message with username and deviceId
                 val authMessage = mapOf(
                     "type" to "auth:connect",
                     "payload" to mapOf(
                         "userId" to userId,
-                        "token" to token
+                        "token" to token,
+                        "username" to username,
+                        "deviceId" to deviceId
                     )
                 )
                 sendMessage(authMessage)
@@ -100,13 +102,13 @@ class WebSocketManager {
             
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 _connectionState.value = ConnectionState.Error(t.message ?: "Connection failed")
-                attemptReconnect(userId, token)
+                attemptReconnect(userId, token, username, deviceId)
                 if (com.mytheclipse.quizbattle.BuildConfig.DEBUG) Log.e("WebSocket", "onFailure: ${t.message}", t)
             }
         })
     }
     
-    private fun attemptReconnect(userId: String, token: String) {
+    private fun attemptReconnect(userId: String, token: String, username: String, deviceId: String) {
         if (reconnectAttempts >= maxReconnectAttempts) {
             _connectionState.value = ConnectionState.Error("Max reconnection attempts reached")
             return
@@ -116,7 +118,7 @@ class WebSocketManager {
         reconnectJob = scope.launch {
             delay(2000L * (reconnectAttempts + 1)) // Exponential backoff
             reconnectAttempts++
-            connect(userId, token)
+            connect(userId, token, username, deviceId)
         }
     }
     
