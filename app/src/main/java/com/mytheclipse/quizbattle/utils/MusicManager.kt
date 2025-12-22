@@ -52,10 +52,10 @@ class MusicManager(private val context: Context) {
         
         try {
             val resId = when (track) {
-                MusicTrack.BATTLE -> R.raw.todas_tagged_rjts
-                MusicTrack.MENU -> R.raw.todas_tagged_rjts // Using same for now
-                MusicTrack.VICTORY -> R.raw.todas_tagged_rjts
-                MusicTrack.LOBBY -> R.raw.todas_tagged_rjts
+                MusicTrack.BATTLE -> R.raw.battle_music
+                MusicTrack.MENU -> R.raw.battle_music
+                MusicTrack.VICTORY -> R.raw.battle_music
+                MusicTrack.LOBBY -> R.raw.battle_music
             }
             
             mediaPlayer = MediaPlayer.create(context, resId)?.apply {
