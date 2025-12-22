@@ -42,22 +42,38 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
     val state: StateFlow<OnlineGameState> = _state.asStateFlow()
     
     init {
-        observeGameEvents()
+        // observeGameEvents() moved to connectToMatch
     }
     
     fun connectToMatch(matchId: String) {
         _state.value = _state.value.copy(matchId = matchId)
+        // Reset state for new match
+        _state.value = _state.value.copy(
+            error = null,
+            gameFinished = false,
+            // Don't reset everything here as we need some data to persist until game start
+        )
+        
         viewModelScope.launch {
             if (BuildConfig.DEBUG) Log.d("API", "OnlineGameViewModel.connectToMatch - matchId=$matchId")
+            
+            // Start observing events for this specific match
+            observeGameEvents(matchId)
+            
             gameRepository.connectToMatch(matchId)
         }
     }
     
-    private fun observeGameEvents() {
+    private fun observeGameEvents(targetMatchId: String) {
         viewModelScope.launch {
             gameRepository.observeGameEvents().collect { event ->
+                // Filter events that don't belong to this match
+                // Note: GameStarting doesn't have matchId, allow it if we are connecting
+                
                 when (event) {
                     is GameEvent.GameStarted -> {
+                         if (event.matchId != targetMatchId) return@collect
+                         
                         // Determine if user is player1 (left/knight) based on position
                         val userId = tokenRepository.getUserId()
                         val currentUserPlayer = event.players.find { it.userId == userId }
@@ -72,6 +88,8 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
                         )
                     }
                     is GameEvent.AllQuestions -> {
+                        if (event.matchId != targetMatchId) return@collect
+                        
                         // Store all questions and display first one
                         _state.value = _state.value.copy(
                             allQuestions = event.questions,
@@ -82,6 +100,8 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
                         )
                     }
                     is GameEvent.QuestionNew -> {
+                        if (event.matchId != targetMatchId) return@collect
+                        
                         _state.value = _state.value.copy(
                             currentQuestion = event.question,
                             currentQuestionIndex = event.questionIndex,
@@ -95,6 +115,9 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
                         )
                     }
                     is GameEvent.AnswerResult -> {
+                        // Answers don't have matchId in the event wrapper usually, but if they did we'd check it
+                        // Assuming flow context is sufficient or we handle based on state
+                        
                         val currentState = _state.value
                         _state.value = currentState.copy(
                             lastAnswerCorrect = event.isCorrect,
@@ -123,6 +146,8 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
                         // Game starting countdown
                     }
                     is GameEvent.GameFinished -> {
+                        if (event.matchId != targetMatchId) return@collect
+                        
                         _state.value = _state.value.copy(
                             gameFinished = true,
                             isVictory = event.winner == tokenRepository.getUserId(),
@@ -137,6 +162,8 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
                         )
                     }
                     is GameEvent.BattleUpdate -> {
+                        if (event.matchId != targetMatchId) return@collect
+
                         // Real-time update of scores and health during gameplay
                         // Swap scores if user is player2 (goblin)
                         val (myScore, theirScore) = if (_state.value.isPlayer1) {

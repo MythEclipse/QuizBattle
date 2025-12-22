@@ -27,7 +27,10 @@ class WebSocketManager {
     private val _connectionState = MutableStateFlow<ConnectionState>(ConnectionState.Disconnected)
     val connectionState: StateFlow<ConnectionState> = _connectionState
     
-    private val _messages = MutableSharedFlow<Map<String, Any>>()
+    private val _messages = MutableSharedFlow<Map<String, Any>>(
+        replay = 50,
+        extraBufferCapacity = 50
+    )
     val messages: SharedFlow<Map<String, Any>> = _messages
     
     // Message queue for offline messages
