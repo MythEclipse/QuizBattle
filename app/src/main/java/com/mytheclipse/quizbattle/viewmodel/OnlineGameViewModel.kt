@@ -95,12 +95,29 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
                         )
                     }
                     is GameEvent.AnswerResult -> {
-                        _state.value = _state.value.copy(
+                        val currentState = _state.value
+                        _state.value = currentState.copy(
                             lastAnswerCorrect = event.isCorrect,
                             isAnswered = true,
                             correctAnswerIndex = event.correctAnswer.toIntOrNull() ?: -1,
-                            playerScore = _state.value.playerScore + event.points + event.timeBonus
+                            playerScore = currentState.playerScore + event.points + event.timeBonus
                         )
+                        
+                        // Auto-advance to next question after short delay (spam mode)
+                        viewModelScope.launch {
+                            kotlinx.coroutines.delay(500) // Brief delay to show feedback
+                            val nextIndex = currentState.currentQuestionIndex + 1
+                            if (nextIndex < currentState.allQuestions.size) {
+                                _state.value = _state.value.copy(
+                                    currentQuestion = currentState.allQuestions[nextIndex],
+                                    currentQuestionIndex = nextIndex,
+                                    isAnswered = false,
+                                    lastAnswerCorrect = null,
+                                    selectedAnswerIndex = -1,
+                                    correctAnswerIndex = -1
+                                )
+                            }
+                        }
                     }
                     is GameEvent.GameStarting -> {
                         // Game starting countdown
