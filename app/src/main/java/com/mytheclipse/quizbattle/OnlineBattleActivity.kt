@@ -15,6 +15,10 @@ import com.google.android.material.button.MaterialButton
 import com.mytheclipse.quizbattle.databinding.ActivityOnlineBattleBinding
 import com.mytheclipse.quizbattle.data.repository.TokenRepository
 import com.mytheclipse.quizbattle.utils.MatchFoundDialogHelper
+import com.mytheclipse.quizbattle.utils.MusicManager
+import com.mytheclipse.quizbattle.utils.MusicTrack
+import com.mytheclipse.quizbattle.utils.SoundEffect
+import com.mytheclipse.quizbattle.utils.SoundManager
 import com.mytheclipse.quizbattle.viewmodel.OnlineGameViewModel
 import kotlinx.coroutines.launch
 
@@ -34,10 +38,19 @@ class OnlineBattleActivity : BaseActivity() {
     private var matchFoundDialogShown = false
     private var gameReady = false
     
+    private lateinit var soundManager: SoundManager
+    private lateinit var musicManager: MusicManager
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityOnlineBattleBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        
+        soundManager = SoundManager.getInstance(this)
+        musicManager = MusicManager.getInstance(this)
+        
+        // Start battle background music
+        musicManager.playMusic(MusicTrack.BATTLE)
         
         lifecycleScope.launch {
             val matchIdParam = intent.getStringExtra(EXTRA_MATCH_ID)
@@ -242,6 +255,15 @@ class OnlineBattleActivity : BaseActivity() {
             binding.answerButton4
         )
         
+        // Play sound effect based on answer correctness
+        if (selectedIndex >= 0) {
+            if (selectedIndex == correctIndex) {
+                soundManager.playSound(SoundEffect.CORRECT_ANSWER)
+            } else {
+                soundManager.playSound(SoundEffect.WRONG_ANSWER)
+            }
+        }
+        
         answerButtons.forEachIndexed { index, button ->
             button.isEnabled = false
             
@@ -390,6 +412,13 @@ class OnlineBattleActivity : BaseActivity() {
     }
     
     private fun navigateToResult(isVictory: Boolean, playerScore: Int, opponentScore: Int) {
+        // Play victory or defeat sound
+        if (isVictory) {
+            soundManager.playSound(SoundEffect.VICTORY)
+        } else {
+            soundManager.playSound(SoundEffect.DEFEAT)
+        }
+        
         val intent = Intent(this, BattleResultActivity::class.java).apply {
             putExtra(BattleResultActivity.EXTRA_IS_VICTORY, isVictory)
             putExtra("PLAYER_SCORE", playerScore)
@@ -404,6 +433,7 @@ class OnlineBattleActivity : BaseActivity() {
         super.onDestroy()
         stopTimer()
         handler.removeCallbacksAndMessages(null)
+        musicManager.stopMusic()
     }
     
     companion object {
