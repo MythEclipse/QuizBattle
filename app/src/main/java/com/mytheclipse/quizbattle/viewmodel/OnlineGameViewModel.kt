@@ -30,7 +30,9 @@ data class OnlineGameState(
     val gameFinished: Boolean = false,
     val isVictory: Boolean = false,
     val isPlayer1: Boolean = true, // true = left/knight, false = right/goblin
-    val error: String? = null
+    val error: String? = null,
+    val playerHealth: Int = 100,
+    val opponentHealth: Int = 100
 )
 
 class OnlineGameViewModel(application: Application) : AndroidViewModel(application) {
@@ -178,15 +180,24 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
                         if (event.matchId != targetMatchId) return@collect
 
                         // Real-time update of scores and health during gameplay
-                        // Swap scores if user is player2 (goblin)
+                        // Swap scores/health if user is player2 (goblin)
                         val (myScore, theirScore) = if (_state.value.isPlayer1) {
                             event.playerScore to event.opponentScore
                         } else {
                             event.opponentScore to event.playerScore
                         }
+                        
+                        val (myHealth, theirHealth) = if (_state.value.isPlayer1) {
+                            event.playerHealth to event.opponentHealth
+                        } else {
+                            event.opponentHealth to event.playerHealth
+                        }
+
                         _state.value = _state.value.copy(
                             playerScore = myScore,
-                            opponentScore = theirScore
+                            opponentScore = theirScore,
+                            playerHealth = myHealth,
+                            opponentHealth = theirHealth
                         )
                     }
                     is GameEvent.OpponentDisconnected -> {
