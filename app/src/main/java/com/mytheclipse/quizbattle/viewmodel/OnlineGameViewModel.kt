@@ -23,6 +23,8 @@ data class OnlineGameState(
     val timeLeft: Int = 30,
     val isAnswered: Boolean = false,
     val lastAnswerCorrect: Boolean? = null,
+    val selectedAnswerIndex: Int = -1,
+    val correctAnswerIndex: Int = -1,
     val opponentAnswered: Boolean = false,
     val gameFinished: Boolean = false,
     val isVictory: Boolean = false,
@@ -53,9 +55,32 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
         viewModelScope.launch {
             gameRepository.observeGameEvents().collect { event ->
                 when (event) {
+                    is GameEvent.GameStarted -> {
+                        _state.value = _state.value.copy(
+                            matchId = event.matchId,
+                            totalQuestions = event.totalQuestions,
+                            timeRemaining = event.timePerQuestion,
+                            timeLeft = event.timePerQuestion
+                        )
+                    }
+                    is GameEvent.QuestionNew -> {
+                        _state.value = _state.value.copy(
+                            currentQuestion = event.question,
+                            currentQuestionIndex = event.questionIndex,
+                            timeRemaining = event.timeLimit,
+                            timeLeft = event.timeLimit,
+                            isAnswered = false,
+                            lastAnswerCorrect = null,
+                            selectedAnswerIndex = -1,
+                            correctAnswerIndex = -1,
+                            opponentAnswered = false
+                        )
+                    }
                     is GameEvent.AnswerResult -> {
                         _state.value = _state.value.copy(
                             lastAnswerCorrect = event.isCorrect,
+                            isAnswered = true,
+                            correctAnswerIndex = event.correctAnswer.toIntOrNull() ?: -1,
                             playerScore = _state.value.playerScore + event.points + event.timeBonus
                         )
                     }
@@ -90,21 +115,26 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
         _state.value = _state.value.copy(matchId = matchId)
     }
     
-    fun submitAnswer(answer: String) {
+    fun submitAnswer(answerIndex: Int) {
         val question = _state.value.currentQuestion ?: return
-        submitAnswer(question.questionId, answer, _state.value.timeRemaining)
+        val timeSpentSeconds = 30 - _state.value.timeRemaining
+        submitAnswer(question.questionId, _state.value.currentQuestionIndex, answerIndex, timeSpentSeconds * 1000)
     }
     
-    fun submitAnswer(questionId: String, answer: String, timeSpent: Int) {
+    fun submitAnswer(questionId: String, questionIndex: Int, answerIndex: Int, answerTimeMs: Int) {
+        // Store the selected answer index for UI feedback
+        _state.value = _state.value.copy(selectedAnswerIndex = answerIndex)
+        
         viewModelScope.launch {
-            if (BuildConfig.DEBUG) Log.d("API", "OnlineGameViewModel.submitAnswer - matchId=${_state.value.matchId} questionId=$questionId answer=$answer timeSpent=$timeSpent")
+            if (BuildConfig.DEBUG) Log.d("API", "OnlineGameViewModel.submitAnswer - matchId=${_state.value.matchId} questionId=$questionId questionIndex=$questionIndex answerIndex=$answerIndex answerTimeMs=$answerTimeMs")
             val userId = tokenRepository.getUserId() ?: return@launch
             gameRepository.submitAnswer(
                 userId = userId,
                 matchId = _state.value.matchId,
                 questionId = questionId,
-                answer = answer,
-                timeSpent = timeSpent
+                questionIndex = questionIndex,
+                answerIndex = answerIndex,
+                answerTimeMs = answerTimeMs
             )
         }
     }

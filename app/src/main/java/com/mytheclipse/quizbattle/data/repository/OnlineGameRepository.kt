@@ -26,6 +26,34 @@ class OnlineGameRepository {
         val payload = message["payload"] as? Map<String, Any> ?: emptyMap()
         
         return when (type) {
+            "game.started" -> {
+                @Suppress("UNCHECKED_CAST")
+                val gameState = payload["gameState"] as? Map<String, Any> ?: emptyMap()
+                GameEvent.GameStarted(
+                    matchId = payload["matchId"] as? String ?: "",
+                    totalQuestions = (gameState["totalQuestions"] as? Double)?.toInt() ?: 10,
+                    timePerQuestion = (gameState["timePerQuestion"] as? Double)?.toInt() ?: 30
+                )
+            }
+            "game.question.new" -> {
+                @Suppress("UNCHECKED_CAST")
+                val questionMap = payload["question"] as? Map<String, Any> ?: emptyMap()
+                @Suppress("UNCHECKED_CAST")
+                val answersRaw = questionMap["answers"] as? List<Any> ?: emptyList()
+                val answers = answersRaw.map { it.toString() }
+                
+                GameEvent.QuestionNew(
+                    matchId = payload["matchId"] as? String ?: "",
+                    questionIndex = (payload["questionIndex"] as? Double)?.toInt() ?: 0,
+                    question = DataModels.Question(
+                        questionId = questionMap["id"] as? String ?: "",
+                        questionText = questionMap["text"] as? String ?: "",
+                        options = answers,
+                        category = questionMap["category"] as? String
+                    ),
+                    timeLimit = (payload["timeLimit"] as? Double)?.toInt() ?: 30
+                )
+            }
             // Backend sends "game.answer.received" not "game.answer.result"
             "game.answer.received" -> {
                 GameEvent.AnswerResult(
@@ -79,15 +107,24 @@ class OnlineGameRepository {
         webSocketManager.sendMessage(message)
     }
     
-    fun submitAnswer(userId: String, matchId: String, questionId: String, answer: String, timeSpent: Int) {
+    fun submitAnswer(
+        userId: String, 
+        matchId: String, 
+        questionId: String, 
+        questionIndex: Int,
+        answerIndex: Int, 
+        answerTimeMs: Int
+    ) {
         val message = mapOf(
             "type" to "game.answer.submit",
             "payload" to mapOf(
                 "userId" to userId,
                 "matchId" to matchId,
                 "questionId" to questionId,
-                "answer" to answer,
-                "timeSpent" to timeSpent
+                "questionIndex" to questionIndex,
+                "answerIndex" to answerIndex,
+                "answerTime" to answerTimeMs,
+                "timestamp" to System.currentTimeMillis()
             )
         )
         webSocketManager.sendMessage(message)
@@ -95,6 +132,19 @@ class OnlineGameRepository {
 }
 
 sealed class GameEvent {
+    data class GameStarted(
+        val matchId: String,
+        val totalQuestions: Int,
+        val timePerQuestion: Int
+    ) : GameEvent()
+    
+    data class QuestionNew(
+        val matchId: String,
+        val questionIndex: Int,
+        val question: DataModels.Question,
+        val timeLimit: Int
+    ) : GameEvent()
+    
     data class AnswerResult(
         val isCorrect: Boolean,
         val correctAnswer: String,
@@ -117,3 +167,4 @@ sealed class GameEvent {
     object OpponentDisconnected : GameEvent()
     object Unknown : GameEvent()
 }
+

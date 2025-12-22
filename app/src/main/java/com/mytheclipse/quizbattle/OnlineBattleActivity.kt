@@ -139,13 +139,16 @@ class OnlineBattleActivity : BaseActivity() {
                 val currentQuestion = viewModel.state.value.currentQuestion
                 if (currentQuestion != null && !viewModel.state.value.isAnswered) {
                     stopTimer()
-                    val selectedAnswer = currentQuestion.options.getOrNull(index) ?: ""
-                    val timeSpent = 30 - viewModel.state.value.timeLeft
-                    viewModel.submitAnswer(currentQuestion.questionId, selectedAnswer, timeSpent)
+                    val timeSpentMs = (30 - viewModel.state.value.timeLeft) * 1000
+                    viewModel.submitAnswer(
+                        questionId = currentQuestion.questionId,
+                        questionIndex = viewModel.state.value.currentQuestionIndex,
+                        answerIndex = index,
+                        answerTimeMs = timeSpentMs
+                    )
                     
-                    // Show answer feedback
-                    val correctIndex = currentQuestion.options.indexOf(currentQuestion.correctAnswer)
-                    handleAnswerSelection(index, correctIndex)
+                    // Disable buttons while waiting for answer result
+                    answerButtons.forEach { it.isEnabled = false }
                 }
             }
         }
@@ -175,6 +178,11 @@ class OnlineBattleActivity : BaseActivity() {
                     binding.opponentWaitingIndicator.visibility = View.VISIBLE
                 } else {
                     binding.opponentWaitingIndicator.visibility = View.GONE
+                }
+                
+                // Show answer feedback when answered
+                if (state.isAnswered && state.correctAnswerIndex >= 0) {
+                    handleAnswerSelection(state.selectedAnswerIndex, state.correctAnswerIndex)
                 }
                 
                 // Update animations based on game state
@@ -361,12 +369,15 @@ class OnlineBattleActivity : BaseActivity() {
                 if (timeLeft >= 0 && !viewModel.state.value.isAnswered) {
                     handler.postDelayed(this, 1000)
                 } else if (timeLeft < 0 && !viewModel.state.value.isAnswered) {
-                    // Time's up - auto submit wrong answer
+                    // Time's up - auto submit wrong answer (-1 index means no answer)
                     val currentQuestion = viewModel.state.value.currentQuestion
                     if (currentQuestion != null) {
-                        viewModel.submitAnswer(currentQuestion.questionId, "", 30)
-                        val correctIndex = currentQuestion.options.indexOf(currentQuestion.correctAnswer)
-                        handleAnswerSelection(-1, correctIndex)
+                        viewModel.submitAnswer(
+                            questionId = currentQuestion.questionId,
+                            questionIndex = viewModel.state.value.currentQuestionIndex,
+                            answerIndex = -1, // No answer selected
+                            answerTimeMs = 30000 // 30 seconds
+                        )
                     }
                 }
             }
