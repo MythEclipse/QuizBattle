@@ -126,17 +126,21 @@ class OnlineBattleActivity : BaseActivity() {
     }
     
     private fun setupCharacterAnimations() {
-        // Start player knight idle animation
-        binding.playerKnightImageView.setBackgroundResource(R.drawable.anim_knight_idle)
-        playerKnightAnimation = binding.playerKnightImageView.background as? AnimationDrawable
-        playerKnightAnimation?.start()
-        lastPlayerAnimRes = R.drawable.anim_knight_idle
-        
-        // Start opponent goblin idle animation
-        binding.opponentGoblinImageView.setBackgroundResource(R.drawable.anim_goblin_idle)
-        opponentGoblinAnimation = binding.opponentGoblinImageView.background as? AnimationDrawable
-        opponentGoblinAnimation?.start()
-        lastOpponentAnimRes = R.drawable.anim_goblin_idle
+        try {
+            // Start player knight idle animation
+            binding.playerKnightImageView.setBackgroundResource(R.drawable.anim_knight_idle)
+            playerKnightAnimation = binding.playerKnightImageView.background as? AnimationDrawable
+            playerKnightAnimation?.start()
+            lastPlayerAnimRes = R.drawable.anim_knight_idle
+            
+            // Start opponent goblin idle animation
+            binding.opponentGoblinImageView.setBackgroundResource(R.drawable.anim_goblin_idle)
+            opponentGoblinAnimation = binding.opponentGoblinImageView.background as? AnimationDrawable
+            opponentGoblinAnimation?.start()
+            lastOpponentAnimRes = R.drawable.anim_goblin_idle
+        } catch (e: Exception) {
+            android.util.Log.e("OnlineBattle", "Failed to setup character animations", e)
+        }
     }
     
     private fun setupAnswerButtons() {

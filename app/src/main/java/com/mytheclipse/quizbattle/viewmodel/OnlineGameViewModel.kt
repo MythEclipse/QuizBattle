@@ -57,12 +57,20 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
         )
         
         viewModelScope.launch {
-            if (BuildConfig.DEBUG) Log.d("API", "OnlineGameViewModel.connectToMatch - matchId=$matchId")
-            
-            // Start observing events for this specific match
-            observeGameEvents(matchId)
-            
-            gameRepository.connectToMatch(matchId)
+            try {
+                if (BuildConfig.DEBUG) Log.d("API", "OnlineGameViewModel.connectToMatch - matchId=$matchId")
+                
+                // Start observing events for this specific match
+                observeGameEvents(matchId)
+                
+                gameRepository.connectToMatch(matchId)
+            } catch (e: Exception) {
+                Log.e("OnlineGameVM", "Failed to connect to match", e)
+                _state.value = _state.value.copy(
+                    error = "Failed to connect to match: ${e.message}",
+                    gameFinished = true
+                )
+            }
         }
     }
     

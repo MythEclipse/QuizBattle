@@ -10,6 +10,8 @@ import com.mytheclipse.quizbattle.databinding.ActivitySplashBinding
 class SplashActivity : AppCompatActivity() {
     
     private lateinit var binding: ActivitySplashBinding
+    private val handler = Handler(Looper.getMainLooper())
+    private var navigationRunnable: Runnable? = null
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -17,12 +19,18 @@ class SplashActivity : AppCompatActivity() {
         setContentView(binding.root)
         
         // Navigate to MainActivity after 2 seconds
-        Handler(Looper.getMainLooper()).postDelayed({
+        navigationRunnable = Runnable {
             val intent = Intent(this, MainActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             startActivity(intent)
             finish()
-        }, 2000)
+        }
+        handler.postDelayed(navigationRunnable!!, 2000)
+    }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        navigationRunnable?.let { handler.removeCallbacks(it) }
     }
 }
