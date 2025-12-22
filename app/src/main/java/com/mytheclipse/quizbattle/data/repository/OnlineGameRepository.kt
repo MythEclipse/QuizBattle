@@ -87,11 +87,28 @@ class OnlineGameRepository {
                 )
             }
             "game.opponent.answered" -> {
-                GameEvent.OpponentAnswered
+                @Suppress("UNCHECKED_CAST")
+                val opponentPayload = payload
+                GameEvent.OpponentAnswered(
+                    isCorrect = opponentPayload["isCorrect"] as? Boolean ?: false,
+                    animation = opponentPayload["animation"] as? String ?: "hurt"
+                )
             }
             // Backend sends "game.player.disconnected" not "game.opponent.disconnected"
             "game.player.disconnected" -> {
                 GameEvent.OpponentDisconnected
+            }
+            // Handle real-time score/health updates
+            "game.battle.update" -> {
+                @Suppress("UNCHECKED_CAST")
+                val gameState = payload["gameState"] as? Map<String, Any> ?: emptyMap()
+                GameEvent.BattleUpdate(
+                    matchId = payload["matchId"] as? String ?: "",
+                    playerScore = (gameState["playerScore"] as? Double)?.toInt() ?: 0,
+                    opponentScore = (gameState["opponentScore"] as? Double)?.toInt() ?: 0,
+                    playerHealth = (gameState["playerHealth"] as? Double)?.toInt() ?: 100,
+                    opponentHealth = (gameState["opponentHealth"] as? Double)?.toInt() ?: 100
+                )
             }
             else -> GameEvent.Unknown
         }
@@ -163,7 +180,19 @@ sealed class GameEvent {
         val opponentCorrect: Int
     ) : GameEvent()
     
-    object OpponentAnswered : GameEvent()
+    data class OpponentAnswered(
+        val isCorrect: Boolean,
+        val animation: String
+    ) : GameEvent()
+    
+    data class BattleUpdate(
+        val matchId: String,
+        val playerScore: Int,
+        val opponentScore: Int,
+        val playerHealth: Int,
+        val opponentHealth: Int
+    ) : GameEvent()
+    
     object OpponentDisconnected : GameEvent()
     object Unknown : GameEvent()
 }

@@ -96,7 +96,17 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
                         )
                     }
                     is GameEvent.OpponentAnswered -> {
-                        _state.value = _state.value.copy(opponentAnswered = true)
+                        _state.value = _state.value.copy(
+                            opponentAnswered = true
+                            // Could use event.isCorrect and event.animation for opponent animations
+                        )
+                    }
+                    is GameEvent.BattleUpdate -> {
+                        // Real-time update of scores and health during gameplay
+                        _state.value = _state.value.copy(
+                            playerScore = event.playerScore,
+                            opponentScore = event.opponentScore
+                        )
                     }
                     is GameEvent.OpponentDisconnected -> {
                         _state.value = _state.value.copy(
