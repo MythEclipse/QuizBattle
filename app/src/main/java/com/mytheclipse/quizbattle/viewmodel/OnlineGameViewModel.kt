@@ -67,6 +67,19 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
     private fun observeGameEvents(targetMatchId: String) {
         viewModelScope.launch {
             gameRepository.observeGameEvents().collect { event ->
+                if (BuildConfig.DEBUG) {
+                    val eventType = event.javaClass.simpleName
+                    val eventMatchId = when (event) {
+                        is GameEvent.GameStarted -> event.matchId
+                        is GameEvent.AllQuestions -> event.matchId
+                        is GameEvent.QuestionNew -> event.matchId
+                        is GameEvent.GameFinished -> event.matchId
+                        is GameEvent.BattleUpdate -> event.matchId
+                        else -> "N/A"
+                    }
+                    Log.d("OnlineGameVM", "Received Event: $eventType for match: $eventMatchId (Target: $targetMatchId)")
+                }
+
                 // Filter events that don't belong to this match
                 // Note: GameStarting doesn't have matchId, allow it if we are connecting
                 

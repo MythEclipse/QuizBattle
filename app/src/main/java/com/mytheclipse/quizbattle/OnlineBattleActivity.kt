@@ -177,6 +177,10 @@ class OnlineBattleActivity : BaseActivity() {
                 binding.playerScoreTextView.text = state.playerScore.toString()
                 binding.opponentScoreTextView.text = state.opponentScore.toString()
                 
+                // Update Health Bars
+                binding.playerHealthBar.progress = state.playerHealth
+                binding.opponentHealthBar.progress = state.opponentHealth
+                
                 // Update question progress
                 binding.questionProgressTextView.text = 
                     "Question ${state.currentQuestionIndex + 1}/${state.totalQuestions}"

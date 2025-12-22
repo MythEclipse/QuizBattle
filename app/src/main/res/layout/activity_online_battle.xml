@@ -147,6 +147,16 @@
                 android:textColor="@color/primary_blue"
                 android:textStyle="bold" />
 
+            <ProgressBar
+                android:id="@+id/playerHealthBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:max="100"
+                android:progress="100"
+                android:progressTint="@color/primary_blue" />
+
             <TextView
                 android:id="@+id/playerScoreTextView"
                 android:layout_width="wrap_content"
@@ -184,6 +194,16 @@
                 android:textSize="@dimen/text_size_small"
                 android:textColor="@color/primary_red"
                 android:textStyle="bold" />
+
+            <ProgressBar
+                android:id="@+id/opponentHealthBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:max="100"
+                android:progress="100"
+                android:progressTint="@color/primary_red" />
 
             <TextView
                 android:id="@+id/opponentScoreTextView"
