@@ -29,10 +29,20 @@ class OnlineGameRepository {
             "game.started" -> {
                 @Suppress("UNCHECKED_CAST")
                 val gameState = payload["gameState"] as? Map<String, Any> ?: emptyMap()
+                @Suppress("UNCHECKED_CAST")
+                val playersRaw = payload["players"] as? List<Map<String, Any>> ?: emptyList()
+                val players = playersRaw.map { p ->
+                    GamePlayer(
+                        userId = p["userId"] as? String ?: "",
+                        username = p["username"] as? String ?: "",
+                        position = p["position"] as? String ?: "left"
+                    )
+                }
                 GameEvent.GameStarted(
                     matchId = payload["matchId"] as? String ?: "",
                     totalQuestions = (gameState["totalQuestions"] as? Double)?.toInt() ?: 10,
-                    timePerQuestion = (gameState["timePerQuestion"] as? Double)?.toInt() ?: 30
+                    timePerQuestion = (gameState["timePerQuestion"] as? Double)?.toInt() ?: 30,
+                    players = players
                 )
             }
             "game.question.new" -> {
@@ -148,11 +158,19 @@ class OnlineGameRepository {
     }
 }
 
+// Player info from game.started
+data class GamePlayer(
+    val userId: String,
+    val username: String,
+    val position: String // "left" or "right"
+)
+
 sealed class GameEvent {
     data class GameStarted(
         val matchId: String,
         val totalQuestions: Int,
-        val timePerQuestion: Int
+        val timePerQuestion: Int,
+        val players: List<GamePlayer> = emptyList()
     ) : GameEvent()
     
     data class QuestionNew(
@@ -196,4 +214,3 @@ sealed class GameEvent {
     object OpponentDisconnected : GameEvent()
     object Unknown : GameEvent()
 }
-

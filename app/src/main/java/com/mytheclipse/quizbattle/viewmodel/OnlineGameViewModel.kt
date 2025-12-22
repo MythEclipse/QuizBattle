@@ -28,6 +28,7 @@ data class OnlineGameState(
     val opponentAnswered: Boolean = false,
     val gameFinished: Boolean = false,
     val isVictory: Boolean = false,
+    val isPlayer1: Boolean = true, // true = left/knight, false = right/goblin
     val error: String? = null
 )
 
@@ -56,11 +57,17 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
             gameRepository.observeGameEvents().collect { event ->
                 when (event) {
                     is GameEvent.GameStarted -> {
+                        // Determine if user is player1 (left/knight) based on position
+                        val userId = tokenRepository.getUserId()
+                        val currentUserPlayer = event.players.find { it.userId == userId }
+                        val isUserPlayer1 = currentUserPlayer?.position == "left"
+                        
                         _state.value = _state.value.copy(
                             matchId = event.matchId,
                             totalQuestions = event.totalQuestions,
                             timeRemaining = event.timePerQuestion,
-                            timeLeft = event.timePerQuestion
+                            timeLeft = event.timePerQuestion,
+                            isPlayer1 = isUserPlayer1
                         )
                     }
                     is GameEvent.QuestionNew -> {
@@ -103,9 +110,15 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
                     }
                     is GameEvent.BattleUpdate -> {
                         // Real-time update of scores and health during gameplay
+                        // Swap scores if user is player2 (goblin)
+                        val (myScore, theirScore) = if (_state.value.isPlayer1) {
+                            event.playerScore to event.opponentScore
+                        } else {
+                            event.opponentScore to event.playerScore
+                        }
                         _state.value = _state.value.copy(
-                            playerScore = event.playerScore,
-                            opponentScore = event.opponentScore
+                            playerScore = myScore,
+                            opponentScore = theirScore
                         )
                     }
                     is GameEvent.OpponentDisconnected -> {
