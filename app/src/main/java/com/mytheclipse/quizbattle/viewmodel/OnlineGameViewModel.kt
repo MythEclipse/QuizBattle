@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 
 data class OnlineGameState(
     val matchId: String = "",
+    val allQuestions: List<Question> = emptyList(),
     val currentQuestion: Question? = null,
     val currentQuestionIndex: Int = 0,
     val totalQuestions: Int = 10,
@@ -68,6 +69,16 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
                             timeRemaining = event.timePerQuestion,
                             timeLeft = event.timePerQuestion,
                             isPlayer1 = isUserPlayer1
+                        )
+                    }
+                    is GameEvent.AllQuestions -> {
+                        // Store all questions and display first one
+                        _state.value = _state.value.copy(
+                            allQuestions = event.questions,
+                            currentQuestion = event.questions.firstOrNull(),
+                            currentQuestionIndex = 0,
+                            totalQuestions = event.questions.size,
+                            isAnswered = false
                         )
                     }
                     is GameEvent.QuestionNew -> {

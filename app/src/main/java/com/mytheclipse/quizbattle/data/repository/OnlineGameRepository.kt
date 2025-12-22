@@ -48,6 +48,24 @@ class OnlineGameRepository {
                     players = players
                 )
             }
+            "game.questions.all" -> {
+                @Suppress("UNCHECKED_CAST")
+                val questionsList = payload["questions"] as? List<Map<String, Any>> ?: emptyList()
+                val questions = questionsList.map { qMap ->
+                    @Suppress("UNCHECKED_CAST")
+                    val answersRaw = qMap["answers"] as? List<Any> ?: emptyList()
+                    DataModels.Question(
+                        questionId = qMap["id"] as? String ?: "",
+                        questionText = qMap["text"] as? String ?: "",
+                        options = answersRaw.map { it.toString() },
+                        category = qMap["category"] as? String
+                    )
+                }
+                GameEvent.AllQuestions(
+                    matchId = payload["matchId"] as? String ?: "",
+                    questions = questions
+                )
+            }
             "game.question.new" -> {
                 @Suppress("UNCHECKED_CAST")
                 val questionMap = payload["question"] as? Map<String, Any> ?: emptyMap()
@@ -174,6 +192,11 @@ sealed class GameEvent {
         val totalQuestions: Int,
         val timePerQuestion: Int,
         val players: List<GamePlayer> = emptyList()
+    ) : GameEvent()
+    
+    data class AllQuestions(
+        val matchId: String,
+        val questions: List<DataModels.Question>
     ) : GameEvent()
     
     data class QuestionNew(
