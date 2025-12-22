@@ -4,6 +4,7 @@ import com.mytheclipse.quizbattle.data.remote.websocket.WebSocketManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
+import android.util.Log
 
 class OnlineGameRepository {
     
@@ -16,12 +17,14 @@ class OnlineGameRepository {
                 type?.startsWith("game.") == true || type == "lobby.game.starting"
             }
             .map { message ->
+                Log.d("OnlineGameRepo", "Received message: ${message["type"]}")
                 parseGameEvent(message)
             }
     }
     
     private fun parseGameEvent(message: Map<String, Any>): GameEvent {
         val type = message["type"] as? String ?: ""
+        Log.d("OnlineGameRepo", "Parsing event type: $type")
         @Suppress("UNCHECKED_CAST")
         val payload = message["payload"] as? Map<String, Any> ?: emptyMap()
         

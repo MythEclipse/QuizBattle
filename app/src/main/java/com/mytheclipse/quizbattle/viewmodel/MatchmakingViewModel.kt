@@ -103,6 +103,7 @@ class MatchmakingViewModel(application: Application) : AndroidViewModel(applicat
     
     override fun onCleared() {
         super.onCleared()
-        webSocketManager.disconnect()
+        // Don't disconnect WebSocket - it's a singleton shared across activities
+        // and needs to stay connected for the game to receive messages
     }
 }
