@@ -43,6 +43,7 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
     val state: StateFlow<OnlineGameState> = _state.asStateFlow()
     
     private var observingJob: Job? = null  // Track collector job for proper cancellation
+    private var currentMatchId: String = ""  // Track current match to filter old events
     
     init {
         // observeGameEvents() moved to connectToMatch
@@ -51,6 +52,9 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
     fun connectToMatch(matchId: String) {
         // Cancel old event collector to prevent replay
         observingJob?.cancel()
+        
+        // Track current match to filter old events from WebSocket replay buffer
+        currentMatchId = matchId
         
         // FULL state reset for new match to prevent replay
         _state.value = OnlineGameState(
@@ -90,6 +94,12 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
                         else -> "N/A"
                     }
                     Log.d("OnlineGameVM", "Received Event: $eventType for match: $eventMatchId (Target: $targetMatchId)")
+                    
+                    // STRICT FILTER: Ignore events from old matches (WebSocket replay buffer)
+                    if (eventMatchId != "N/A" && eventMatchId != currentMatchId) {
+                        Log.d("OnlineGameVM", "IGNORED old event: $eventType from match: $eventMatchId (current: $currentMatchId)")
+                        return@collect
+                    }
                 }
 
                 // Filter events that don't belong to this match
