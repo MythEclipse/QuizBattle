@@ -32,8 +32,20 @@ class OnlineMenuActivity : BaseActivity() {
         // Connect to WebSocket when activity opens
         matchmakingViewModel.connectWebSocket()
         
+        // CRITICAL: Clear matchFound BEFORE setting up observer!
+        // If we wait for onResume(), observer may trigger first!
+        matchmakingViewModel.clearMatchFound()
+        hasNavigated = false
+        
         setupListeners()
         observeMatchmakingState()
+    }
+    
+    override fun onResume() {
+        super.onResume()
+        // Double-clear for safety when returning from other activities
+        matchmakingViewModel.clearMatchFound()
+        hasNavigated = false
     }
     
     private fun setupListeners() {
