@@ -83,23 +83,29 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
     private fun observeGameEvents(targetMatchId: String): Job {
         return viewModelScope.launch {
             gameRepository.observeGameEvents().collect { event ->
+                // Extract matchId for filtering
+                val eventMatchId = when (event) {
+                    is GameEvent.GameStarted -> event.matchId
+                    is GameEvent.AllQuestions -> event.matchId
+                    is GameEvent.QuestionNew -> event.matchId
+                    is GameEvent.GameFinished -> event.matchId
+                    is GameEvent.BattleUpdate -> event.matchId
+                    else -> "N/A"
+                }
+                
+                // CRITICAL FILTER: ALWAYS run (not just in debug!)
+                // Ignore events from old matches (WebSocket replay buffer)
+                if (eventMatchId != "N/A" && eventMatchId != currentMatchId) {
+                    if (BuildConfig.DEBUG) {
+                        val eventType = event.javaClass.simpleName
+                        Log.d("OnlineGameVM", "IGNORED old event: $eventType from match: $eventMatchId (current: $currentMatchId)")
+                    }
+                    return@collect  // Skip old events
+                }
+                
                 if (BuildConfig.DEBUG) {
                     val eventType = event.javaClass.simpleName
-                    val eventMatchId = when (event) {
-                        is GameEvent.GameStarted -> event.matchId
-                        is GameEvent.AllQuestions -> event.matchId
-                        is GameEvent.QuestionNew -> event.matchId
-                        is GameEvent.GameFinished -> event.matchId
-                        is GameEvent.BattleUpdate -> event.matchId
-                        else -> "N/A"
-                    }
                     Log.d("OnlineGameVM", "Received Event: $eventType for match: $eventMatchId (Target: $targetMatchId)")
-                    
-                    // STRICT FILTER: Ignore events from old matches (WebSocket replay buffer)
-                    if (eventMatchId != "N/A" && eventMatchId != currentMatchId) {
-                        Log.d("OnlineGameVM", "IGNORED old event: $eventType from match: $eventMatchId (current: $currentMatchId)")
-                        return@collect
-                    }
                 }
 
                 // Filter events that don't belong to this match
