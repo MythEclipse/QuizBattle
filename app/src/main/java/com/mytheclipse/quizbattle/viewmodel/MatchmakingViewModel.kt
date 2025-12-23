@@ -101,6 +101,11 @@ class MatchmakingViewModel(application: Application) : AndroidViewModel(applicat
         }
     }
     
+    // CRITICAL: Clear matchFound after navigating to prevent reconnecting to old match
+    fun clearMatchFound() {
+        _state.value = _state.value.copy(matchFound = null)
+    }
+    
     override fun onCleared() {
         super.onCleared()
         // Don't disconnect WebSocket - it's a singleton shared across activities

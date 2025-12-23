@@ -160,6 +160,10 @@ class OnlineMenuActivity : BaseActivity() {
             putExtra(OnlineBattleActivity.EXTRA_CATEGORY, category)
             putExtra(OnlineBattleActivity.EXTRA_DIFFICULTY, difficulty)
         }
+        
+        // CRITICAL: Clear matchFound so we don't reconnect to same match later
+        matchmakingViewModel.clearMatchFound()
+        
         startActivity(intent)
         finish()
     }
