@@ -75,6 +75,10 @@ class OnlineMenuActivity : BaseActivity() {
                 
                 // Handle match found
                 state.matchFound?.let { matchData ->
+                    // CRITICAL: Guard against observer re-trigger
+                    if (hasNavigated) return@collect
+                    hasNavigated = true
+                    
                     stopSearchTimer()
                     navigateToOnlineBattle(
                         matchId = matchData.matchId,
