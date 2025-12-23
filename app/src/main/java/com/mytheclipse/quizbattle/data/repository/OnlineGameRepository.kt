@@ -129,16 +129,12 @@ class OnlineGameRepository {
             "game.player.disconnected" -> {
                 GameEvent.OpponentDisconnected
             }
-            // Handle real-time score/health updates
+            // Handle real-time health updates
             "game.battle.update" -> {
-                @Suppress("UNCHECKED_CAST")
-                val gameState = payload["gameState"] as? Map<String, Any> ?: emptyMap()
                 GameEvent.BattleUpdate(
                     matchId = payload["matchId"] as? String ?: "",
-                    playerScore = (gameState["playerScore"] as? Double)?.toInt() ?: 0,
-                    opponentScore = (gameState["opponentScore"] as? Double)?.toInt() ?: 0,
-                    playerHealth = (gameState["playerHealth"] as? Double)?.toInt() ?: 100,
-                    opponentHealth = (gameState["opponentHealth"] as? Double)?.toInt() ?: 100
+                    playerHealth = (payload["player1Health"] as? Double)?.toInt() ?: 100,
+                    opponentHealth = (payload["player2Health"] as? Double)?.toInt() ?: 100
                 )
             }
             else -> GameEvent.Unknown
@@ -231,8 +227,6 @@ sealed class GameEvent {
     
     data class BattleUpdate(
         val matchId: String,
-        val playerScore: Int,
-        val opponentScore: Int,
         val playerHealth: Int,
         val opponentHealth: Int
     ) : GameEvent()
