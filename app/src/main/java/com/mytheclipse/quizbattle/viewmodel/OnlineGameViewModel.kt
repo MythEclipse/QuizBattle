@@ -18,8 +18,6 @@ data class OnlineGameState(
     val currentQuestion: Question? = null,
     val currentQuestionIndex: Int = 0,
     val totalQuestions: Int = 10,
-    val playerScore: Int = 0,
-    val opponentScore: Int = 0,
     val timeRemaining: Int = 30,
     val timeLeft: Int = 30,
     val isAnswered: Boolean = false,
@@ -145,8 +143,7 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
                         _state.value = currentState.copy(
                             lastAnswerCorrect = event.isCorrect,
                             isAnswered = true,
-                            correctAnswerIndex = event.correctAnswer.toIntOrNull() ?: -1,
-                            playerScore = currentState.playerScore + event.points + event.timeBonus
+                            correctAnswerIndex = event.correctAnswer.toIntOrNull() ?: -1
                         )
                         
                         // Auto-advance to next question after short delay (spam mode)
@@ -173,9 +170,7 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
                         
                         _state.value = _state.value.copy(
                             gameFinished = true,
-                            isVictory = event.winner == tokenRepository.getUserId(),
-                            playerScore = event.playerScore,
-                            opponentScore = event.opponentScore
+                            isVictory = event.winner == tokenRepository.getUserId()
                         )
                     }
                     is GameEvent.OpponentAnswered -> {
@@ -187,14 +182,8 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
                     is GameEvent.BattleUpdate -> {
                         if (event.matchId != targetMatchId) return@collect
 
-                        // Real-time update of scores and health during gameplay
-                        // Swap scores/health if user is player2 (goblin)
-                        val (myScore, theirScore) = if (_state.value.isPlayer1) {
-                            event.playerScore to event.opponentScore
-                        } else {
-                            event.opponentScore to event.playerScore
-                        }
-                        
+                        // Real-time update of health during gameplay
+                        // Swap health if user is player2 (goblin)
                         val (myHealth, theirHealth) = if (_state.value.isPlayer1) {
                             event.playerHealth to event.opponentHealth
                         } else {
@@ -202,8 +191,6 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
                         }
 
                         _state.value = _state.value.copy(
-                            playerScore = myScore,
-                            opponentScore = theirScore,
                             playerHealth = myHealth,
                             opponentHealth = theirHealth
                         )

@@ -204,11 +204,10 @@ class OnlineBattleActivity : BaseActivity() {
                 // Update animations based on game state
                 updateCharacterAnimations(state)
                 
-                // Handle game finish
                 if (state.gameFinished) {
                     handler.postDelayed({
                         if (!isFinishing) {
-                            navigateToResult(state.isVictory, state.playerScore, state.opponentScore)
+                            navigateToResult(state.isVictory)
                         }
                     }, 1000)
                 }
@@ -420,7 +419,7 @@ class OnlineBattleActivity : BaseActivity() {
         timerRunnable?.let { handler.removeCallbacks(it) }
     }
     
-    private fun navigateToResult(isVictory: Boolean, playerScore: Int, opponentScore: Int) {
+    private fun navigateToResult(isVictory: Boolean) {
         // Play victory or defeat sound
         if (isVictory) {
             soundManager.playSound(SoundEffect.VICTORY)
@@ -430,9 +429,6 @@ class OnlineBattleActivity : BaseActivity() {
         
         val intent = Intent(this, BattleResultActivity::class.java).apply {
             putExtra(BattleResultActivity.EXTRA_IS_VICTORY, isVictory)
-            putExtra("PLAYER_SCORE", playerScore)
-            putExtra("OPPONENT_SCORE", opponentScore)
-            putExtra("IS_ONLINE", true)
         }
         startActivity(intent)
         finish()
