@@ -22,32 +22,16 @@ class BattleResultActivity : AppCompatActivity() {
     }
     
     private fun setupUI(isVictory: Boolean) {
-        val playerScore = intent.getIntExtra("PLAYER_SCORE", 0)
-        val opponentScore = intent.getIntExtra("OPPONENT_SCORE", 0)
-        val isOnline = intent.getBooleanExtra("IS_ONLINE", false)
-        
         if (isVictory) {
             binding.resultTitleTextView.text = getString(R.string.victory)
             binding.resultTitleTextView.setTextColor(ContextCompat.getColor(this, R.color.primary_blue))
-            binding.scoreValueTextView.text = playerScore.toString()
         } else {
             binding.resultTitleTextView.text = getString(R.string.defeat)
             binding.resultTitleTextView.setTextColor(ContextCompat.getColor(this, R.color.defeat_red))
-            binding.scoreValueTextView.text = playerScore.toString()
-        }
-        
-        // Show opponent score if online battle
-        if (isOnline && opponentScore > 0) {
-            binding.scoreValueTextView.text = "$playerScore (You) - $opponentScore (Opponent)"
         }
     }
     
     private fun setupListeners() {
-        binding.rematchButton.setOnClickListener {
-            startActivity(Intent(this, BattleActivity::class.java))
-            finish()
-        }
-        
         binding.backToMenuButton.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)

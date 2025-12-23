@@ -20,12 +20,10 @@ class ProfileActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        lifecycleScope.launch {
-            if (!requireLoginOrRedirect(LoginActivity.REDIRECT_PROFILE)) return@launch
-            setupListeners()
-            observeProfileData()
-            profileViewModel.loadProfile()
-        }
+        
+        setupListeners()
+        observeProfileData()
+        profileViewModel.loadProfile()
     }
     
     private fun setupListeners() {

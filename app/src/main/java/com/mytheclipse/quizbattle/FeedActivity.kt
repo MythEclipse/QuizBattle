@@ -21,12 +21,10 @@ class FeedActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityFeedBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        lifecycleScope.launch {
-            if (!requireLoginOrRedirect(LoginActivity.REDIRECT_FEED)) return@launch
-            setupRecyclerView()
-            setupListeners()
-            observeGameHistory()
-        }
+        
+        setupRecyclerView()
+        setupListeners()
+        observeGameHistory()
     }
     
     private fun setupRecyclerView() {

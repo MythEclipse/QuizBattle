@@ -142,7 +142,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="YOUR SCORE"
+                android:text="YOUR HEALTH"
                 android:textSize="@dimen/text_size_small"
                 android:textColor="@color/primary_blue"
                 android:textStyle="bold" />
@@ -157,15 +157,7 @@
                 android:progress="100"
                 android:progressTint="@color/primary_blue" />
 
-            <TextView
-                android:id="@+id/playerScoreTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="0"
-                android:textSize="32sp"
-                android:textColor="@color/primary_blue"
-                android:textStyle="bold" />
+
         </LinearLayout>
 
         <!-- VS Divider -->
@@ -190,7 +182,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="OPPONENT"
+                android:text="OPPONENT HEALTH"
                 android:textSize="@dimen/text_size_small"
                 android:textColor="@color/primary_red"
                 android:textStyle="bold" />
@@ -205,15 +197,7 @@
                 android:progress="100"
                 android:progressTint="@color/primary_red" />
 
-            <TextView
-                android:id="@+id/opponentScoreTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="0"
-                android:textSize="32sp"
-                android:textColor="@color/primary_red"
-                android:textStyle="bold" />
+
         </LinearLayout>
 
     </LinearLayout>

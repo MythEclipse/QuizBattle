@@ -54,9 +54,7 @@ class OnlineBattleActivity : BaseActivity() {
         musicManager.playMusic(MusicTrack.BATTLE)
         
         lifecycleScope.launch {
-            val matchIdParam = intent.getStringExtra(EXTRA_MATCH_ID)
-            if (!requireLoginOrRedirect(LoginActivity.REDIRECT_ONLINE_BATTLE, matchIdParam)) return@launch
-            val matchId = matchIdParam ?: ""
+            val matchId = intent.getStringExtra(EXTRA_MATCH_ID) ?: ""
             
             // Get opponent info from intent extras
             val opponentName = intent.getStringExtra(EXTRA_OPPONENT_NAME) ?: "Opponent"
@@ -177,10 +175,6 @@ class OnlineBattleActivity : BaseActivity() {
             viewModel.state.collect { state ->
                 // Update match ID
                 binding.matchIdTextView.text = "Match #${state.matchId.takeLast(8)}"
-                
-                // Update scores
-                binding.playerScoreTextView.text = state.playerScore.toString()
-                binding.opponentScoreTextView.text = state.opponentScore.toString()
                 
                 // Update Health Bars
                 binding.playerHealthBar.progress = state.playerHealth

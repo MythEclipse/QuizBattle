@@ -30,63 +30,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/resultTitleTextView" />
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/scoreCard"
-        style="@style/Widget.QuizBattle.Card"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_xl"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/resultImageView">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="@dimen/spacing_large"
-            android:gravity="center">
 
-            <TextView
-                android:id="@+id/yourScoreTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/your_score"
-                android:textSize="@dimen/text_size_medium"
-                android:textColor="@color/text_secondary" />
 
-            <TextView
-                android:id="@+id/scoreValueTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_small"
-                android:text="1000"
-                android:textSize="@dimen/text_size_heading"
-                android:textStyle="bold"
-                android:textColor="@color/primary_blue" />
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/rematchButton"
+        android:id="@+id/backToMenuButton"
         style="@style/Widget.QuizBattle.Button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_xl"
-        android:text="@string/rematch"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/scoreCard" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/backToMenuButton"
-        style="@style/Widget.QuizBattle.Button.Outlined"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_medium"
         android:text="@string/back_to_menu"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/rematchButton" />
+        app:layout_constraintTop_toBottomOf="@id/resultImageView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

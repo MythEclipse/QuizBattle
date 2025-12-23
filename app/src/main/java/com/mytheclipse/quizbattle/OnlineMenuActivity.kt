@@ -28,15 +28,11 @@ class OnlineMenuActivity : BaseActivity() {
         binding = ActivityOnlineMenuBinding.inflate(layoutInflater)
         setContentView(binding.root)
         
-        lifecycleScope.launch {
-            if (!requireLoginOrRedirect(LoginActivity.REDIRECT_ONLINE_MENU)) return@launch
-            
-            // Connect to WebSocket when activity opens
-            matchmakingViewModel.connectWebSocket()
-            
-            setupListeners()
-            observeMatchmakingState()
-        }
+        // Connect to WebSocket when activity opens
+        matchmakingViewModel.connectWebSocket()
+        
+        setupListeners()
+        observeMatchmakingState()
     }
     
     private fun setupListeners() {

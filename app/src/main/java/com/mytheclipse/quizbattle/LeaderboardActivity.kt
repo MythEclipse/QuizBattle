@@ -21,14 +21,9 @@ class LeaderboardActivity : BaseActivity() {
         binding = ActivityLeaderboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
         
-        lifecycleScope.launch {
-            // Require login for leaderboard (API only)
-            if (!requireLoginOrRedirect(LoginActivity.REDIRECT_LEADERBOARD)) return@launch
-            
-            setupViews()
-            setupListeners()
-            observeState()
-        }
+        setupViews()
+        setupListeners()
+        observeState()
     }
     
     private fun setupViews() {
