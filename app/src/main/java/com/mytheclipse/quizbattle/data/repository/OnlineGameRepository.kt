@@ -92,7 +92,8 @@ class OnlineGameRepository {
                     correctAnswer = ((payload["correctAnswerIndex"] as? Double)?.toInt() ?: 0).toString(),
                     points = (payload["points"] as? Double)?.toInt() ?: 0,
                     timeBonus = 0, // Backend doesn't send timeBonus separately
-                    playerHealth = (payload["playerHealth"] as? Double)?.toInt() ?: 100  // New: updated health
+                    playerHealth = (payload["playerHealth"] as? Double)?.toInt() ?: 100,
+                    opponentHealth = (payload["opponentHealth"] as? Double)?.toInt() ?: 100
                 )
             }
             "lobby.game.starting" -> {
@@ -208,7 +209,8 @@ sealed class GameEvent {
         val correctAnswer: String,
         val points: Int,
         val timeBonus: Int,
-        val playerHealth: Int  // New: updated health after answer
+        val playerHealth: Int,  // Updated health after answer
+        val opponentHealth: Int  // Opponent health from player's perspective
     ) : GameEvent()
     
     data class GameStarting(val countdown: Int) : GameEvent()

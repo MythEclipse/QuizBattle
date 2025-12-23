@@ -147,7 +147,8 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
                             lastAnswerCorrect = event.isCorrect,
                             isAnswered = true,
                             correctAnswerIndex = event.correctAnswer.toIntOrNull() ?: -1,
-                            playerHealth = event.playerHealth  // Update health immediately from answer response
+                            playerHealth = event.playerHealth,  // Update both healths immediately
+                            opponentHealth = event.opponentHealth
                         )
                         
                         // Auto-advance to next question after short delay (spam mode)
