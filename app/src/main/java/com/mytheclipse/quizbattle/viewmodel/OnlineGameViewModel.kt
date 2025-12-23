@@ -146,7 +146,8 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
                         _state.value = currentState.copy(
                             lastAnswerCorrect = event.isCorrect,
                             isAnswered = true,
-                            correctAnswerIndex = event.correctAnswer.toIntOrNull() ?: -1
+                            correctAnswerIndex = event.correctAnswer.toIntOrNull() ?: -1,
+                            playerHealth = event.playerHealth  // Update health immediately from answer response
                         )
                         
                         // Auto-advance to next question after short delay (spam mode)
