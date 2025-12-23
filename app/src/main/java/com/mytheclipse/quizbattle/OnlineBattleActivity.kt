@@ -39,6 +39,10 @@ class OnlineBattleActivity : BaseActivity() {
     private var matchFoundDialogShown = false
     private var gameReady = false
     
+    // CRITICAL: Prevent double-submission exploit
+    private var isSubmitting = false
+    private var questionStartTime: Long = 0
+    
     private lateinit var soundManager: SoundManager
     private lateinit var musicManager: MusicManager
     
@@ -152,19 +156,48 @@ class OnlineBattleActivity : BaseActivity() {
         
         answerButtons.forEachIndexed { index, button ->
             button.setOnClickListener {
+                // CRITICAL: Immediate guard to prevent spam clicks
+                if (isSubmitting) return@setOnClickListener
+                
                 val currentQuestion = viewModel.state.value.currentQuestion
                 if (currentQuestion != null && !viewModel.state.value.isAnswered) {
+                    // Set guard BEFORE any async operations
+                    isSubmitting = true
+                    
+                    // Disable buttons immediately for visual feedback
+                    answerButtons.forEach { 
+                        it.isEnabled = false
+                        it.alpha = 0.5f
+                    }
+                    
                     stopTimer()
-                    val timeSpentMs = (30 - viewModel.state.value.timeLeft) * 1000
+                    
+                    // Use accurate timestamp instead of timer countdown
+                    val timeSpentMs = if (questionStartTime > 0) {
+                        System.currentTimeMillis() - questionStartTime
+                    } else {
+                        (30 - viewModel.state.value.timeLeft) * 1000L
+                    }
+                    
                     viewModel.submitAnswer(
                         questionId = currentQuestion.questionId,
                         questionIndex = viewModel.state.value.currentQuestionIndex,
                         answerIndex = index,
-                        answerTimeMs = timeSpentMs
+                        answerTimeMs = timeSpentMs.toInt()
                     )
                     
-                    // Disable buttons while waiting for answer result
-                    answerButtons.forEach { it.isEnabled = false }
+                    // Safety: Re-enable after 3 seconds if no response
+                    handler.postDelayed({
+                        if (isSubmitting) {
+                            isSubmitting = false
+                            if (!viewModel.state.value.isAnswered) {
+                                answerButtons.forEach { 
+                                    it.isEnabled = true
+                                    it.alpha = 1.0f
+                                }
+                            }
+                        }
+                    }, 3000)
                 }
             }
         }
@@ -214,7 +247,18 @@ class OnlineBattleActivity : BaseActivity() {
                 
                 // Start timer if question loaded and not answered
                 if (state.currentQuestion != null && !state.isAnswered) {
+                    // Record question start time for accurate tracking
+                    if (questionStartTime == 0L) {
+                        questionStartTime = System.currentTimeMillis()
+                    }
                     startTimer()
+                } else {
+                    // Reset question start time when answered
+                    if (state.isAnswered) {
+                        questionStartTime = 0
+                        // Reset submission guard when answer confirmed
+                        isSubmitting = false
+                    }
                 }
                 
                 // Error handling
