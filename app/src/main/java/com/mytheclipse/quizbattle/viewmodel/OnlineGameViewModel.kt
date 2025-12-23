@@ -41,25 +41,28 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
     private val _state = MutableStateFlow(OnlineGameState())
     val state: StateFlow<OnlineGameState> = _state.asStateFlow()
     
+    private var isObserving = false  // Flag to prevent multiple collectors
+    
     init {
         // observeGameEvents() moved to connectToMatch
     }
     
     fun connectToMatch(matchId: String) {
-        _state.value = _state.value.copy(matchId = matchId)
-        // Reset state for new match
-        _state.value = _state.value.copy(
-            error = null,
-            gameFinished = false,
-            // Don't reset everything here as we need some data to persist until game start
+        // FULL state reset for new match to prevent replay
+        _state.value = OnlineGameState(
+            matchId = matchId
+            // All other fields use default values from data class
         )
         
         viewModelScope.launch {
             try {
                 if (BuildConfig.DEBUG) Log.d("API", "OnlineGameViewModel.connectToMatch - matchId=$matchId")
                 
-                // Start observing events for this specific match
-                observeGameEvents(matchId)
+                // Only start observing if not already observing to prevent multiple collectors
+                if (!isObserving) {
+                    isObserving = true
+                    observeGameEvents(matchId)
+                }
                 
                 gameRepository.connectToMatch(matchId)
             } catch (e: Exception) {
@@ -150,7 +153,8 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
                         viewModelScope.launch {
                             kotlinx.coroutines.delay(500) // Brief delay to show feedback
                             val nextIndex = currentState.currentQuestionIndex + 1
-                            if (nextIndex < currentState.allQuestions.size) {
+                            // Check if game is not finished and still have questions
+                            if (nextIndex < currentState.allQuestions.size && !_state.value.gameFinished) {
                                 _state.value = _state.value.copy(
                                     currentQuestion = currentState.allQuestions[nextIndex],
                                     currentQuestionIndex = nextIndex,
@@ -236,14 +240,4 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
     
-    fun nextQuestion() {
-        _state.value = _state.value.copy(
-            currentQuestionIndex = _state.value.currentQuestionIndex + 1,
-            lastAnswerCorrect = null,
-            opponentAnswered = false,
-            timeRemaining = 30,
-            timeLeft = 30,
-            isAnswered = false
-        )
-    }
 }
