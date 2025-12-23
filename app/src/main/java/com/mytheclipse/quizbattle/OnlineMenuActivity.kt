@@ -19,6 +19,7 @@ class OnlineMenuActivity : BaseActivity() {
     private val matchmakingViewModel: MatchmakingViewModel by viewModels()
     
     private var isSearchingForMatch = false
+    private var hasNavigated = false  // Guard against observer re-trigger
     private var searchStartTime: Long = 0
     private val handler = Handler(Looper.getMainLooper())
     private var timerRunnable: Runnable? = null
