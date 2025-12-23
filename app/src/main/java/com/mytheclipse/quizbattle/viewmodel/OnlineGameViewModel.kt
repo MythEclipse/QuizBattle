@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
 
 data class OnlineGameState(
     val matchId: String = "",
@@ -41,13 +42,16 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
     private val _state = MutableStateFlow(OnlineGameState())
     val state: StateFlow<OnlineGameState> = _state.asStateFlow()
     
-    private var isObserving = false  // Flag to prevent multiple collectors
+    private var observingJob: Job? = null  // Track collector job for proper cancellation
     
     init {
         // observeGameEvents() moved to connectToMatch
     }
     
     fun connectToMatch(matchId: String) {
+        // Cancel old event collector to prevent replay
+        observingJob?.cancel()
+        
         // FULL state reset for new match to prevent replay
         _state.value = OnlineGameState(
             matchId = matchId
@@ -58,11 +62,8 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
             try {
                 if (BuildConfig.DEBUG) Log.d("API", "OnlineGameViewModel.connectToMatch - matchId=$matchId")
                 
-                // Only start observing if not already observing to prevent multiple collectors
-                if (!isObserving) {
-                    isObserving = true
-                    observeGameEvents(matchId)
-                }
+                // Always create fresh collector for new match
+                observingJob = observeGameEvents(matchId)
                 
                 gameRepository.connectToMatch(matchId)
             } catch (e: Exception) {
@@ -75,8 +76,8 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
     
-    private fun observeGameEvents(targetMatchId: String) {
-        viewModelScope.launch {
+    private fun observeGameEvents(targetMatchId: String): Job {
+        return viewModelScope.launch {
             gameRepository.observeGameEvents().collect { event ->
                 if (BuildConfig.DEBUG) {
                     val eventType = event.javaClass.simpleName
