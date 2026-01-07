@@ -15,27 +15,31 @@ class BattleResultActivity : AppCompatActivity() {
         binding = ActivityBattleResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
         
-        val isVictory = intent.getBooleanExtra(EXTRA_IS_VICTORY, false)
-        
+        val isVictory = intent?.getBooleanExtra(EXTRA_IS_VICTORY, false) ?: false
+
         setupUI(isVictory)
         setupListeners()
     }
     
     private fun setupUI(isVictory: Boolean) {
-        if (isVictory) {
-            binding.resultTitleTextView.text = getString(R.string.victory)
-            binding.resultTitleTextView.setTextColor(ContextCompat.getColor(this, R.color.primary_blue))
-        } else {
-            binding.resultTitleTextView.text = getString(R.string.defeat)
-            binding.resultTitleTextView.setTextColor(ContextCompat.getColor(this, R.color.defeat_red))
+        try {
+            if (isVictory) {
+                binding.resultTitleTextView.text = getString(R.string.victory)
+                binding.resultTitleTextView.setTextColor(ContextCompat.getColor(this, R.color.primary_blue))
+            } else {
+                binding.resultTitleTextView.text = getString(R.string.defeat)
+                binding.resultTitleTextView.setTextColor(ContextCompat.getColor(this, R.color.defeat_red))
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            // Fallback
+            binding.resultTitleTextView.text = if (isVictory) "Victory!" else "Defeat"
         }
     }
     
     private fun setupListeners() {
         binding.backToMenuButton.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
+            val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
             finish()
         }

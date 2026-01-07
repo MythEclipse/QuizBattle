@@ -86,4 +86,37 @@ class UserRepository(private val userDao: UserDao) {
     suspend fun deleteUser(user: User) {
         userDao.deleteUser(user)
     }
+    
+    /**
+     * Creates a new user from API login response or updates existing user.
+     * Always sets isLoggedIn = true.
+     * This should be used after successful API login instead of registerUser().
+     */
+    suspend fun createOrLoginFromApi(username: String, email: String): Result<User> {
+        return try {
+            // Logout all other users first
+            userDao.logoutAllUsers()
+            
+            // Check if user exists by email
+            val existingUser = userDao.getUserByEmail(email)
+            
+            if (existingUser != null) {
+                // Update existing user and set logged in
+                userDao.setUserLoggedIn(existingUser.id)
+                Result.success(existingUser.copy(isLoggedIn = true))
+            } else {
+                // Create new user with isLoggedIn = true
+                val user = User(
+                    username = username,
+                    email = email,
+                    password = "", // Password handled by API, not stored locally
+                    isLoggedIn = true
+                )
+                val userId = userDao.insertUser(user)
+                Result.success(user.copy(id = userId))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

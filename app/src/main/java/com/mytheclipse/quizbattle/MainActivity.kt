@@ -26,7 +26,10 @@ class MainActivity : AppCompatActivity() {
         
         setupListeners()
         observeMainState()
-        
+    }
+
+    override fun onResume() {
+        super.onResume()
         mainViewModel.refreshData()
     }
     

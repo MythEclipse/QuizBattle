@@ -159,27 +159,16 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     tokenRepository.saveUserEmail(response.user.email ?: email)
                     ApiConfig.setAuthToken(response.accessToken)
                     
-                    // Login or create user in local database
-                    val result = userRepository.loginUser(email, password)
+                    // Create or login user in local database with isLoggedIn = true
+                    val result = userRepository.createOrLoginFromApi(
+                        response.user.name ?: "User",
+                        email
+                    )
                     
-                    if (result.isFailure) {
-                        // User doesn't exist locally, create it
-                        val registerResult = userRepository.registerUser(
-                            response.user.name ?: "User",
-                            email,
-                            password
-                        )
-                        registerResult.onSuccess { user ->
-                            _authState.value = AuthState(isSuccess = true, user = user)
-                        }.onFailure { exception ->
-                            _authState.value = AuthState(error = exception.message ?: "Login gagal")
-                        }
-                    } else {
-                        result.onSuccess { user ->
-                            _authState.value = AuthState(isSuccess = true, user = user)
-                        }.onFailure { exception ->
-                            _authState.value = AuthState(error = exception.message ?: "Login gagal")
-                        }
+                    result.onSuccess { user ->
+                        _authState.value = AuthState(isSuccess = true, user = user)
+                    }.onFailure { exception ->
+                        _authState.value = AuthState(error = exception.message ?: "Login gagal")
                     }
                 } else {
                     if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.login - failed")

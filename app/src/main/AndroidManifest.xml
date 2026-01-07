@@ -18,7 +18,8 @@
         android:theme="@style/Theme.QuizBattle">
         <activity
             android:name=".SplashActivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/Theme.QuizBattle">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -69,7 +70,7 @@
             android:exported="false" />
         <activity
             android:name=".ChatRoomActivity"
-            android:exported="false" />
+            android.exported="false" />
         <activity
             android:name=".FriendListActivity"
             android:exported="false" />
