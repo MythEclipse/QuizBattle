@@ -6,27 +6,27 @@
     <color name="primary_green">#4CAF50</color>
     <color name="secondary_blue">#0095FF</color>
 
-    <!-- Text colors -->
-    <color name="text_primary">#333333</color>
-    <color name="text_secondary">#768893</color>
-    <color name="text_tertiary">#8D9CA5</color>
-    <color name="text_disabled">#A1AEB6</color>
-    <color name="text_placeholder">#83939D</color>
+    <!-- Text colors - DARK MODE -->
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#B0BEC5</color>
+    <color name="text_tertiary">#90A4AE</color>
+    <color name="text_disabled">#78909C</color>
+    <color name="text_placeholder">#607D8B</color>
 
-    <!-- Background colors -->
-    <color name="background_white">#FFFFFF</color>
-    <color name="background_gray">#EFEFEF</color>
+    <!-- Background colors - DARK MODE -->
+    <color name="background_white">#121212</color>
+    <color name="background_gray">#1E1E1E</color>
 
-    <!-- Border colors -->
-    <color name="border_gray">#A1AEB6</color>
-    <color name="border_light">#D9D9D9</color>
-    <color name="border_separator">#B9B9B9</color>
+    <!-- Border colors - DARK MODE -->
+    <color name="border_gray">#424242</color>
+    <color name="border_light">#333333</color>
+    <color name="border_separator">#2C2C2C</color>
 
     <!-- Other colors -->
     <color name="orange_warning">#FFAA01</color>
     <color name="defeat_red">#8D0707</color>
     <color name="progress_track">#33787878</color>
-    <color name="black_overlay">#D9D9D9</color>
+    <color name="black_overlay">#424242</color>
 
     <!-- Gradient colors -->
     <color name="gradient_red_start">#FF0101</color>
@@ -34,7 +34,7 @@
     <color name="gradient_text_red_start">#E2220D</color>
     <color name="gradient_text_blue_end">#0095FF</color>
 
-    <!-- Material theme colors -->
+    <!-- Material theme colors - DARK MODE -->
     <color name="colorPrimary">@color/primary_blue</color>
     <color name="colorPrimaryVariant">@color/secondary_blue</color>
     <color name="colorSecondary">@color/primary_red</color>
@@ -46,6 +46,6 @@
     <color name="black">#FF000000</color>
     <color name="transparent">#00000000</color>
     
-    <!-- Card background for light mode -->
-    <color name="card_background">#FFFFFF</color>
+    <!-- Card background for dark mode -->
+    <color name="card_background">#1E1E1E</color>
 </resources>
