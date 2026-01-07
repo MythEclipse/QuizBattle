@@ -45,6 +45,10 @@
             android:name=".BattleResultActivity"
             android:exported="false" />
         <activity
+            android:name=".QuestionManagementActivity"
+            android:exported="false"
+            android:theme="@style/Theme.QuizBattle" />
+        <activity
             android:name=".OnlineMenuActivity"
             android:exported="false" />
         <activity

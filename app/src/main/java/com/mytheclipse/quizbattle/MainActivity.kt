@@ -66,6 +66,10 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+        binding.manageQuestionsButton.setOnClickListener {
+            startActivity(Intent(this, QuestionManagementActivity::class.java))
+        }
         
         binding.profileButton.setOnClickListener {
             lifecycleScope.launch {

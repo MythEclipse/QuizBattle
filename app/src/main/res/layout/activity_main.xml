@@ -131,6 +131,18 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/loginButton" />
 
+        <!-- Manage Questions Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/manageQuestionsButton"
+            style="@style/Widget.QuizBattle.Button.Outlined"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:text="📝 Manajemen Soal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/battleButton" />
+
         <!-- Online Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/onlineButton"
@@ -142,7 +154,7 @@
             android:backgroundTint="@color/secondary_blue"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/battleButton" />
+            app:layout_constraintTop_toBottomOf="@id/manageQuestionsButton" />
 
         <!-- Bottom Buttons Row -->
         <LinearLayout
