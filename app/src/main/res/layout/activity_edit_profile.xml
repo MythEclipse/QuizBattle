@@ -104,7 +104,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_small"
-            android:textColor="@android:color/holo_red_dark"
+            android:textColor="@color/error_text"
             android:textSize="@dimen/text_size_small"
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"

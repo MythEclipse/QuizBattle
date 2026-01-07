@@ -48,4 +48,13 @@
     
     <!-- Card background for light mode -->
     <color name="card_background">#FFFFFF</color>
+    
+    <!-- Battle arena background -->
+    <color name="battle_arena_bg">#2C2C2C</color>
+    
+    <!-- Error text color -->
+    <color name="error_text">#D32F2F</color>
+    
+    <!-- Overlay background (semi-transparent black) -->
+    <color name="overlay_background">#CC000000</color>
 </resources>

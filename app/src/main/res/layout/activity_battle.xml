@@ -40,7 +40,7 @@
         android:layout_marginStart="@dimen/spacing_medium"
         android:layout_marginEnd="@dimen/spacing_medium"
         app:cardCornerRadius="16dp"
-        app:cardBackgroundColor="#2C2C2C"
+        app:cardBackgroundColor="@color/battle_arena_bg"
         app:cardElevation="4dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

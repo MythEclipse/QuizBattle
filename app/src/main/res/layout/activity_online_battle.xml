@@ -52,7 +52,7 @@
         android:layout_height="200dp"
         android:layout_marginTop="@dimen/spacing_large"
         app:cardCornerRadius="16dp"
-        app:cardBackgroundColor="#2C2C2C"
+        app:cardBackgroundColor="@color/battle_arena_bg"
         app:cardElevation="4dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
