@@ -119,4 +119,22 @@ class UserRepository(private val userDao: UserDao) {
             Result.failure(e)
         }
     }
+
+    suspend fun getOrCreateGuestUser(): User {
+        val guestEmail = "guest@local"
+        val existingGuest = userDao.getUserByEmail(guestEmail)
+        
+        return if (existingGuest != null) {
+            existingGuest
+        } else {
+            val guestUser = User(
+                username = "Guest",
+                email = guestEmail,
+                password = "",
+                isLoggedIn = false
+            )
+            val userId = userDao.insertUser(guestUser)
+            guestUser.copy(id = userId)
+        }
+    }
 }

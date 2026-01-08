@@ -12,8 +12,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [User::class, Question::class, GameHistory::class, Friend::class],
-    version = 1,
+    entities = [
+        User::class, 
+        Question::class, 
+        GameHistory::class, 
+        Friend::class,
+        com.mytheclipse.quizbattle.data.local.entity.UserQuestionHistory::class
+    ],
+    version = 2,
     exportSchema = false
 )
 abstract class QuizBattleDatabase : RoomDatabase() {

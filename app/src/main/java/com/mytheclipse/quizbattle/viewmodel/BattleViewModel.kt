@@ -119,7 +119,24 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
             _state.value = _state.value.copy(isLoading = true)
             
             try {
-                val questions = questionRepository.getRandomQuestions(5)
+                // Get current user or create guest to track history
+                val currentUser = userRepository.getLoggedInUser() ?: userRepository.getOrCreateGuestUser()
+                var questions: List<Question> = emptyList()
+                
+                // Try to get unseen questions first
+                questions = questionRepository.getUnseenRandomQuestions(currentUser.id, 5)
+                
+                // If not enough questions (clean loop or new user), reset history and fetch again
+                if (questions.size < 5) {
+                    questionRepository.clearUserQuestionHistory(currentUser.id)
+                    questions = questionRepository.getUnseenRandomQuestions(currentUser.id, 5)
+                    
+                    // Fallback if still empty (shouldn't happen unless DB is empty)
+                    if (questions.isEmpty()) {
+                        questions = questionRepository.getRandomQuestions(5)
+                    }
+                }
+
                 val battleQuestions = questions.map { question ->
                     BattleQuestion(
                         id = question.id,
@@ -136,7 +153,7 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
                 
                 _state.value = _state.value.copy(
                     questions = battleQuestions,
-                    currentQuestionIndex = Random.nextInt(battleQuestions.size),
+                    currentQuestionIndex = if (battleQuestions.isNotEmpty()) Random.nextInt(battleQuestions.size) else 0,
                     isLoading = false
                 )
             } catch (e: Exception) {
@@ -260,21 +277,22 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
     private fun saveGameResult() {
         viewModelScope.launch {
             try {
-                val currentUser = userRepository.getLoggedInUser()
-                if (currentUser != null) {
-                    val currentState = _state.value
-                    // Victory if opponent health reaches 0 or player has more health
-                    val isVictory = if (currentState.opponentHealth <= 0 && currentState.playerHealth > 0) {
-                        true
-                    } else if (currentState.playerHealth <= 0 && currentState.opponentHealth > 0) {
-                        false
-                    } else {
-                        currentState.playerHealth > currentState.opponentHealth
-                    }
-                    
-                    // Save game history (use health as score)
-                    val gameHistory = GameHistory(
-                        userId = currentUser.id,
+                // Use logged in user or guest
+                val currentUser = userRepository.getLoggedInUser() ?: userRepository.getOrCreateGuestUser()
+                
+                val currentState = _state.value
+                // Victory if opponent health reaches 0 or player has more health
+                val isVictory = if (currentState.opponentHealth <= 0 && currentState.playerHealth > 0) {
+                    true
+                } else if (currentState.playerHealth <= 0 && currentState.opponentHealth > 0) {
+                    false
+                } else {
+                    currentState.playerHealth > currentState.opponentHealth
+                }
+                
+                // Save game history (use health as score)
+                val gameHistory = GameHistory(
+                    userId = currentUser.id,
                         opponentName = "AI Bot",
                         userScore = currentState.playerHealth,
                         opponentScore = currentState.opponentHealth,
@@ -289,7 +307,18 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
                     val wins = if (isVictory) 1 else 0
                     val losses = if (!isVictory) 1 else 0
                     userRepository.updateUserStats(currentUser.id, points, wins, losses)
-                }
+                    
+                    // Save Question History
+                    if (currentState.questions.isNotEmpty()) {
+                        val historyList = currentState.questions.map { question ->
+                            com.mytheclipse.quizbattle.data.local.entity.UserQuestionHistory(
+                                userId = currentUser.id,
+                                questionId = question.id
+                            )
+                        }
+                        questionRepository.insertUserQuestionHistory(historyList)
+                    }
+                
             } catch (e: Exception) {
                 // Error saving game result
             }

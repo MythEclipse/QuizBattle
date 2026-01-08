@@ -50,7 +50,24 @@ class QuestionRepository(private val questionDao: QuestionDao) {
         questionDao.deleteAllQuestions()
     }
     
+
     suspend fun getActiveQuestionCount(): Int {
         return questionDao.getActiveQuestionCount()
+    }
+
+    suspend fun getUnseenRandomQuestions(userId: Long, limit: Int = 5): List<Question> {
+        return questionDao.getUnseenRandomQuestions(userId, limit)
+    }
+
+    suspend fun getUnseenRandomQuestionsByCategory(userId: Long, category: String, limit: Int = 5): List<Question> {
+        return questionDao.getUnseenRandomQuestionsByCategory(userId, category, limit)
+    }
+
+    suspend fun insertUserQuestionHistory(history: List<com.mytheclipse.quizbattle.data.local.entity.UserQuestionHistory>) {
+        questionDao.insertUserQuestionHistory(history)
+    }
+
+    suspend fun clearUserQuestionHistory(userId: Long) {
+        questionDao.clearUserQuestionHistory(userId)
     }
 }
