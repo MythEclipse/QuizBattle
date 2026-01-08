@@ -25,6 +25,10 @@ class BattleActivity : AppCompatActivity() {
     private val handler = Handler(Looper.getMainLooper())
     private var timerRunnable: Runnable? = null
     
+    // Sound Manager
+    private lateinit var soundManager: com.mytheclipse.quizbattle.util.SoundManager
+    
+    // Animation drawables
     private var knightAnimation: AnimationDrawable? = null
     private var goblinAnimation: AnimationDrawable? = null
     
@@ -43,10 +47,25 @@ class BattleActivity : AppCompatActivity() {
         binding = ActivityBattleBinding.inflate(layoutInflater)
         setContentView(binding.root)
         
+        soundManager = com.mytheclipse.quizbattle.util.SoundManager(this)
+        
         setupCharacterAnimations()
         setupAnswerButtons()
         observeBattleState()
     }
+    
+    override fun onResume() {
+        super.onResume()
+        android.util.Log.d("BattleActivity", "onResume called - playing music")
+        soundManager.playBattleMusic()
+    }
+    
+    override fun onPause() {
+        super.onPause()
+        soundManager.pauseMusic()
+    }
+    // onDestroy is at the bottom, we will remove the duplicate one there
+
     
     private fun setupCharacterAnimations() {
         // Start knight idle animation
@@ -255,6 +274,13 @@ class BattleActivity : AppCompatActivity() {
             playKnightAnimation(knightAnimRes, returnToIdle)
             lastKnightAnimRes = knightAnimRes
             
+            // Play sounds based on new state
+            when {
+                state.playerHealth <= 0 -> soundManager.playDieKnight() // Should play only once
+                state.playerTookDamage -> soundManager.playHurtKnight()
+                state.playerAttacking -> soundManager.playAttackKnight()
+            }
+            
             // Apply flash effect on damage
             if (state.playerTookDamage) {
                 // Vibrate on damage using modern API
@@ -277,6 +303,13 @@ class BattleActivity : AppCompatActivity() {
                               goblinAnimRes != R.drawable.anim_goblin_dead
             playGoblinAnimation(goblinAnimRes, returnToIdle)
             lastGoblinAnimRes = goblinAnimRes
+            
+            // Play sounds based on new state
+            when {
+                state.opponentHealth <= 0 -> soundManager.playDieMonster()
+                state.opponentTookDamage -> soundManager.playHurtMonster()
+                state.playerTookDamage -> soundManager.playAttackMonster() // Opponent/Goblin attacks when player takes damage
+            }
             
             // Apply flash effect on damage
             if (state.opponentTookDamage) {
@@ -412,5 +445,8 @@ class BattleActivity : AppCompatActivity() {
         super.onDestroy()
         stopTimer()
         handler.removeCallbacksAndMessages(null) // Cancel all pending handlers
+        if (::soundManager.isInitialized) {
+            soundManager.release()
+        }
     }
 }
