@@ -33,7 +33,7 @@ data class BattleState(
     val isGameOver: Boolean = false,
     val isLoading: Boolean = false,
     val error: String? = null,
-    val damageAmount: Int = 20, // Damage per wrong answer
+    val damageAmount: Int = 10, // Damage per wrong answer/correct answer
     val playerTookDamage: Boolean = false,
     val playerAttacking: Boolean = false,
     val opponentTookDamage: Boolean = false,
