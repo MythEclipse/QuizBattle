@@ -19,13 +19,14 @@ interface QuestionDao {
     @Query("SELECT * FROM questions WHERE difficulty = :difficulty AND isActive = 1")
     suspend fun getQuestionsByDifficulty(difficulty: String): List<Question>
     
-    @Query("SELECT * FROM questions WHERE isActive = 1 ORDER BY RANDOM() LIMIT :limit")
+    @Query("SELECT * FROM questions WHERE isActive = 1 GROUP BY questionText ORDER BY RANDOM() LIMIT :limit")
     suspend fun getRandomQuestions(limit: Int = 5): List<Question>
     
     @Query("""
         SELECT * FROM questions 
         WHERE isActive = 1 
         AND id NOT IN (SELECT questionId FROM user_question_history WHERE userId = :userId)
+        GROUP BY questionText
         ORDER BY RANDOM() 
         LIMIT :limit
     """)
@@ -36,13 +37,20 @@ interface QuestionDao {
         WHERE category = :category 
         AND isActive = 1 
         AND id NOT IN (SELECT questionId FROM user_question_history WHERE userId = :userId)
+        GROUP BY questionText
         ORDER BY RANDOM() 
         LIMIT :limit
     """)
     suspend fun getUnseenRandomQuestionsByCategory(userId: Long, category: String, limit: Int = 5): List<Question>
     
-    @Query("SELECT * FROM questions WHERE category = :category AND isActive = 1 ORDER BY RANDOM() LIMIT :limit")
+    @Query("SELECT * FROM questions WHERE category = :category AND isActive = 1 GROUP BY questionText ORDER BY RANDOM() LIMIT :limit")
     suspend fun getRandomQuestionsByCategory(category: String, limit: Int = 5): List<Question>
+    
+    @Query("SELECT questionText FROM questions")
+    suspend fun getAllQuestionTexts(): List<String>
+    
+    @Query("DELETE FROM questions WHERE id NOT IN (SELECT MIN(id) FROM questions GROUP BY questionText)")
+    suspend fun removeDuplicateQuestions()
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertQuestion(question: Question): Long

@@ -55,7 +55,10 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
     private val opponentAttackIntervalMax = 7000L
     
     init {
-        loadQuestions()
+        viewModelScope.launch {
+            questionRepository.ensureMinimumQuestions()
+            loadQuestions()
+        }
         startOpponentAttacks()
     }
     
@@ -136,6 +139,19 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
                         questions = questionRepository.getRandomQuestions(5)
                     }
                 }
+                
+                // MARK AS SEEN IMMEDIATELY
+                // This prevents repetition even if the user incorrectly exits or the game crashes
+                if (questions.isNotEmpty()) {
+                    val historyList = questions.map { question ->
+                        com.mytheclipse.quizbattle.data.local.entity.UserQuestionHistory(
+                            userId = currentUser.id,
+                            questionId = question.id,
+                            seenAt = System.currentTimeMillis()
+                        )
+                    }
+                    questionRepository.insertUserQuestionHistory(historyList)
+                }
 
                 val battleQuestions = questions.map { question ->
                     BattleQuestion(
@@ -149,11 +165,11 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
                         ),
                         correctAnswerIndex = question.correctAnswerIndex
                     )
-                }
+                }.shuffled() // Shuffle once at the beginning
                 
                 _state.value = _state.value.copy(
                     questions = battleQuestions,
-                    currentQuestionIndex = if (battleQuestions.isNotEmpty()) Random.nextInt(battleQuestions.size) else 0,
+                    currentQuestionIndex = 0, // Start from the first question
                     isLoading = false
                 )
             } catch (e: Exception) {
@@ -234,11 +250,21 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
         // Check if game over due to health
         if (currentState.isGameOver) return
         
-        // Pick random question index
-        val randomIndex = Random.nextInt(currentState.questions.size)
+        // Sequential index
+        val nextIndex = currentState.currentQuestionIndex + 1
+        
+        // If we ran out of questions, end the game or loop (here we assume game ends or waits for update)
+        if (nextIndex >= currentState.questions.size) {
+            // Game technically over by question exhaustion, maybe trigger saveGameResult if not already done?
+            // For now, let's just not advance index to avoid crash, or loop back? 
+            // Better to end game.
+             _state.value = currentState.copy(isGameOver = true)
+             saveGameResult()
+             return
+        }
         
         _state.value = currentState.copy(
-            currentQuestionIndex = randomIndex,
+            currentQuestionIndex = nextIndex,
             isAnswered = false,
             selectedAnswerIndex = -1,
             timeProgress = 1f,
@@ -308,16 +334,8 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
                     val losses = if (!isVictory) 1 else 0
                     userRepository.updateUserStats(currentUser.id, points, wins, losses)
                     
-                    // Save Question History
-                    if (currentState.questions.isNotEmpty()) {
-                        val historyList = currentState.questions.map { question ->
-                            com.mytheclipse.quizbattle.data.local.entity.UserQuestionHistory(
-                                userId = currentUser.id,
-                                questionId = question.id
-                            )
-                        }
-                        questionRepository.insertUserQuestionHistory(historyList)
-                    }
+                    // Save Question History - REMOVED (Handled in loadQuestions)
+                    // previously here
                 
             } catch (e: Exception) {
                 // Error saving game result

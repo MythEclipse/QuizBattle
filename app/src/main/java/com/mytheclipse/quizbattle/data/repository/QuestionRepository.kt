@@ -70,4 +70,23 @@ class QuestionRepository(private val questionDao: QuestionDao) {
     suspend fun clearUserQuestionHistory(userId: Long) {
         questionDao.clearUserQuestionHistory(userId)
     }
+    
+    suspend fun ensureMinimumQuestions() {
+        // 1. Clean up potential duplicates first (same text, different IDs)
+        questionDao.removeDuplicateQuestions()
+        
+        // 2. Check strict count
+        val count = questionDao.getActiveQuestionCount()
+        
+        // 3. Always try to add sample questions if they are missing (Target: 50+)
+        // We compare against the set of existing text to avoid re-inserting duplicates
+        val existingTexts = questionDao.getAllQuestionTexts().toHashSet()
+        val sampleQuestions = com.mytheclipse.quizbattle.data.QuestionDataProvider.getSampleQuestions()
+        
+        val newQuestions = sampleQuestions.filter { !existingTexts.contains(it.questionText) }
+        
+        if (newQuestions.isNotEmpty()) {
+            questionDao.insertQuestions(newQuestions)
+        }
+    }
 }
