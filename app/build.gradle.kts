@@ -7,12 +7,13 @@ plugins {
 
 android {
     namespace = "com.mytheclipse.quizbattle"
-    compileSdk = 36
+    compileSdk = 35
+    buildToolsVersion = "35.0.0"
 
     defaultConfig {
         applicationId = "com.mytheclipse.quizbattle"
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -111,6 +112,7 @@ dependencies {
     
     // Coil - Removed Compose integration
     // implementation(libs.coil.compose)
+    implementation(libs.coil.view)
     
     // Material Components for XML layouts
     implementation(libs.material)

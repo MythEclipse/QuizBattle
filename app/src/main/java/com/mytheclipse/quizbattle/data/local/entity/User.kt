@@ -15,6 +15,7 @@ data class User(
     val losses: Int = 0,
     val totalGames: Int = 0,
     val createdAt: Long = System.currentTimeMillis(),
-    val isLoggedIn: Boolean = false
+    val isLoggedIn: Boolean = false,
+    val image: String? = null
 )
 

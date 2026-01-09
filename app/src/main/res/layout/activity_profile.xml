@@ -53,15 +53,15 @@
                 android:padding="@dimen/spacing_large"
                 android:gravity="center">
 
-                <!-- Avatar Placeholder -->
-                <TextView
+                <!-- Avatar -->
+                <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/avatarImageView"
                     android:layout_width="120dp"
                     android:layout_height="120dp"
-                    android:gravity="center"
-                    android:text="👤"
-                    android:textSize="80sp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_launcher_foreground"
                     android:background="@color/background_gray"
+                    app:shapeAppearanceOverlay="@style/CircleImageView"
                     android:contentDescription="Profile" />
 
                 <!-- Username -->

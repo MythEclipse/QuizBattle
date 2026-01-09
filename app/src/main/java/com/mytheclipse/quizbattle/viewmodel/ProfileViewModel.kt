@@ -20,7 +20,8 @@ data class ProfileState(
     val points: Int = 0,
     val winRate: Double = 0.0,
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val image: String? = null
 )
 
 class ProfileViewModel(application: Application) : AndroidViewModel(application) {
@@ -59,7 +60,8 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                         totalGames = currentUser.totalGames,
                         points = currentUser.points,
                         winRate = String.format("%.1f", winRate).toDouble(),
-                        isLoading = false
+                        isLoading = false,
+                        image = currentUser.image
                     )
                 } else {
                     _state.value = _state.value.copy(
@@ -67,10 +69,33 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                         error = "No user found. Please login again."
                     )
                 }
+                }
             } catch (e: Exception) {
                 _state.value = _state.value.copy(
                     isLoading = false,
                     error = e.message ?: "Failed to load profile"
+                )
+            }
+        }
+    }
+
+    fun uploadProfileImage(file: java.io.File) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true, error = null)
+            
+            val result = userRepository.uploadAvatar(file)
+            
+            result.onSuccess { url ->
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    image = url
+                )
+                // Also reload profile to ensure everything is consistent
+                loadProfile()
+            }.onFailure { e ->
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    error = e.message ?: "Failed to upload image"
                 )
             }
         }

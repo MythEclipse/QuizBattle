@@ -9,12 +9,26 @@ import androidx.lifecycle.lifecycleScope
 import com.mytheclipse.quizbattle.databinding.ActivityEditProfileBinding
 import com.mytheclipse.quizbattle.viewmodel.ProfileViewModel
 import kotlinx.coroutines.launch
+import coil.load
+import java.io.File
+import java.io.FileOutputStream
 
 class EditProfileActivity : AppCompatActivity() {
     
     private lateinit var binding: ActivityEditProfileBinding
     private val profileViewModel: ProfileViewModel by viewModels()
     
+    private val pickMedia = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri != null) {
+            val file = getFileFromUri(uri)
+            if (file != null) {
+                profileViewModel.uploadProfileImage(file)
+            } else {
+                Toast.makeText(this, "Failed to process image", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityEditProfileBinding.inflate(layoutInflater)
@@ -28,6 +42,10 @@ class EditProfileActivity : AppCompatActivity() {
     private fun setupListeners() {
         binding.backButton.setOnClickListener {
             finish()
+        }
+        
+        binding.avatarImageView.setOnClickListener {
+            pickMedia.launch(androidx.activity.result.PickVisualMediaRequest(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly))
         }
         
         binding.saveButton.setOnClickListener {
@@ -45,6 +63,11 @@ class EditProfileActivity : AppCompatActivity() {
             profileViewModel.state.collect { state ->
                 binding.progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
                 binding.saveButton.isEnabled = !state.isLoading
+                
+                binding.avatarImageView.load(state.image) {
+                    placeholder(R.drawable.ic_launcher_foreground)
+                    error(R.drawable.ic_launcher_foreground)
+                }
                 
                 // Pre-fill current data
                 if (binding.usernameEditText.text.isNullOrEmpty() && state.username.isNotEmpty()) {
@@ -92,5 +115,20 @@ class EditProfileActivity : AppCompatActivity() {
         binding.emailInputLayout.error = null
         
         return true
+    }
+
+    private fun getFileFromUri(uri: android.net.Uri): java.io.File? {
+        return try {
+            val inputStream = contentResolver.openInputStream(uri)
+            val file = java.io.File(cacheDir, "avatar_upload.jpg") // Use a temp file
+            val outputStream = java.io.FileOutputStream(file)
+            inputStream?.copyTo(outputStream)
+            inputStream?.close()
+            outputStream.close()
+            file
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 }

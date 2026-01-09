@@ -12,6 +12,10 @@ interface UsersApiService {
     
     @GET("api/users/{id}")
     suspend fun getUserById(@Path("id") userId: String): UserDetailResponse
+
+    @retrofit2.http.Multipart
+    @retrofit2.http.POST("api/users/avatar")
+    suspend fun uploadAvatar(@retrofit2.http.Part file: okhttp3.MultipartBody.Part): UploadAvatarResponse
 }
 
 data class AllUsersResponse(

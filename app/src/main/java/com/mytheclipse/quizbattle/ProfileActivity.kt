@@ -8,6 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import com.mytheclipse.quizbattle.databinding.ActivityProfileBinding
 import com.mytheclipse.quizbattle.viewmodel.AuthViewModel
 import com.mytheclipse.quizbattle.viewmodel.ProfileViewModel
+import coil.load
 import kotlinx.coroutines.launch
 
 class ProfileActivity : BaseActivity() {
@@ -57,6 +58,11 @@ class ProfileActivity : BaseActivity() {
                 binding.lossesTextView?.text = state.losses.toString()
                 binding.totalGamesTextView?.text = state.totalGames.toString()
                 binding.winRateTextView?.text = String.format("%.1f%%", state.winRate)
+                
+                binding.avatarImageView?.load(state.image) {
+                    placeholder(R.drawable.ic_launcher_foreground)
+                    error(R.drawable.ic_launcher_foreground)
+                }
             }
         }
     }

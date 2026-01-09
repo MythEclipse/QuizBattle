@@ -137,4 +137,34 @@ class UserRepository(private val userDao: UserDao) {
             guestUser.copy(id = userId)
         }
     }
+
+    suspend fun uploadAvatar(file: java.io.File): Result<String> {
+        return try {
+            val requestFile = okhttp3.RequestBody.create(
+                okhttp3.MediaType.parse("image/*"),
+                file
+            )
+            val body = okhttp3.MultipartBody.Part.createFormData("avatar", file.name, requestFile)
+            
+            val apiService = com.mytheclipse.quizbattle.data.remote.ApiConfig.createService(
+                com.mytheclipse.quizbattle.data.remote.api.UsersApiService::class.java
+            )
+            
+            val response = apiService.uploadAvatar(body)
+            
+            if (response.success && response.url != null) {
+                // Update local user if logged in
+                val currentUser = getLoggedInUser()
+                if (currentUser != null) {
+                    val updatedUser = currentUser.copy(image = response.url)
+                    updateUser(updatedUser)
+                }
+                Result.success(response.url)
+            } else {
+                Result.failure(Exception(response.error ?: "Upload failed"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
