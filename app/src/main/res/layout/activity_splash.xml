@@ -33,14 +33,24 @@
             android:background="@drawable/bg_circle"
             android:alpha="0.4"/>
 
-        <!-- Main Logo -->
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/logoImageView"
+        <!-- Main Logo Masked -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="140dp"
             android:layout_height="140dp"
             android:layout_gravity="center"
-            android:src="@mipmap/ic_launcher"
-            android:contentDescription="@string/app_name" />
+            app:cardCornerRadius="70dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@android:color/transparent">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/logoImageView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@mipmap/ic_launcher"
+                android:scaleType="centerCrop"
+                android:contentDescription="@string/app_name" />
+        </com.google.android.material.card.MaterialCardView>
     </FrameLayout>
 
     <!-- App Title -->
