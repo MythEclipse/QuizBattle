@@ -37,7 +37,10 @@ data class BattleState(
     val playerTookDamage: Boolean = false,
     val playerAttacking: Boolean = false,
     val opponentTookDamage: Boolean = false,
-    val lastOpponentAttackTime: Long = 0 // Track when opponent last attacked
+    val lastOpponentAttackTime: Long = 0, // Track when opponent last attacked
+    val earnedPoints: Int = 0,
+    val earnedCoins: Int = 0,
+    val earnedExp: Int = 0
 )
 
 class BattleViewModel(application: Application) : AndroidViewModel(application) {
@@ -329,10 +332,22 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
                     gameHistoryRepository.insertGame(gameHistory)
                     
                     // Update user stats based on victory
-                    val points = if (isVictory) 100 else 0
+                    val points = if (isVictory) 100 else 20
+                    val coins = if (isVictory) 50 else 10
+                    val exp = if (isVictory) 100 else 25
+                    
                     val wins = if (isVictory) 1 else 0
                     val losses = if (!isVictory) 1 else 0
+                    
                     userRepository.updateUserStats(currentUser.id, points, wins, losses)
+                    // Note: UpdateUserStats might need to be updated to handle coins/exp if it doesn't already, 
+                    // or we assume points maps to one of them. For now, we just update the state for UI.
+                    
+                    _state.value = currentState.copy(
+                        earnedPoints = points,
+                        earnedCoins = coins,
+                        earnedExp = exp
+                    )
                     
                     // Save Question History - REMOVED (Handled in loadQuestions)
                     // previously here
