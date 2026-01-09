@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.mytheclipse.quizbattle.databinding.ActivityBattleResultBinding
 
-class BattleResultActivity : AppCompatActivity() {
+class BattleResultActivity : BaseActivity() {
     
     private lateinit var binding: ActivityBattleResultBinding
     
@@ -14,6 +14,7 @@ class BattleResultActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityBattleResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applySystemBarPadding(binding.root)
         
         val isVictory = intent?.getBooleanExtra(EXTRA_IS_VICTORY, false) ?: false
 

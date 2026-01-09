@@ -21,6 +21,7 @@ class FeedActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityFeedBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applySystemBarPadding(binding.root)
         
         setupRecyclerView()
         setupListeners()

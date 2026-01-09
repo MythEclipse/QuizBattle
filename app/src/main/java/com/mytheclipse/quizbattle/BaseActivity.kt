@@ -1,12 +1,39 @@
 package com.mytheclipse.quizbattle
 
 import android.content.Intent
+import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import com.mytheclipse.quizbattle.data.repository.TokenRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 abstract class BaseActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Enable edge-to-edge for all activities
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+    }
+
+    /**
+     * Apply system bar insets as padding to a view
+     * Call this in child activity after setContentView
+     */
+    protected fun applySystemBarPadding(view: View) {
+        ViewCompat.setOnApplyWindowInsetsListener(view) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.updatePadding(
+                top = insets.top,
+                bottom = insets.bottom
+            )
+            WindowInsetsCompat.CONSUMED
+        }
+    }
 
     protected fun createLoginIntent(redirect: String, matchId: String? = null): Intent {
         val intent = Intent(this, LoginActivity::class.java)

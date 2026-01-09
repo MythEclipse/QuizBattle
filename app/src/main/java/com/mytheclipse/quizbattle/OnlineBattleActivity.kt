@@ -50,6 +50,7 @@ class OnlineBattleActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityOnlineBattleBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applySystemBarPadding(binding.root)
         
         soundManager = SoundManager.getInstance(this)
         musicManager = MusicManager.getInstance(this)

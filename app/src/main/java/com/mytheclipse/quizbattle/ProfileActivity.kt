@@ -21,6 +21,7 @@ class ProfileActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applySystemBarPadding(binding.root)
         
         setupListeners()
         observeProfileData()

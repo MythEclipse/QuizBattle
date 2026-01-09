@@ -7,7 +7,7 @@ import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import com.mytheclipse.quizbattle.databinding.ActivitySplashBinding
 
-class SplashActivity : AppCompatActivity() {
+class SplashActivity : BaseActivity() {
     
     private lateinit var binding: ActivitySplashBinding
     private val handler = Handler(Looper.getMainLooper())
@@ -17,6 +17,7 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applySystemBarPadding(binding.root)
         
         // Navigate to MainActivity after 2 seconds
         navigationRunnable = Runnable {

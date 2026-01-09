@@ -20,6 +20,7 @@ class LeaderboardActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityLeaderboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applySystemBarPadding(binding.root)
         
         setupViews()
         setupListeners()

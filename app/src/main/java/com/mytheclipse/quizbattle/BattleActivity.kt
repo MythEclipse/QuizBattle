@@ -18,7 +18,7 @@ import com.mytheclipse.quizbattle.databinding.ActivityBattleBinding
 import com.mytheclipse.quizbattle.viewmodel.BattleViewModel
 import kotlinx.coroutines.launch
 
-class BattleActivity : AppCompatActivity() {
+class BattleActivity : BaseActivity() {
     
     private lateinit var binding: ActivityBattleBinding
     private val battleViewModel: BattleViewModel by viewModels()
@@ -46,6 +46,7 @@ class BattleActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityBattleBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applySystemBarPadding(binding.root)
         
         soundManager = com.mytheclipse.quizbattle.util.SoundManager(this)
         

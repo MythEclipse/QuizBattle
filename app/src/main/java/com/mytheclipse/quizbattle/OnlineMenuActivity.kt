@@ -28,6 +28,7 @@ class OnlineMenuActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityOnlineMenuBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applySystemBarPadding(binding.root)
         
         // Connect to WebSocket when activity opens
         matchmakingViewModel.connectWebSocket()

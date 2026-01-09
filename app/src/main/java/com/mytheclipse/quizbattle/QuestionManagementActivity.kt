@@ -18,7 +18,7 @@ import com.mytheclipse.quizbattle.databinding.ActivityQuestionManagementBinding
 import com.mytheclipse.quizbattle.viewmodel.QuestionManagementViewModel
 import kotlinx.coroutines.launch
 
-class QuestionManagementActivity : AppCompatActivity() {
+class QuestionManagementActivity : BaseActivity() {
 
     private lateinit var binding: ActivityQuestionManagementBinding
     private val viewModel: QuestionManagementViewModel by viewModels()
@@ -28,6 +28,7 @@ class QuestionManagementActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityQuestionManagementBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applySystemBarPadding(binding.root)
 
         setupToolbar()
         setupRecyclerView()

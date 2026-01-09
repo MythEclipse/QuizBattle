@@ -10,7 +10,7 @@ import com.mytheclipse.quizbattle.utils.ResultDialogHelper
 import com.mytheclipse.quizbattle.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 
-class RegisterActivity : AppCompatActivity() {
+class RegisterActivity : BaseActivity() {
     
     private lateinit var binding: ActivityRegisterBinding
     private val authViewModel: AuthViewModel by viewModels()
@@ -19,6 +19,7 @@ class RegisterActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applySystemBarPadding(binding.root)
         
         setupListeners()
         observeAuthState()

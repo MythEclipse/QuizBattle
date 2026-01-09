@@ -13,7 +13,7 @@ import coil.load
 import java.io.File
 import java.io.FileOutputStream
 
-class EditProfileActivity : AppCompatActivity() {
+class EditProfileActivity : BaseActivity() {
     
     private lateinit var binding: ActivityEditProfileBinding
     private val profileViewModel: ProfileViewModel by viewModels()
@@ -33,6 +33,7 @@ class EditProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityEditProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applySystemBarPadding(binding.root)
         
         setupListeners()
         observeProfileData()

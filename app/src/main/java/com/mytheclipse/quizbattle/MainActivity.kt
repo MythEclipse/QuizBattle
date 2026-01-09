@@ -16,7 +16,7 @@ import com.mytheclipse.quizbattle.utils.enableEdgeToEdge
 import com.mytheclipse.quizbattle.utils.applySystemBarInsets
 import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
     
     private lateinit var binding: ActivityMainBinding
     private val mainViewModel: MainViewModel by viewModels()

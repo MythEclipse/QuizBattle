@@ -10,7 +10,7 @@ import com.mytheclipse.quizbattle.databinding.ActivityResetPasswordBinding
 import com.mytheclipse.quizbattle.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 
-class ResetPasswordActivity : AppCompatActivity() {
+class ResetPasswordActivity : BaseActivity() {
     
     private lateinit var binding: ActivityResetPasswordBinding
     private val authViewModel: AuthViewModel by viewModels()
@@ -19,6 +19,7 @@ class ResetPasswordActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityResetPasswordBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        applySystemBarPadding(binding.root)
         
         setupListeners()
         observeAuthState()
