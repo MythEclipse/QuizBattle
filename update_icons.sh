@@ -29,4 +29,9 @@ magick "$SOURCE_IMAGE" -resize 216x216 "$RES_DIR/mipmap-xhdpi/ic_launcher_foregr
 magick "$SOURCE_IMAGE" -resize 324x324 "$RES_DIR/mipmap-xxhdpi/ic_launcher_foreground.png"
 magick "$SOURCE_IMAGE" -resize 432x432 "$RES_DIR/mipmap-xxxhdpi/ic_launcher_foreground.png"
 
+# Remove interfering adaptive icon XMLs (Force use of PNGs)
+echo "Removing conflicting adaptive icon XMLs..."
+rm -rf "$RES_DIR/mipmap-anydpi-v26"
+rm -rf "$RES_DIR/mipmap-anydpi"
+
 echo "Icons updated successfully!"
