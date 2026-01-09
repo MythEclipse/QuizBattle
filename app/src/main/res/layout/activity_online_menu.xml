@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background_white">
+    android:background="@drawable/bg_gradient_main">
 
     <!-- Header -->
     <LinearLayout
@@ -12,15 +12,15 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="@dimen/spacing_medium">
+        android:padding="@dimen/spacing_large">
 
         <ImageButton
             android:id="@+id/backButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="@dimen/icon_size_xl"
+            android:layout_height="@dimen/icon_size_xl"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:text="←"
-            android:textSize="24sp"
+            android:src="@drawable/ic_back"
+            app:tint="@color/white"
             android:contentDescription="Back" />
 
         <TextView
@@ -28,11 +28,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Online Battle"
-            android:textSize="@dimen/text_size_title"
-            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_size_xl"
+            android:textColor="@color/white"
             android:textStyle="bold"
             android:layout_marginStart="@dimen/spacing_small" />
-
     </LinearLayout>
 
     <!-- Content -->
@@ -42,23 +41,36 @@
         android:layout_weight="1"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="@dimen/spacing_xlarge">
+        android:padding="@dimen/spacing_large">
 
-        <TextView
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:gravity="center"
-            android:text="⚔️"
-            android:textSize="80sp"
-            android:contentDescription="Online Battle" />
+        <!-- Icon -->
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <View
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_circle"
+                android:alpha="0.3" />
+
+            <TextView
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="⚔️"
+                android:textSize="64sp" />
+        </FrameLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_large"
             android:text="Choose Game Mode"
-            android:textSize="20sp"
-            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_size_xxl"
+            android:textColor="@color/white"
             android:textStyle="bold" />
 
         <TextView
@@ -74,34 +86,37 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/quickMatchButton"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:layout_marginTop="@dimen/spacing_xlarge"
+            android:layout_height="@dimen/button_height_large"
+            android:layout_marginTop="@dimen/spacing_xl"
             android:text="⚡ Quick Match"
             android:textSize="@dimen/text_size_large"
             android:textStyle="bold"
-            app:cornerRadius="12dp" />
+            android:textColor="@color/white"
+            android:background="@drawable/bg_button_primary"
+            app:backgroundTint="@null"
+            app:cornerRadius="@dimen/button_corner_radius" />
 
         <!-- Create Room Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/createRoomButton"
+            style="@style/Widget.QuizBattle.Button.Outlined"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="@dimen/button_height"
             android:layout_marginTop="@dimen/spacing_medium"
-            android:text="Create Room"
-            android:textSize="@dimen/text_size_medium"
-            app:cornerRadius="12dp"
-            style="@style/Widget.QuizBattle.Button.Outlined" />
+            android:text="🏠 Create Room"
+            android:textColor="@color/text_on_dark"
+            app:strokeColor="@color/text_secondary" />
 
         <!-- Join Room Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/joinRoomButton"
+            style="@style/Widget.QuizBattle.Button.Outlined"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="@dimen/button_height"
             android:layout_marginTop="@dimen/spacing_small"
-            android:text="Join Room"
-            android:textSize="@dimen/text_size_medium"
-            app:cornerRadius="12dp"
-            style="@style/Widget.QuizBattle.Button.Outlined" />
+            android:text="🚪 Join Room"
+            android:textColor="@color/text_on_dark"
+            app:strokeColor="@color/text_secondary" />
 
     </LinearLayout>
 

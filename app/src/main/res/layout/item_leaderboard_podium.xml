@@ -5,35 +5,55 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:gravity="center"
-    android:padding="@dimen/spacing_xs">
+    android:padding="@dimen/spacing_small">
 
-    <!-- Avatar Container with Rank Badge -->
+    <!-- Rank Badge -->
     <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-        <!-- Avatar Circle -->
-        <ImageView
+        <!-- Glow for 1st place -->
+        <View
+            android:id="@+id/glowView"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_circle"
+            android:alpha="0.3"
+            android:visibility="gone"/>
+
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/avatarImageView"
-            android:layout_width="74dp"
-            android:layout_height="74dp"
-            android:src="@drawable/player_avatar"
+            android:layout_width="@dimen/podium_avatar_other"
+            android:layout_height="@dimen/podium_avatar_other"
+            android:layout_gravity="center"
+            android:src="@mipmap/ic_launcher"
             android:scaleType="centerCrop"
-            android:background="@drawable/bg_circle_border"
-            android:contentDescription="Player Avatar" />
+            android:background="@color/background_gray"
+            app:shapeAppearanceOverlay="@style/CircleImageView"
+            app:strokeWidth="@dimen/border_width_normal"
+            app:strokeColor="@color/border_light" />
 
         <!-- Rank Badge -->
-        <TextView
-            android:id="@+id/rankBadge"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="@dimen/rank_badge_size"
+            android:layout_height="@dimen/rank_badge_size"
             android:layout_gravity="bottom|center_horizontal"
-            android:background="@drawable/bg_circle"
-            android:gravity="center"
-            android:text="1"
-            android:textColor="@color/text_primary"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:layout_marginBottom="-4dp"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/rank_gold">
+
+            <TextView
+                android:id="@+id/rankBadge"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="1"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_small"
+                android:textStyle="bold" />
+        </com.google.android.material.card.MaterialCardView>
     </FrameLayout>
 
     <!-- Player Name -->
@@ -43,20 +63,21 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_small"
         android:text="Player"
-        android:textSize="14sp"
+        android:textSize="@dimen/text_size_small"
+        android:textColor="@color/text_on_dark"
         android:textStyle="bold"
-        android:textColor="@color/text_primary"
         android:maxLines="1"
-        android:ellipsize="end" />
+        android:ellipsize="end"
+        android:maxWidth="80dp" />
 
     <!-- Points -->
     <TextView
         android:id="@+id/pointsTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_xs"
+        android:layout_marginTop="@dimen/spacing_xxs"
         android:text="0 pts"
-        android:textSize="13sp"
-        android:textColor="@color/text_primary" />
+        android:textSize="@dimen/text_size_xs"
+        android:textColor="@color/primary_blue" />
 
 </LinearLayout>

@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Button Styles -->
+    <!-- ============================================ -->
+    <!-- BUTTON STYLES                                 -->
+    <!-- ============================================ -->
+    
+    <!-- Primary Button - Gradient Blue -->
     <style name="Widget.QuizBattle.Button" parent="Widget.MaterialComponents.Button">
         <item name="android:minHeight">@dimen/button_height</item>
         <item name="android:paddingStart">@dimen/button_padding_horizontal</item>
@@ -8,62 +12,224 @@
         <item name="cornerRadius">@dimen/button_corner_radius</item>
         <item name="android:textSize">@dimen/text_size_medium</item>
         <item name="android:textColor">@color/white</item>
-        <item name="backgroundTint">@color/primary_blue</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="backgroundTint">@color/accent_purple</item>
+        <item name="elevation">@dimen/button_elevation</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="rippleColor">@color/glow_purple</item>
     </style>
-
+    
+    <!-- Outlined Button -->
     <style name="Widget.QuizBattle.Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="android:minHeight">@dimen/button_height</item>
         <item name="android:paddingStart">@dimen/button_padding_horizontal</item>
         <item name="android:paddingEnd">@dimen/button_padding_horizontal</item>
         <item name="cornerRadius">@dimen/button_corner_radius</item>
         <item name="android:textSize">@dimen/text_size_medium</item>
-        <item name="android:textColor">@color/primary_blue</item>
-        <item name="strokeColor">@color/primary_blue</item>
+        <item name="android:textColor">@color/accent_purple</item>
+        <item name="android:textStyle">bold</item>
+        <item name="strokeColor">@color/accent_purple</item>
         <item name="strokeWidth">@dimen/border_width_normal</item>
+        <item name="rippleColor">@color/glow_purple</item>
     </style>
-
+    
+    <!-- Red/Danger Button -->
     <style name="Widget.QuizBattle.Button.Red" parent="Widget.QuizBattle.Button">
         <item name="backgroundTint">@color/primary_red</item>
+        <item name="rippleColor">@color/gradient_red_end</item>
+    </style>
+    
+    <!-- Secondary/Purple Button -->
+    <style name="Widget.QuizBattle.Button.Secondary" parent="Widget.QuizBattle.Button">
+        <item name="backgroundTint">@color/accent_purple</item>
+        <item name="rippleColor">@color/glow_purple</item>
+    </style>
+    
+    <!-- Text Button -->
+    <style name="Widget.QuizBattle.Button.Text" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/primary_blue</item>
+        <item name="android:textStyle">bold</item>
+        <item name="rippleColor">@color/glow_blue</item>
+    </style>
+    
+    <!-- Icon Button -->
+    <style name="Widget.QuizBattle.IconButton" parent="Widget.MaterialComponents.Button.Icon">
+        <item name="iconTint">@color/text_primary</item>
+        <item name="backgroundTint">@color/transparent</item>
+        <item name="rippleColor">@color/glow_blue</item>
     </style>
 
-    <!-- Text Styles -->
+    <!-- ============================================ -->
+    <!-- TEXT STYLES                                   -->
+    <!-- ============================================ -->
+    
+    <!-- Display/Hero Text -->
+    <style name="TextAppearance.QuizBattle.Display" parent="TextAppearance.MaterialComponents.Headline3">
+        <item name="android:textSize">48sp</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:fontFamily">sans-serif-black</item>
+        <item name="android:letterSpacing">-0.02</item>
+    </style>
+    
+    <!-- Headline -->
     <style name="TextAppearance.QuizBattle.Headline" parent="TextAppearance.MaterialComponents.Headline4">
         <item name="android:textSize">@dimen/text_size_heading</item>
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">-0.01</item>
     </style>
 
+    <!-- Title -->
     <style name="TextAppearance.QuizBattle.Title" parent="TextAppearance.MaterialComponents.Headline6">
         <item name="android:textSize">@dimen/text_size_title</item>
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
+    
+    <!-- Subtitle -->
+    <style name="TextAppearance.QuizBattle.Subtitle" parent="TextAppearance.MaterialComponents.Subtitle1">
+        <item name="android:textSize">@dimen/text_size_large</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
 
+    <!-- Body -->
     <style name="TextAppearance.QuizBattle.Body" parent="TextAppearance.MaterialComponents.Body1">
         <item name="android:textSize">@dimen/text_size_normal</item>
         <item name="android:textColor">@color/text_primary</item>
+        <item name="android:lineSpacingMultiplier">1.4</item>
+    </style>
+    
+    <!-- Body Medium -->
+    <style name="TextAppearance.QuizBattle.BodyMedium" parent="TextAppearance.MaterialComponents.Body2">
+        <item name="android:textSize">@dimen/text_size_medium</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
+    <!-- Caption -->
     <style name="TextAppearance.QuizBattle.Caption" parent="TextAppearance.MaterialComponents.Caption">
         <item name="android:textSize">@dimen/text_size_small</item>
         <item name="android:textColor">@color/text_secondary</item>
     </style>
+    
+    <!-- Label -->
+    <style name="TextAppearance.QuizBattle.Label" parent="TextAppearance.MaterialComponents.Overline">
+        <item name="android:textSize">@dimen/text_size_xs</item>
+        <item name="android:textColor">@color/text_tertiary</item>
+        <item name="android:letterSpacing">0.1</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+    
+    <!-- Accent Text (Blue) -->
+    <style name="TextAppearance.QuizBattle.Accent" parent="TextAppearance.QuizBattle.BodyMedium">
+        <item name="android:textColor">@color/primary_blue</item>
+    </style>
 
+    <!-- ============================================ -->
+    <!-- INPUT STYLES                                  -->
+    <!-- ============================================ -->
+    
     <!-- TextInputLayout Style -->
     <style name="Widget.QuizBattle.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <item name="boxStrokeColor">@color/border_gray</item>
+        <item name="boxStrokeColor">@color/input_border_selector</item>
         <item name="boxStrokeWidth">@dimen/border_width_thin</item>
+        <item name="boxStrokeWidthFocused">@dimen/border_width_normal</item>
         <item name="boxCornerRadiusTopStart">@dimen/input_corner_radius</item>
         <item name="boxCornerRadiusTopEnd">@dimen/input_corner_radius</item>
         <item name="boxCornerRadiusBottomStart">@dimen/input_corner_radius</item>
         <item name="boxCornerRadiusBottomEnd">@dimen/input_corner_radius</item>
+        <item name="boxBackgroundColor">@color/input_background</item>
         <item name="android:textColorHint">@color/text_placeholder</item>
+        <item name="hintTextColor">@color/text_hint</item>
+        <item name="cursorColor">@color/primary_blue</item>
     </style>
 
-    <!-- Card Style -->
+    <!-- ============================================ -->
+    <!-- CARD STYLES                                   -->
+    <!-- ============================================ -->
+    
+    <!-- Default Card -->
     <style name="Widget.QuizBattle.Card" parent="Widget.MaterialComponents.CardView">
         <item name="cardCornerRadius">@dimen/card_corner_radius</item>
         <item name="cardElevation">@dimen/card_elevation</item>
         <item name="cardBackgroundColor">@color/card_background</item>
+        <item name="strokeColor">@color/card_border</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+    
+    <!-- Elevated Card -->
+    <style name="Widget.QuizBattle.Card.Elevated" parent="Widget.QuizBattle.Card">
+        <item name="cardElevation">@dimen/card_elevation_high</item>
+    </style>
+    
+    <!-- Outlined Card -->
+    <style name="Widget.QuizBattle.Card.Outlined" parent="Widget.QuizBattle.Card">
+        <item name="cardElevation">0dp</item>
+        <item name="strokeWidth">@dimen/border_width_thin</item>
+        <item name="strokeColor">@color/border_gray</item>
+    </style>
+    
+    <!-- Glass Card (Glassmorphism effect) -->
+    <style name="Widget.QuizBattle.Card.Glass" parent="Widget.QuizBattle.Card">
+        <item name="cardBackgroundColor">@color/card_glass_bg</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeWidth">@dimen/border_width_thin</item>
+        <item name="strokeColor">@color/semi_transparent_white</item>
+    </style>
+
+    <!-- ============================================ -->
+    <!-- BOTTOM NAVIGATION                             -->
+    <!-- ============================================ -->
+    
+    <style name="Widget.QuizBattle.BottomNavigation" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="backgroundTint">@color/card_background</item>
+        <item name="itemIconTint">@color/text_secondary</item>
+        <item name="itemTextColor">@color/text_secondary</item>
+        <item name="itemActiveIndicatorStyle">@style/Widget.QuizBattle.BottomNavigation.ActiveIndicator</item>
+    </style>
+    
+    <style name="Widget.QuizBattle.BottomNavigation.ActiveIndicator" parent="">
+        <item name="android:color">@color/glow_blue</item>
+    </style>
+
+    <!-- ============================================ -->
+    <!-- PROGRESS INDICATORS                           -->
+    <!-- ============================================ -->
+    
+    <style name="Widget.QuizBattle.ProgressBar" parent="Widget.MaterialComponents.LinearProgressIndicator">
+        <item name="indicatorColor">@color/primary_blue</item>
+        <item name="trackColor">@color/progress_track</item>
+        <item name="trackCornerRadius">4dp</item>
+    </style>
+    
+    <style name="Widget.QuizBattle.ProgressBar.Health" parent="Widget.QuizBattle.ProgressBar">
+        <item name="indicatorColor">@color/health_player</item>
+        <item name="trackColor">@color/health_track</item>
+    </style>
+
+    <!-- ============================================ -->
+    <!-- DIALOG STYLES                                 -->
+    <!-- ============================================ -->
+    
+    <style name="Theme.QuizBattle.Dialog" parent="ThemeOverlay.MaterialComponents.Dialog">
+        <item name="colorSurface">@color/card_background</item>
+        <item name="android:windowBackground">@drawable/bg_dialog</item>
+        <item name="dialogCornerRadius">@dimen/card_corner_radius</item>
+    </style>
+    
+    <!-- ============================================ -->
+    <!-- SHAPE STYLES                                  -->
+    <!-- ============================================ -->
+    
+    <style name="ShapeAppearance.QuizBattle.Circle" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+    
+    <style name="ShapeAppearance.QuizBattle.Rounded" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/card_corner_radius</item>
     </style>
 </resources>

@@ -3,46 +3,173 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/spacing_large"
-    android:background="@color/background_white">
+    android:background="@drawable/bg_gradient_main">
 
+    <!-- Confetti/Stars Background Decoration (placeholder) -->
+    <View
+        android:id="@+id/decorationView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.1" />
+
+    <!-- Result Icon Container with Glow -->
+    <FrameLayout
+        android:id="@+id/resultIconContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_xxxl"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Glow Effect -->
+        <View
+            android:id="@+id/glowView"
+            android:layout_width="220dp"
+            android:layout_height="220dp"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_circle"
+            android:alpha="0.3" />
+
+        <ImageView
+            android:id="@+id/resultImageView"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_gravity="center"
+            android:src="@drawable/player_avatar"
+            android:contentDescription="Result" />
+    </FrameLayout>
+
+    <!-- Result Title -->
     <TextView
         android:id="@+id/resultTitleTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
-        android:text="@string/victory"
-        android:textSize="48sp"
-        android:textStyle="bold"
-        android:textColor="@color/primary_blue"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/resultImageView"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
         android:layout_marginTop="@dimen/spacing_xl"
-        android:src="@drawable/player_avatar"
-        android:contentDescription="Result"
+        android:text="@string/victory"
+        android:textSize="@dimen/text_size_display"
+        android:textStyle="bold"
+        android:textColor="@color/accent_gold"
+        android:fontFamily="sans-serif-black"
+        android:shadowColor="@color/accent_gold"
+        android:shadowDx="0"
+        android:shadowDy="0"
+        android:shadowRadius="20"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/resultTitleTextView" />
+        app:layout_constraintTop_toBottomOf="@id/resultIconContainer" />
 
+    <!-- Stats Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/statsCard"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_xl"
+        android:layout_marginHorizontal="@dimen/spacing_large"
+        app:cardCornerRadius="@dimen/card_corner_radius"
+        app:cardElevation="@dimen/card_elevation"
+        app:cardBackgroundColor="@color/card_background"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/resultTitleTextView">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="@dimen/spacing_large">
 
+            <!-- Correct Answers -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Correct"
+                    android:textSize="@dimen/text_size_small"
+                    android:textColor="@color/text_secondary" />
 
+                <TextView
+                    android:id="@+id/correctAnswersTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_xs"
+                    android:text="0"
+                    android:textSize="@dimen/text_size_xxl"
+                    android:textStyle="bold"
+                    android:textColor="@color/victory_green" />
+            </LinearLayout>
+
+            <!-- Divider -->
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="@color/border_gray" />
+
+            <!-- Points Earned -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Points"
+                    android:textSize="@dimen/text_size_small"
+                    android:textColor="@color/text_secondary" />
+
+                <TextView
+                    android:id="@+id/pointsEarnedTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_xs"
+                    android:text="+0"
+                    android:textSize="@dimen/text_size_xxl"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary_blue" />
+            </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Back to Menu Button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/backToMenuButton"
         style="@style/Widget.QuizBattle.Button"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/button_height"
+        android:layout_marginHorizontal="@dimen/spacing_large"
         android:layout_marginTop="@dimen/spacing_xl"
         android:text="@string/back_to_menu"
+        app:icon="@android:drawable/ic_menu_revert"
+        app:iconGravity="textStart"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/resultImageView" />
+        app:layout_constraintTop_toBottomOf="@id/statsCard" />
+
+    <!-- Play Again Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/playAgainButton"
+        style="@style/Widget.QuizBattle.Button.Outlined"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/button_height"
+        android:layout_marginHorizontal="@dimen/spacing_large"
+        android:layout_marginTop="@dimen/spacing_medium"
+        android:text="Play Again"
+        android:textColor="@color/text_on_dark"
+        app:strokeColor="@color/text_secondary"
+        app:icon="@android:drawable/ic_media_play"
+        app:iconTint="@color/text_on_dark"
+        app:iconGravity="textStart"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/backToMenuButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

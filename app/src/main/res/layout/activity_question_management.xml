@@ -4,13 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_white"
+    android:background="@drawable/bg_gradient_main"
     tools:context=".QuestionManagementActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primary_blue">
+        android:background="@color/transparent"
+        app:elevation="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
@@ -18,6 +19,7 @@
             android:layout_height="?attr/actionBarSize"
             app:title="Manajemen Soal"
             app:titleTextColor="@color/white"
+            app:titleTextAppearance="@style/TextAppearance.QuizBattle.Title"
             app:navigationIcon="@drawable/ic_back"
             app:navigationIconTint="@color/white" />
 
@@ -26,6 +28,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingHorizontal="@dimen/spacing_medium"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <!-- Question List -->
@@ -34,7 +37,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:padding="@dimen/spacing_medium"
+            android:paddingBottom="80dp"
             tools:listitem="@layout/item_question" />
 
         <!-- Empty State -->
@@ -51,23 +54,24 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="📝"
-                android:textSize="48sp" />
+                android:textSize="64sp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_medium"
                 android:text="Belum ada soal"
-                android:textColor="@color/text_secondary"
-                android:textSize="@dimen/text_size_medium" />
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_xl"
+                android:textStyle="bold" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_small"
                 android:text="Tap tombol + untuk menambah soal baru"
-                android:textColor="@color/text_hint"
-                android:textSize="@dimen/text_size_small" />
+                android:textColor="@color/text_secondary"
+                android:textSize="@dimen/text_size_normal" />
 
         </LinearLayout>
 
@@ -77,20 +81,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:visibility="gone" />
+            android:visibility="gone"
+            android:indeterminateTint="@color/primary_blue" />
 
     </FrameLayout>
 
     <!-- FAB Add Question -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/addQuestionFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/spacing_large"
-        android:contentDescription="Tambah Soal"
-        android:src="@android:drawable/ic_input_add"
-        app:backgroundTint="@color/primary_blue"
-        app:tint="@color/white" />
+        android:text="Tambah Soal"
+        android:textColor="@color/white"
+        app:icon="@android:drawable/ic_input_add"
+        app:iconTint="@color/white"
+        app:backgroundTint="@color/primary_blue" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

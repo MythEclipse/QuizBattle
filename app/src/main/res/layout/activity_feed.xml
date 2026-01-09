@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background_white">
+    android:background="@drawable/bg_gradient_main">
 
     <!-- Header -->
     <LinearLayout
@@ -12,15 +12,15 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="@dimen/spacing_medium">
+        android:padding="@dimen/spacing_large">
 
         <ImageButton
             android:id="@+id/backButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="@dimen/icon_size_xl"
+            android:layout_height="@dimen/icon_size_xl"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:text="←"
-            android:textSize="24sp"
+            android:src="@drawable/ic_back"
+            app:tint="@color/white"
             android:contentDescription="Back" />
 
         <TextView
@@ -28,11 +28,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/feed"
-            android:textSize="@dimen/text_size_title"
-            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_size_xl"
+            android:textColor="@color/white"
             android:textStyle="bold"
             android:layout_marginStart="@dimen/spacing_small" />
-
     </LinearLayout>
 
     <!-- RecyclerView -->
@@ -52,7 +51,7 @@
         android:layout_weight="1"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="@dimen/spacing_xlarge"
+        android:padding="@dimen/spacing_large"
         android:visibility="gone">
 
         <TextView
@@ -60,9 +59,8 @@
             android:layout_height="120dp"
             android:gravity="center"
             android:text="🏆"
-            android:textSize="80sp"
-            android:alpha="0.5"
-            android:contentDescription="No battles yet" />
+            android:textSize="64sp"
+            android:alpha="0.7" />
 
         <TextView
             android:id="@+id/emptyStateTextView"
@@ -70,8 +68,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_large"
             android:text="No recent battles"
-            android:textSize="@dimen/text_size_large"
-            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_size_xl"
+            android:textColor="@color/white"
+            android:textStyle="bold"
             android:gravity="center" />
 
         <TextView
@@ -91,6 +90,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="visible" />
+        android:visibility="visible"
+        android:indeterminateTint="@color/primary_blue" />
 
 </LinearLayout>

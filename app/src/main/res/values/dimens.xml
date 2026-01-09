@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Spacing -->
+    <!-- ============================================ -->
+    <!-- SPACING                                       -->
+    <!-- ============================================ -->
+    <dimen name="spacing_xxs">2dp</dimen>
     <dimen name="spacing_xs">4dp</dimen>
     <dimen name="spacing_small">8dp</dimen>
     <dimen name="spacing_medium">16dp</dimen>
@@ -8,8 +11,11 @@
     <dimen name="spacing_xl">32dp</dimen>
     <dimen name="spacing_xlarge">40dp</dimen>
     <dimen name="spacing_xxl">48dp</dimen>
+    <dimen name="spacing_xxxl">64dp</dimen>
 
-    <!-- Text sizes -->
+    <!-- ============================================ -->
+    <!-- TEXT SIZES                                    -->
+    <!-- ============================================ -->
     <dimen name="text_size_xs">10sp</dimen>
     <dimen name="text_size_small">12sp</dimen>
     <dimen name="text_size_normal">14sp</dimen>
@@ -19,27 +25,87 @@
     <dimen name="text_size_xxl">24sp</dimen>
     <dimen name="text_size_title">28sp</dimen>
     <dimen name="text_size_heading">32sp</dimen>
+    <dimen name="text_size_display">48sp</dimen>
+    <dimen name="text_size_hero">64sp</dimen>
 
-    <!-- Button -->
-    <dimen name="button_height">48dp</dimen>
-    <dimen name="button_corner_radius">24dp</dimen>
+    <!-- ============================================ -->
+    <!-- BUTTON DIMENSIONS                             -->
+    <!-- ============================================ -->
+    <dimen name="button_height">52dp</dimen>
+    <dimen name="button_height_small">40dp</dimen>
+    <dimen name="button_height_large">56dp</dimen>
+    <dimen name="button_corner_radius">26dp</dimen>
+    <dimen name="button_corner_radius_small">12dp</dimen>
     <dimen name="button_padding_horizontal">24dp</dimen>
+    <dimen name="button_elevation">4dp</dimen>
+    <dimen name="button_elevation_pressed">2dp</dimen>
 
-    <!-- Input fields -->
+    <!-- ============================================ -->
+    <!-- INPUT FIELD DIMENSIONS                        -->
+    <!-- ============================================ -->
     <dimen name="input_height">56dp</dimen>
-    <dimen name="input_corner_radius">8dp</dimen>
+    <dimen name="input_corner_radius">12dp</dimen>
+    <dimen name="input_padding">16dp</dimen>
 
-    <!-- Card -->
-    <dimen name="card_corner_radius">12dp</dimen>
+    <!-- ============================================ -->
+    <!-- CARD DIMENSIONS                               -->
+    <!-- ============================================ -->
+    <dimen name="card_corner_radius">16dp</dimen>
+    <dimen name="card_corner_radius_small">12dp</dimen>
+    <dimen name="card_corner_radius_large">24dp</dimen>
     <dimen name="card_elevation">4dp</dimen>
+    <dimen name="card_elevation_high">8dp</dimen>
+    <dimen name="card_padding">16dp</dimen>
 
-    <!-- Icon sizes -->
-    <dimen name="icon_size_small">16dp</dimen>
+    <!-- ============================================ -->
+    <!-- ICON SIZES                                    -->
+    <!-- ============================================ -->
+    <dimen name="icon_size_xs">16dp</dimen>
+    <dimen name="icon_size_small">20dp</dimen>
     <dimen name="icon_size_normal">24dp</dimen>
-    <dimen name="icon_size_large">32dp</dimen>
+    <dimen name="icon_size_medium">32dp</dimen>
+    <dimen name="icon_size_large">40dp</dimen>
     <dimen name="icon_size_xl">48dp</dimen>
+    <dimen name="icon_size_xxl">64dp</dimen>
 
-    <!-- Border width -->
+    <!-- ============================================ -->
+    <!-- AVATAR SIZES                                  -->
+    <!-- ============================================ -->
+    <dimen name="avatar_size_small">32dp</dimen>
+    <dimen name="avatar_size_medium">48dp</dimen>
+    <dimen name="avatar_size_large">80dp</dimen>
+    <dimen name="avatar_size_xl">100dp</dimen>
+    <dimen name="avatar_size_hero">120dp</dimen>
+
+    <!-- ============================================ -->
+    <!-- BORDER WIDTHS                                 -->
+    <!-- ============================================ -->
     <dimen name="border_width_thin">1dp</dimen>
     <dimen name="border_width_normal">2dp</dimen>
+    <dimen name="border_width_thick">3dp</dimen>
+
+    <!-- ============================================ -->
+    <!-- ANIMATION DURATIONS (for reference)           -->
+    <!-- ============================================ -->
+    <!-- Use in code: 150ms fast, 300ms normal, 500ms slow -->
+    
+    <!-- ============================================ -->
+    <!-- MISC DIMENSIONS                               -->
+    <!-- ============================================ -->
+    <dimen name="toolbar_height">56dp</dimen>
+    <dimen name="bottom_nav_height">64dp</dimen>
+    <dimen name="divider_height">1dp</dimen>
+    <dimen name="fab_size">56dp</dimen>
+    <dimen name="health_bar_height">12dp</dimen>
+    <dimen name="progress_height">8dp</dimen>
+    
+    <!-- Battle Arena -->
+    <dimen name="battle_arena_height">240dp</dimen>
+    <dimen name="character_size_knight">160dp</dimen>
+    <dimen name="character_size_goblin">110dp</dimen>
+    
+    <!-- Leaderboard -->
+    <dimen name="podium_avatar_first">84dp</dimen>
+    <dimen name="podium_avatar_other">74dp</dimen>
+    <dimen name="rank_badge_size">28dp</dimen>
 </resources>

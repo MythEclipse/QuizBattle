@@ -3,99 +3,117 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_white">
+    android:background="@drawable/bg_gradient_main">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="@dimen/spacing_large">
+        android:orientation="vertical">
 
-        <!-- Header -->
-        <LinearLayout
+        <!-- Header with gradient overlay -->
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:layout_height="wrap_content">
 
-            <ImageButton
-                android:id="@+id/backButton"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_back"
-                android:contentDescription="Back" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/profile"
-                android:textSize="@dimen/text_size_title"
-                android:textColor="@color/text_primary"
-                android:textStyle="bold"
-                android:layout_marginStart="@dimen/spacing_small" />
-
-        </LinearLayout>
-
-        <!-- Profile Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_large"
-            app:cardElevation="4dp"
-            app:cardCornerRadius="12dp">
-
+            <!-- Header Content -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="@dimen/spacing_large"
-                android:gravity="center">
+                android:padding="@dimen/spacing_large">
 
-                <!-- Avatar -->
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/avatarImageView"
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
-                    android:scaleType="centerCrop"
-                    android:src="@mipmap/ic_launcher"
-                    android:background="@color/background_gray"
-                    app:shapeAppearanceOverlay="@style/CircleImageView"
-                    android:contentDescription="Profile" />
-
-                <!-- Username -->
-                <TextView
-                    android:id="@+id/usernameTextView"
-                    android:layout_width="wrap_content"
+                <!-- Top Bar -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_medium"
-                    android:text="Username"
-                    android:textSize="24sp"
-                    android:textColor="@color/text_primary"
-                    android:textStyle="bold" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
-                <!-- Email -->
-                <TextView
-                    android:id="@+id/emailTextView"
-                    android:layout_width="wrap_content"
+                    <ImageButton
+                        android:id="@+id/backButton"
+                        android:layout_width="@dimen/icon_size_xl"
+                        android:layout_height="@dimen/icon_size_xl"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_back"
+                        android:contentDescription="Back"
+                        app:tint="@color/white" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/profile"
+                        android:textSize="@dimen/text_size_xl"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        android:layout_marginStart="@dimen/spacing_small" />
+                </LinearLayout>
+
+                <!-- Avatar Section -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_small"
-                    android:text="email@example.com"
-                    android:textSize="@dimen/text_size_medium"
-                    android:textColor="@color/text_secondary" />
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_marginTop="@dimen/spacing_xl">
 
+                    <!-- Avatar with glow -->
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <!-- Glow ring -->
+                        <View
+                            android:layout_width="130dp"
+                            android:layout_height="130dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/bg_circle_border"
+                            android:alpha="0.5"/>
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/avatarImageView"
+                            android:layout_width="@dimen/avatar_size_hero"
+                            android:layout_height="@dimen/avatar_size_hero"
+                            android:layout_gravity="center"
+                            android:scaleType="centerCrop"
+                            android:src="@mipmap/ic_launcher"
+                            android:background="@color/background_gray"
+                            app:shapeAppearanceOverlay="@style/CircleImageView"
+                            android:contentDescription="Profile" />
+                    </FrameLayout>
+
+                    <!-- Username -->
+                    <TextView
+                        android:id="@+id/usernameTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_medium"
+                        android:text="Username"
+                        android:textSize="@dimen/text_size_xxl"
+                        android:textColor="@color/white"
+                        android:textStyle="bold" />
+
+                    <!-- Email -->
+                    <TextView
+                        android:id="@+id/emailTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_xs"
+                        android:text="email@example.com"
+                        android:textSize="@dimen/text_size_normal"
+                        android:textColor="@color/text_secondary" />
+                </LinearLayout>
             </LinearLayout>
+        </FrameLayout>
 
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Stats Card -->
+        <!-- Content Card -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_large"
-            app:cardElevation="4dp"
-            app:cardCornerRadius="12dp">
+            android:layout_marginHorizontal="@dimen/spacing_large"
+            app:cardCornerRadius="@dimen/card_corner_radius_large"
+            app:cardElevation="@dimen/card_elevation_high"
+            app:cardBackgroundColor="@color/card_background">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -103,6 +121,7 @@
                 android:orientation="vertical"
                 android:padding="@dimen/spacing_large">
 
+                <!-- Stats Title -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -120,170 +139,218 @@
                     android:rowCount="3">
 
                     <!-- Points -->
-                    <LinearLayout
+                    <com.google.android.material.card.MaterialCardView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:orientation="vertical"
-                        android:padding="@dimen/spacing_small"
-                        android:gravity="center">
+                        android:layout_margin="@dimen/spacing_xs"
+                        app:cardCornerRadius="@dimen/card_corner_radius_small"
+                        app:cardElevation="0dp"
+                        app:cardBackgroundColor="@color/primary_blue_light">
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Points"
-                            android:textSize="@dimen/text_size_small"
-                            android:textColor="@color/text_secondary" />
+                            android:orientation="vertical"
+                            android:padding="@dimen/spacing_medium"
+                            android:gravity="center">
 
-                        <TextView
-                            android:id="@+id/pointsTextView"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="0"
-                            android:textSize="24sp"
-                            android:textColor="@color/primary_blue"
-                            android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Points"
+                                android:textSize="@dimen/text_size_small"
+                                android:textColor="@color/text_secondary" />
 
-                    </LinearLayout>
+                            <TextView
+                                android:id="@+id/pointsTextView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_xs"
+                                android:text="0"
+                                android:textSize="@dimen/text_size_xxl"
+                                android:textColor="@color/primary_blue"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
 
                     <!-- Win Rate -->
-                    <LinearLayout
+                    <com.google.android.material.card.MaterialCardView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:orientation="vertical"
-                        android:padding="@dimen/spacing_small"
-                        android:gravity="center">
+                        android:layout_margin="@dimen/spacing_xs"
+                        app:cardCornerRadius="@dimen/card_corner_radius_small"
+                        app:cardElevation="0dp"
+                        app:cardBackgroundColor="@color/secondary_green_light">
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Win Rate"
-                            android:textSize="@dimen/text_size_small"
-                            android:textColor="@color/text_secondary" />
+                            android:orientation="vertical"
+                            android:padding="@dimen/spacing_medium"
+                            android:gravity="center">
 
-                        <TextView
-                            android:id="@+id/winRateTextView"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="0.0%"
-                            android:textSize="24sp"
-                            android:textColor="@color/primary_green"
-                            android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Win Rate"
+                                android:textSize="@dimen/text_size_small"
+                                android:textColor="@color/text_secondary" />
 
-                    </LinearLayout>
+                            <TextView
+                                android:id="@+id/winRateTextView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_xs"
+                                android:text="0.0%"
+                                android:textSize="@dimen/text_size_xxl"
+                                android:textColor="@color/primary_green"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
 
                     <!-- Wins -->
-                    <LinearLayout
+                    <com.google.android.material.card.MaterialCardView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:orientation="vertical"
-                        android:padding="@dimen/spacing_small"
-                        android:gravity="center">
+                        android:layout_margin="@dimen/spacing_xs"
+                        app:cardCornerRadius="@dimen/card_corner_radius_small"
+                        app:cardElevation="0dp"
+                        app:cardBackgroundColor="@color/surface_elevated">
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Wins"
-                            android:textSize="@dimen/text_size_small"
-                            android:textColor="@color/text_secondary" />
+                            android:orientation="vertical"
+                            android:padding="@dimen/spacing_medium"
+                            android:gravity="center">
 
-                        <TextView
-                            android:id="@+id/winsTextView"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="0"
-                            android:textSize="20sp"
-                            android:textColor="@color/text_primary"
-                            android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Wins"
+                                android:textSize="@dimen/text_size_small"
+                                android:textColor="@color/text_secondary" />
 
-                    </LinearLayout>
+                            <TextView
+                                android:id="@+id/winsTextView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_xs"
+                                android:text="0"
+                                android:textSize="@dimen/text_size_xl"
+                                android:textColor="@color/text_primary"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
 
                     <!-- Losses -->
-                    <LinearLayout
+                    <com.google.android.material.card.MaterialCardView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:orientation="vertical"
-                        android:padding="@dimen/spacing_small"
-                        android:gravity="center">
+                        android:layout_margin="@dimen/spacing_xs"
+                        app:cardCornerRadius="@dimen/card_corner_radius_small"
+                        app:cardElevation="0dp"
+                        app:cardBackgroundColor="@color/surface_elevated">
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Losses"
-                            android:textSize="@dimen/text_size_small"
-                            android:textColor="@color/text_secondary" />
+                            android:orientation="vertical"
+                            android:padding="@dimen/spacing_medium"
+                            android:gravity="center">
 
-                        <TextView
-                            android:id="@+id/lossesTextView"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="0"
-                            android:textSize="20sp"
-                            android:textColor="@color/text_primary"
-                            android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Losses"
+                                android:textSize="@dimen/text_size_small"
+                                android:textColor="@color/text_secondary" />
 
-                    </LinearLayout>
+                            <TextView
+                                android:id="@+id/lossesTextView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_xs"
+                                android:text="0"
+                                android:textSize="@dimen/text_size_xl"
+                                android:textColor="@color/text_primary"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
 
-                    <!-- Total Games -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <!-- Total Games (spans 2 columns) -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
                         android:layout_columnSpan="2"
-                        android:orientation="vertical"
-                        android:padding="@dimen/spacing_small"
-                        android:gravity="center">
+                        android:layout_margin="@dimen/spacing_xs"
+                        app:cardCornerRadius="@dimen/card_corner_radius_small"
+                        app:cardElevation="0dp"
+                        app:cardBackgroundColor="@color/surface_elevated">
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Total Games"
-                            android:textSize="@dimen/text_size_small"
-                            android:textColor="@color/text_secondary" />
+                            android:orientation="vertical"
+                            android:padding="@dimen/spacing_medium"
+                            android:gravity="center">
 
-                        <TextView
-                            android:id="@+id/totalGamesTextView"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="0"
-                            android:textSize="20sp"
-                            android:textColor="@color/text_primary"
-                            android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Total Games"
+                                android:textSize="@dimen/text_size_small"
+                                android:textColor="@color/text_secondary" />
 
-                    </LinearLayout>
-
+                            <TextView
+                                android:id="@+id/totalGamesTextView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_xs"
+                                android:text="0"
+                                android:textSize="@dimen/text_size_xl"
+                                android:textColor="@color/text_primary"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
                 </GridLayout>
-
             </LinearLayout>
-
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Action Buttons -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/editProfileButton"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="@dimen/spacing_large"
-            android:text="Edit Profile"
-            android:textSize="@dimen/text_size_medium"
-            app:cornerRadius="8dp" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_large">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/logoutButton"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="@dimen/spacing_medium"
-            android:text="Logout"
-            android:textSize="@dimen/text_size_medium"
-            app:cornerRadius="8dp"
-            style="@style/Widget.QuizBattle.Button.Outlined" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/editProfileButton"
+                style="@style/Widget.QuizBattle.Button"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/button_height"
+                android:text="Edit Profile"
+                app:icon="@android:drawable/ic_menu_edit"
+                app:iconGravity="textStart" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/logoutButton"
+                style="@style/Widget.QuizBattle.Button.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:text="Logout"
+                android:textColor="@color/primary_red"
+                app:strokeColor="@color/primary_red"
+                app:icon="@android:drawable/ic_lock_power_off"
+                app:iconTint="@color/primary_red"
+                app:iconGravity="textStart" />
+        </LinearLayout>
 
         <!-- Progress Bar -->
         <ProgressBar
@@ -292,7 +359,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="@dimen/spacing_large"
-            android:visibility="gone" />
+            android:visibility="gone"
+            android:indeterminateTint="@color/primary_blue" />
 
     </LinearLayout>
 

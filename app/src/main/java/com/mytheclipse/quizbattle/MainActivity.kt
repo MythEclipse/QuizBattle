@@ -12,6 +12,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.mytheclipse.quizbattle.databinding.ActivityMainBinding
 import com.mytheclipse.quizbattle.viewmodel.MainViewModel
+import com.mytheclipse.quizbattle.utils.enableEdgeToEdge
+import com.mytheclipse.quizbattle.utils.applySystemBarInsets
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -21,8 +23,12 @@ class MainActivity : AppCompatActivity() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        
+        // Apply padding for status/nav bars
+        binding.root.applySystemBarInsets()
         
         setupListeners()
         observeMainState()

@@ -1,60 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary colors from Figma -->
-    <color name="primary_blue">#01D0FF</color>
-    <color name="primary_red">#E2220D</color>
-    <color name="primary_green">#4CAF50</color>
+    <!-- Primary Brand Colors - Modern Cyber/Neon Theme (Same for Dark Mode) -->
+    <color name="primary_blue">#00D4FF</color>
+    <color name="primary_red">#FF3D71</color>
+    <color name="primary_green">#00E096</color>
     <color name="secondary_blue">#0095FF</color>
+    <color name="secondary_green">#00E096</color>
+    <color name="primary_blue_light">#1A3A4A</color>
+    <color name="secondary_green_light">#1A3A2A</color>
+    
+    <!-- Accent Colors - Vibrant Neon -->
+    <color name="accent_cyan">#00F0FF</color>
+    <color name="accent_purple">#A855F7</color>
+    <color name="accent_pink">#FF6B9D</color>
+    <color name="accent_orange">#FF9F43</color>
+    <color name="accent_gold">#FFD700</color>
+    
+    <!-- Glow Effects -->
+    <color name="glow_blue">#6000D4FF</color>
+    <color name="glow_purple">#60A855F7</color>
+    <color name="glow_cyan">#6000F0FF</color>
 
     <!-- Text colors - DARK MODE -->
     <color name="text_primary">#FFFFFF</color>
     <color name="text_secondary">#B0BEC5</color>
-    <color name="text_tertiary">#90A4AE</color>
-    <color name="text_disabled">#78909C</color>
-    <color name="text_placeholder">#607D8B</color>
+    <color name="text_tertiary">#78909C</color>
+    <color name="text_disabled">#546E7A</color>
+    <color name="text_placeholder">#455A64</color>
+    <color name="text_hint">#607D8B</color>
+    <color name="text_on_primary">#FFFFFF</color>
+    <color name="text_on_dark">#FFFFFF</color>
 
     <!-- Background colors - DARK MODE -->
-    <color name="background_white">#121212</color>
-    <color name="background_gray">#1E1E1E</color>
-
+    <color name="background_white">#0F0F23</color>
+    <color name="background_gray">#1A1A2E</color>
+    <color name="background_dark">#0A0A18</color>
+    <color name="surface_elevated">#1E1E3A</color>
+    
+    <!-- Gradient Background Colors -->
+    <color name="gradient_bg_start">#1A1A3E</color>
+    <color name="gradient_bg_center">#2D1B4E</color>
+    <color name="gradient_bg_end">#1A1A3E</color>
+    <color name="gradient_dark_start">#0F0F23</color>
+    <color name="gradient_dark_end">#1A1A3E</color>
+    
+    <!-- Card & Surface Colors - DARK MODE -->
+    <color name="card_background">#1E1E3A</color>
+    <color name="card_glass_bg">#40FFFFFF</color>
+    <color name="card_border">#2D3748</color>
+    
     <!-- Border colors - DARK MODE -->
-    <color name="border_gray">#424242</color>
-    <color name="border_light">#333333</color>
-    <color name="border_separator">#2C2C2C</color>
+    <color name="border_gray">#2D3748</color>
+    <color name="border_light">#374151</color>
+    <color name="border_separator">#1F2937</color>
+    <color name="border_focus">#00D4FF</color>
 
-    <!-- Other colors -->
-    <color name="orange_warning">#FFAA01</color>
-    <color name="defeat_red">#8D0707</color>
-    <color name="progress_track">#33787878</color>
-    <color name="black_overlay">#424242</color>
+    <!-- Status Colors -->
+    <color name="orange_warning">#FF9F43</color>
+    <color name="defeat_red">#EF4444</color>
+    <color name="victory_green">#10B981</color>
+    <color name="progress_track">#374151</color>
+    <color name="black_overlay">#CC000000</color>
+    <color name="error_text">#F87171</color>
+    <color name="success_text">#34D399</color>
 
-    <!-- Gradient colors -->
-    <color name="gradient_red_start">#FF0101</color>
-    <color name="gradient_blue_end">#00B3FF</color>
-    <color name="gradient_text_red_start">#E2220D</color>
-    <color name="gradient_text_blue_end">#0095FF</color>
+    <!-- Gradient colors for buttons/elements -->
+    <color name="gradient_red_start">#FF3D71</color>
+    <color name="gradient_red_end">#FF6B9D</color>
+    <color name="gradient_blue_start">#00D4FF</color>
+    <color name="gradient_blue_end">#0095FF</color>
+    <color name="gradient_purple_start">#A855F7</color>
+    <color name="gradient_purple_end">#7C3AED</color>
+    <color name="gradient_text_red_start">#FF3D71</color>
+    <color name="gradient_text_blue_end">#00D4FF</color>
 
     <!-- Material theme colors - DARK MODE -->
     <color name="colorPrimary">@color/primary_blue</color>
     <color name="colorPrimaryVariant">@color/secondary_blue</color>
-    <color name="colorSecondary">@color/primary_red</color>
+    <color name="colorSecondary">@color/accent_purple</color>
     <color name="colorAccent">@color/primary_blue</color>
     <color name="colorError">@color/primary_red</color>
+    <color name="colorOnPrimary">@color/white</color>
+    <color name="colorOnSecondary">@color/white</color>
 
     <!-- Common colors -->
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
     <color name="transparent">#00000000</color>
-    
-    <!-- Card background for dark mode -->
-    <color name="card_background">#1E1E1E</color>
+    <color name="semi_transparent_black">#B0000000</color>
+    <color name="semi_transparent_white">#40FFFFFF</color>
     
     <!-- Battle arena background -->
-    <color name="battle_arena_bg">#2C2C2C</color>
+    <color name="battle_arena_bg">#0F0F23</color>
+    <color name="battle_arena_floor">#1A1A2E</color>
     
-    <!-- Error text color -->
-    <color name="error_text">#EF5350</color>
+    <!-- Overlay background (semi-transparent) -->
+    <color name="overlay_background">#E6000000</color>
+    <color name="overlay_light">#20FFFFFF</color>
     
-    <!-- Overlay background (semi-transparent black) -->
-    <color name="overlay_background">#CC000000</color>
+    <!-- Health Bar Colors -->
+    <color name="health_player">#00D4FF</color>
+    <color name="health_opponent">#FF3D71</color>
+    <color name="health_low">#EF4444</color>
+    <color name="health_track">#374151</color>
+    
+    <!-- Rank Badge Colors -->
+    <color name="rank_gold">#FFD700</color>
+    <color name="rank_silver">#C0C0C0</color>
+    <color name="rank_bronze">#CD7F32</color>
+    
+    <!-- Input Field Colors - DARK MODE -->
+    <color name="input_background">#1A1A2E</color>
+    <color name="input_border">#374151</color>
+    <color name="input_border_focus">#00D4FF</color>
 </resources>

@@ -3,48 +3,80 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/spacing_large"
-    android:background="@color/background_white">
+    android:background="@drawable/bg_gradient_main">
 
-    <!-- Question Progress -->
+    <!-- Top Info Bar -->
+    <LinearLayout
+        android:id="@+id/topInfoBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="@dimen/spacing_large"
+        android:paddingTop="@dimen/spacing_medium"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Question Progress -->
+        <com.google.android.material.chip.Chip
+            android:id="@+id/questionProgressChip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1/10"
+            android:textColor="@color/white"
+            app:chipBackgroundColor="@color/semi_transparent_black"
+            app:chipCornerRadius="@dimen/button_corner_radius_small" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <!-- Timer -->
+        <com.google.android.material.chip.Chip
+            android:id="@+id/timerChip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⏱ 10s"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            app:chipBackgroundColor="@color/primary_red"
+            app:chipCornerRadius="@dimen/button_corner_radius_small" />
+    </LinearLayout>
+
+    <!-- Hidden original TextViews for compatibility -->
     <TextView
         android:id="@+id/questionProgressTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_medium"
-        android:text="Soal 1/10"
-        android:textSize="@dimen/text_size_medium"
-        android:textStyle="bold"
-        android:textColor="@color/text_primary"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Timer -->
     <TextView
         android:id="@+id/timerTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="⏱ 10s"
-        android:textSize="@dimen/text_size_medium"
-        android:textStyle="bold"
-        android:textColor="@color/primary_red"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/questionProgressTextView" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Battle Arena Card -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/battleArenaCard"
         android:layout_width="0dp"
-        android:layout_height="240dp"
-        android:layout_marginTop="@dimen/spacing_large"
-        android:layout_marginStart="@dimen/spacing_medium"
-        android:layout_marginEnd="@dimen/spacing_medium"
-        app:cardCornerRadius="16dp"
+        android:layout_height="@dimen/battle_arena_height"
+        android:layout_marginTop="@dimen/spacing_medium"
+        android:layout_marginHorizontal="@dimen/spacing_medium"
+        app:cardCornerRadius="@dimen/card_corner_radius"
         app:cardBackgroundColor="@color/battle_arena_bg"
-        app:cardElevation="4dp"
+        app:cardElevation="@dimen/card_elevation_high"
+        app:strokeWidth="@dimen/border_width_thin"
+        app:strokeColor="@color/border_gray"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/questionProgressTextView">
+        app:layout_constraintTop_toBottomOf="@id/topInfoBar">
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -54,13 +86,12 @@
             <!-- Knight Character (Player) - Left Side -->
             <ImageView
                 android:id="@+id/knightImageView"
-                android:layout_width="160dp"
-                android:layout_height="160dp"
+                android:layout_width="@dimen/character_size_knight"
+                android:layout_height="@dimen/character_size_knight"
                 android:layout_gravity="bottom|start"
                 android:layout_marginStart="32dp"
                 android:layout_marginBottom="16dp"
-                android:scaleType="fitCenter"
-                />
+                android:scaleType="fitCenter" />
 
             <!-- Knight Label -->
             <TextView
@@ -71,15 +102,17 @@
                 android:layout_marginStart="72dp"
                 android:layout_marginBottom="8dp"
                 android:text="KNIGHT"
-                android:textSize="12sp"
+                android:textSize="@dimen/text_size_small"
                 android:textColor="@color/primary_blue"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:shadowColor="@color/glow_blue"
+                android:shadowRadius="8" />
 
-            <!-- Goblin Character (Opponent) - Right Side, Facing Left -->
+            <!-- Goblin Character (Opponent) - Right Side -->
             <ImageView
                 android:id="@+id/goblinImageView"
-                android:layout_width="110dp"
-                android:layout_height="110dp"
+                android:layout_width="@dimen/character_size_goblin"
+                android:layout_height="@dimen/character_size_goblin"
                 android:layout_gravity="bottom|end"
                 android:layout_marginEnd="80dp"
                 android:layout_marginBottom="16dp"
@@ -95,21 +128,21 @@
                 android:layout_marginEnd="104dp"
                 android:layout_marginBottom="8dp"
                 android:text="GOBLIN"
-                android:textSize="12sp"
+                android:textSize="@dimen/text_size_small"
                 android:textColor="@color/primary_red"
-                android:textStyle="bold" />
-
+                android:textStyle="bold"
+                android:shadowColor="@color/gradient_red_end"
+                android:shadowRadius="8" />
         </FrameLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Health Bars Section Below Arena -->
+    <!-- Health Bars Section -->
     <LinearLayout
         android:id="@+id/healthBarsLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_medium"
-        android:layout_marginStart="@dimen/spacing_medium"
-        android:layout_marginEnd="@dimen/spacing_medium"
+        android:layout_marginHorizontal="@dimen/spacing_medium"
         android:orientation="horizontal"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -120,39 +153,43 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:background="@drawable/bg_card_glass"
+            android:padding="@dimen/spacing_small">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="KNIGHT HP"
-                android:textSize="@dimen/text_size_small"
+                android:textSize="@dimen/text_size_xs"
                 android:textColor="@color/primary_blue"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:letterSpacing="0.1" />
 
             <ProgressBar
                 android:id="@+id/playerHealthBar"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
-                android:layout_height="12dp"
-                android:layout_marginTop="4dp"
+                android:layout_height="@dimen/health_bar_height"
+                android:layout_marginTop="@dimen/spacing_xs"
                 android:max="100"
                 android:progress="100"
-                android:progressTint="@color/primary_blue"
-                android:progressBackgroundTint="@color/background_gray" />
+                android:progressTint="@color/health_player"
+                android:progressBackgroundTint="@color/health_track" />
 
             <TextView
                 android:id="@+id/playerHealthTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="@dimen/spacing_xxs"
                 android:text="HP: 100"
                 android:textSize="@dimen/text_size_small"
-                android:textColor="@color/text_primary" />
+                android:textColor="@color/text_on_dark"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <Space
-            android:layout_width="16dp"
+            android:layout_width="@dimen/spacing_small"
             android:layout_height="0dp" />
 
         <!-- Opponent Health Section -->
@@ -160,48 +197,52 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:background="@drawable/bg_card_glass"
+            android:padding="@dimen/spacing_small">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="GOBLIN HP"
-                android:textSize="@dimen/text_size_small"
+                android:textSize="@dimen/text_size_xs"
                 android:textColor="@color/primary_red"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:letterSpacing="0.1" />
 
             <ProgressBar
                 android:id="@+id/opponentHealthBar"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
-                android:layout_height="12dp"
-                android:layout_marginTop="4dp"
+                android:layout_height="@dimen/health_bar_height"
+                android:layout_marginTop="@dimen/spacing_xs"
                 android:max="100"
                 android:progress="100"
-                android:progressTint="@color/primary_red"
-                android:progressBackgroundTint="@color/background_gray" />
+                android:progressTint="@color/health_opponent"
+                android:progressBackgroundTint="@color/health_track" />
 
             <TextView
                 android:id="@+id/opponentHealthTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="@dimen/spacing_xxs"
                 android:text="HP: 100"
                 android:textSize="@dimen/text_size_small"
-                android:textColor="@color/text_primary" />
+                android:textColor="@color/text_on_dark"
+                android:textStyle="bold" />
         </LinearLayout>
-
     </LinearLayout>
 
     <!-- Question Card -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/questionCard"
-        style="@style/Widget.QuizBattle.Card"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_medium"
-        android:layout_marginStart="@dimen/spacing_medium"
-        android:layout_marginEnd="@dimen/spacing_medium"
+        android:layout_marginHorizontal="@dimen/spacing_medium"
+        app:cardCornerRadius="@dimen/card_corner_radius"
+        app:cardElevation="@dimen/card_elevation"
+        app:cardBackgroundColor="@color/card_background"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/healthBarsLayout">
@@ -215,75 +256,82 @@
             android:textSize="@dimen/text_size_large"
             android:textStyle="bold"
             android:textColor="@color/text_primary"
-            android:gravity="center" />
+            android:gravity="center"
+            android:lineSpacingMultiplier="1.2" />
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Answer Buttons -->
-    <LinearLayout
-        android:id="@+id/answersLayout"
+    <!-- Answer Buttons in ScrollView for overflow -->
+    <ScrollView
+        android:id="@+id/answersScrollView"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginTop="@dimen/spacing_medium"
-        android:layout_marginStart="@dimen/spacing_medium"
-        android:layout_marginEnd="@dimen/spacing_medium"
-        android:orientation="vertical"
+        android:layout_marginHorizontal="@dimen/spacing_medium"
+        android:layout_marginBottom="@dimen/spacing_medium"
+        android:fillViewport="true"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/questionCard">
+        app:layout_constraintTop_toBottomOf="@id/questionCard"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/answerButton1"
-            style="@style/Widget.QuizBattle.Button.Outlined"
+        <LinearLayout
+            android:id="@+id/answersLayout"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginBottom="@dimen/spacing_small"
-            android:text="Jakarta"
-            android:textColor="@color/text_primary"
-            android:textSize="@dimen/text_size_medium"
-            android:gravity="center"
-            android:paddingHorizontal="@dimen/spacing_medium" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/answerButton2"
-            style="@style/Widget.QuizBattle.Button.Outlined"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginBottom="@dimen/spacing_small"
-            android:text="Bandung"
-            android:textColor="@color/text_primary"
-            android:textSize="@dimen/text_size_medium"
-            android:gravity="center"
-            android:paddingHorizontal="@dimen/spacing_medium" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/answerButton1"
+                style="@style/Widget.QuizBattle.Button.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginBottom="@dimen/spacing_small"
+                android:text="Jakarta"
+                android:textColor="@color/text_on_dark"
+                app:strokeColor="@color/border_light"
+                app:rippleColor="@color/glow_blue" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/answerButton3"
-            style="@style/Widget.QuizBattle.Button.Outlined"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginBottom="@dimen/spacing_small"
-            android:text="Surabaya"
-            android:textColor="@color/text_primary"
-            android:textSize="@dimen/text_size_medium"
-            android:gravity="center"
-            android:paddingHorizontal="@dimen/spacing_medium" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/answerButton2"
+                style="@style/Widget.QuizBattle.Button.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginBottom="@dimen/spacing_small"
+                android:text="Bandung"
+                android:textColor="@color/text_on_dark"
+                app:strokeColor="@color/border_light"
+                app:rippleColor="@color/glow_blue" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/answerButton4"
-            style="@style/Widget.QuizBattle.Button.Outlined"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="Medan"
-            android:textColor="@color/text_primary"
-            android:textSize="@dimen/text_size_medium"
-            android:gravity="center"
-            android:paddingHorizontal="@dimen/spacing_medium" />
-    </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/answerButton3"
+                style="@style/Widget.QuizBattle.Button.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginBottom="@dimen/spacing_small"
+                android:text="Surabaya"
+                android:textColor="@color/text_on_dark"
+                app:strokeColor="@color/border_light"
+                app:rippleColor="@color/glow_blue" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/answerButton4"
+                style="@style/Widget.QuizBattle.Button.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/button_height"
+                android:text="Medan"
+                android:textColor="@color/text_on_dark"
+                app:strokeColor="@color/border_light"
+                app:rippleColor="@color/glow_blue" />
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Loading Progress -->
     <ProgressBar
         android:id="@+id/loadingProgressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
+        android:indeterminateTint="@color/primary_blue"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"

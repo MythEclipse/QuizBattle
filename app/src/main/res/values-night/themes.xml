@@ -1,16 +1,77 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme - DARK MODE -->
+    <!-- Base application theme - Dark Mode -->
     <style name="Theme.QuizBattle" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary Colors -->
         <item name="colorPrimary">@color/primary_blue</item>
         <item name="colorPrimaryVariant">@color/secondary_blue</item>
-        <item name="colorSecondary">@color/primary_red</item>
+        <item name="colorOnPrimary">@color/white</item>
+        
+        <!-- Secondary Colors -->
+        <item name="colorSecondary">@color/accent_purple</item>
+        <item name="colorSecondaryVariant">@color/gradient_purple_end</item>
+        <item name="colorOnSecondary">@color/white</item>
+        
+        <!-- Accent & Error -->
         <item name="colorAccent">@color/primary_blue</item>
         <item name="colorError">@color/primary_red</item>
-        <item name="android:statusBarColor">@color/background_white</item>
-        <item name="android:windowLightStatusBar">false</item>
+        <item name="colorOnError">@color/white</item>
+        
+        <!-- Surface Colors -->
+        <item name="colorSurface">@color/card_background</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        
+        <!-- Background -->
+        <item name="android:colorBackground">@color/background_white</item>
         <item name="android:windowBackground">@color/background_white</item>
-        <!-- Text colors for dark mode -->
+        
+        <!-- Full Screen / Edge-to-Edge -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:fitsSystemWindows">false</item>
+        
+        <!-- Text colors -->
         <item name="android:textColorPrimary">@color/text_primary</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:textColorHint">@color/text_hint</item>
+        
+        <!-- Default Button Style -->
+        <item name="materialButtonStyle">@style/Widget.QuizBattle.Button</item>
+        
+        <!-- Card Style -->
+        <item name="materialCardViewStyle">@style/Widget.QuizBattle.Card</item>
+        
+        <!-- TextInputLayout Style -->
+        <item name="textInputStyle">@style/Widget.QuizBattle.TextInputLayout</item>
+        
+        <!-- Shape Appearances -->
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.QuizBattle.Small</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.QuizBattle.Medium</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.QuizBattle.Large</item>
+    </style>
+    
+    <!-- Shape Appearances -->
+    <style name="ShapeAppearance.QuizBattle.Small" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+    
+    <style name="ShapeAppearance.QuizBattle.Medium" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+    
+    <style name="ShapeAppearance.QuizBattle.Large" parent="ShapeAppearance.MaterialComponents.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">24dp</item>
+    </style>
+    
+    <!-- Circle Image Style -->
+    <style name="CircleImageView" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
     </style>
 </resources>
