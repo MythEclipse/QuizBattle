@@ -65,8 +65,8 @@ class EditProfileActivity : AppCompatActivity() {
                 binding.saveButton.isEnabled = !state.isLoading
                 
                 binding.avatarImageView.load(state.image) {
-                    placeholder(R.drawable.ic_launcher_foreground)
-                    error(R.drawable.ic_launcher_foreground)
+                    placeholder(R.mipmap.ic_launcher)
+                    error(R.mipmap.ic_launcher)
                 }
                 
                 // Pre-fill current data
