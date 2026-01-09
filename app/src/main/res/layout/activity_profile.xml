@@ -146,7 +146,9 @@
                         android:layout_margin="@dimen/spacing_xs"
                         app:cardCornerRadius="@dimen/card_corner_radius_small"
                         app:cardElevation="0dp"
-                        app:cardBackgroundColor="@color/primary_blue_light">
+                        app:cardBackgroundColor="@color/surface_elevated"
+                        app:strokeColor="@color/primary_blue_light"
+                        app:strokeWidth="1dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -155,12 +157,12 @@
                             android:padding="@dimen/spacing_medium"
                             android:gravity="center">
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Points"
-                                android:textSize="@dimen/text_size_small"
-                                android:textColor="@color/text_secondary" />
+                            <ImageView
+                                android:layout_width="@dimen/icon_size_medium"
+                                android:layout_height="@dimen/icon_size_medium"
+                                android:src="@drawable/ic_stat_points"
+                                app:tint="@color/primary_blue"
+                                android:contentDescription="Points Icon"/>
 
                             <TextView
                                 android:id="@+id/pointsTextView"
@@ -171,6 +173,13 @@
                                 android:textSize="@dimen/text_size_xxl"
                                 android:textColor="@color/primary_blue"
                                 android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Points"
+                                android:textSize="@dimen/text_size_small"
+                                android:textColor="@color/text_secondary" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
@@ -182,7 +191,9 @@
                         android:layout_margin="@dimen/spacing_xs"
                         app:cardCornerRadius="@dimen/card_corner_radius_small"
                         app:cardElevation="0dp"
-                        app:cardBackgroundColor="@color/secondary_green_light">
+                        app:cardBackgroundColor="@color/surface_elevated"
+                        app:strokeColor="@color/secondary_green_light"
+                        app:strokeWidth="1dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -191,12 +202,12 @@
                             android:padding="@dimen/spacing_medium"
                             android:gravity="center">
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Win Rate"
-                                android:textSize="@dimen/text_size_small"
-                                android:textColor="@color/text_secondary" />
+                            <ImageView
+                                android:layout_width="@dimen/icon_size_medium"
+                                android:layout_height="@dimen/icon_size_medium"
+                                android:src="@drawable/ic_stat_win_rate"
+                                app:tint="@color/primary_green"
+                                android:contentDescription="Win Rate Icon"/>
 
                             <TextView
                                 android:id="@+id/winRateTextView"
@@ -207,6 +218,13 @@
                                 android:textSize="@dimen/text_size_xxl"
                                 android:textColor="@color/primary_green"
                                 android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Win Rate"
+                                android:textSize="@dimen/text_size_small"
+                                android:textColor="@color/text_secondary" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
@@ -227,12 +245,12 @@
                             android:padding="@dimen/spacing_medium"
                             android:gravity="center">
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Wins"
-                                android:textSize="@dimen/text_size_small"
-                                android:textColor="@color/text_secondary" />
+                            <ImageView
+                                android:layout_width="@dimen/icon_size_medium"
+                                android:layout_height="@dimen/icon_size_medium"
+                                android:src="@drawable/ic_stat_wins"
+                                app:tint="@color/text_primary"
+                                android:contentDescription="Wins Icon"/>
 
                             <TextView
                                 android:id="@+id/winsTextView"
@@ -243,6 +261,13 @@
                                 android:textSize="@dimen/text_size_xl"
                                 android:textColor="@color/text_primary"
                                 android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Wins"
+                                android:textSize="@dimen/text_size_small"
+                                android:textColor="@color/text_secondary" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
@@ -263,12 +288,12 @@
                             android:padding="@dimen/spacing_medium"
                             android:gravity="center">
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Losses"
-                                android:textSize="@dimen/text_size_small"
-                                android:textColor="@color/text_secondary" />
+                            <ImageView
+                                android:layout_width="@dimen/icon_size_medium"
+                                android:layout_height="@dimen/icon_size_medium"
+                                android:src="@drawable/ic_stat_losses"
+                                app:tint="@color/primary_red_light"
+                                android:contentDescription="Losses Icon"/>
 
                             <TextView
                                 android:id="@+id/lossesTextView"
@@ -279,10 +304,17 @@
                                 android:textSize="@dimen/text_size_xl"
                                 android:textColor="@color/text_primary"
                                 android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Losses"
+                                android:textSize="@dimen/text_size_small"
+                                android:textColor="@color/text_secondary" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
-                    <!-- Total Games (spans 2 columns) -->
+                    <!-- Total Games -->
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -296,24 +328,24 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
+                            android:orientation="horizontal"
                             android:padding="@dimen/spacing_medium"
                             android:gravity="center">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Total Games"
-                                android:textSize="@dimen/text_size_small"
-                                android:textColor="@color/text_secondary" />
+                                android:text="Total Games Played"
+                                android:textSize="@dimen/text_size_normal"
+                                android:textColor="@color/text_secondary"
+                                android:layout_marginEnd="@dimen/spacing_medium"/>
 
                             <TextView
                                 android:id="@+id/totalGamesTextView"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="@dimen/spacing_xs"
                                 android:text="0"
-                                android:textSize="@dimen/text_size_xl"
+                                android:textSize="@dimen/text_size_xxl"
                                 android:textColor="@color/text_primary"
                                 android:textStyle="bold" />
                         </LinearLayout>
