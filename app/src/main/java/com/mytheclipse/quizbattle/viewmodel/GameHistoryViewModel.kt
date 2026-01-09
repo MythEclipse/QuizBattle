@@ -80,10 +80,6 @@ class GameHistoryViewModel(application: Application) : AndroidViewModel(applicat
             }
         }
     }
-        }
-    }
-    
-    }
     
     fun refresh() {
         loadGameHistory()

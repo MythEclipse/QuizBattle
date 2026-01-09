@@ -3,7 +3,10 @@ package com.mytheclipse.quizbattle.data.repository
 import com.mytheclipse.quizbattle.data.local.dao.GameHistoryDao
 import com.mytheclipse.quizbattle.data.local.entity.GameHistory
 import kotlinx.coroutines.flow.Flow
-    
+import kotlinx.coroutines.flow.map
+import com.mytheclipse.quizbattle.data.model.UiGameHistory
+
+class GameHistoryRepository(private val gameHistoryDao: GameHistoryDao) {
     private val apiService = com.mytheclipse.quizbattle.data.remote.ApiConfig.createService(com.mytheclipse.quizbattle.data.remote.api.GameHistoryApiService::class.java)
 
     fun getGameHistoryByUser(userId: Long): Flow<List<UiGameHistory>> {

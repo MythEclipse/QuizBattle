@@ -37,6 +37,8 @@
     <color name="background_gray">#F7FAFC</color>
     <color name="background_dark">#0F0F23</color>
     <color name="surface_elevated">#FFFFFF</color>
+    <color name="surface_color">#FFFFFF</color>
+    <color name="secondary_purple">#A855F7</color>
     
     <!-- Gradient Background Colors -->
     <color name="gradient_bg_start">#667EEA</color>
