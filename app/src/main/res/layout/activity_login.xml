@@ -132,13 +132,54 @@
                     android:focusable="true"
                     android:padding="@dimen/spacing_xs" />
 
+                <!-- Google Login Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/googleLoginButton"
+                    style="@style/Widget.QuizBattle.Button.Outlined"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/button_height"
+                    android:layout_marginTop="@dimen/spacing_large"
+                    android:text="Sign in with Google"
+                    app:icon="@drawable/ic_google"
+                    app:iconGravity="textStart"
+                    app:iconPadding="@dimen/spacing_small" />
+
+                <!-- Divider -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_medium"
+                    android:layout_marginBottom="@dimen/spacing_medium"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1"
+                        android:background="@color/border_gray" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="@dimen/spacing_medium"
+                        android:text="ATAU"
+                        android:textColor="@color/text_tertiary"
+                        android:textSize="@dimen/text_size_small" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1"
+                        android:background="@color/border_gray" />
+                </LinearLayout>
+
                 <!-- Login Button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/loginButton"
                     style="@style/Widget.QuizBattle.Button"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/button_height"
-                    android:layout_marginTop="@dimen/spacing_large"
                     android:text="@string/login" />
 
             </LinearLayout>

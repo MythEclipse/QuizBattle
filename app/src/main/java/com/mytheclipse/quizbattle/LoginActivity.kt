@@ -36,12 +36,68 @@ class LoginActivity : BaseActivity() {
             }
         }
         
+        binding.googleLoginButton.setOnClickListener {
+            signInWithGoogle()
+        }
+        
         binding.forgotPasswordTextView.setOnClickListener {
             startActivity(Intent(this, ResetPasswordActivity::class.java))
         }
         
         binding.registerTextView.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
+        }
+    }
+    
+    private fun signInWithGoogle() {
+        lifecycleScope.launch {
+            try {
+                // Initialize Credential Manager
+                val credentialManager = androidx.credentials.CredentialManager.create(this@LoginActivity)
+                
+                // Build Google ID Option
+                // NOTE: Replace "YOUR_WEB_CLIENT_ID" with actual client ID from Google Cloud Console
+                val googleIdOption = com.google.android.libraries.identity.googleid.GetGoogleIdOption.Builder()
+                    .setFilterByAuthorizedAccounts(false)
+                    .setServerClientId(BuildConfig.GOOGLE_CLIENT_ID) 
+                    .setAutoSelectEnabled(false)
+                    .build()
+                
+                // Build Request
+                val request = androidx.credentials.GetCredentialRequest.Builder()
+                    .addCredentialOption(googleIdOption)
+                    .build()
+                
+                // Launch
+                val result = credentialManager.getCredential(
+                    request = request,
+                    context = this@LoginActivity
+                )
+                
+                // Handle Result
+                val credential = result.credential
+                if (credential is androidx.credentials.CustomCredential && 
+                    credential.type == com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                    
+                    val googleIdTokenCredential = com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.createFrom(credential.data)
+                    val idToken = googleIdTokenCredential.idToken
+                    
+                    // Send token to backend
+                    authViewModel.googleLogin(idToken)
+                } else {
+                    ResultDialogHelper.showError(this@LoginActivity, "Login Gagal", "Tipe kredensial tidak dikenali")
+                }
+                
+            } catch (e: androidx.credentials.exceptions.GetCredentialException) {
+                // Handle cancellation or errors
+                if (e !is androidx.credentials.exceptions.GetCredentialCancellationException) {
+                     e.printStackTrace()
+                     ResultDialogHelper.showError(this@LoginActivity, "Login Gagal", e.message ?: "Terjadi kesalahan")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                ResultDialogHelper.showError(this@LoginActivity, "Login Gagal", e.message ?: "Terjadi kesalahan")
+            }
         }
     }
     
@@ -124,6 +180,7 @@ class LoginActivity : BaseActivity() {
         
         // Disable/enable all interactive elements to prevent spam
         binding.loginButton.isEnabled = !isLoading
+        binding.googleLoginButton.isEnabled = !isLoading
         binding.emailEditText.isEnabled = !isLoading
         binding.passwordEditText.isEnabled = !isLoading
         binding.forgotPasswordTextView.isClickable = !isLoading

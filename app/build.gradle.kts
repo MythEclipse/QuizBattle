@@ -20,6 +20,9 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        
+        // Google Web Client ID (from Google Cloud Console)
+        buildConfigField("String", "GOOGLE_CLIENT_ID", "\"807085684755-4hbguoibh91h0f04p7e514iurv5rjbtl.apps.googleusercontent.com\"")
     }
 
     signingConfigs {
@@ -137,4 +140,8 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     // androidTestImplementation(platform(libs.androidx.compose.bom)) // Removed
     // debugImplementation(libs.androidx.compose.ui.tooling) // Removed
+    // Credential Manager (Google Sign-In)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
 }

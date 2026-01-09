@@ -8,11 +8,26 @@ import com.google.gson.annotations.SerializedName
 import retrofit2.http.Body
 import retrofit2.http.POST
 
+data class ResetPasswordRequest(
+    val token: String,
+    @SerializedName("new_password")
+    val newPassword: String
+)
+
+data class GoogleLoginRequest(
+    val idToken: String
+)
+
 interface AuthApiService {
     
     @POST("api/auth/login")
     suspend fun login(
         @Body request: LoginRequest
+    ): LoginResponseData
+    
+    @POST("api/auth/google")
+    suspend fun googleLogin(
+        @Body request: GoogleLoginRequest
     ): LoginResponseData
     
     @POST("api/auth/register")
@@ -55,11 +70,5 @@ data class RefreshTokenRequest(
 
 data class ForgotPasswordRequest(
     val email: String
-)
-
-data class ResetPasswordRequest(
-    val token: String,
-    @SerializedName("new_password")
-    val newPassword: String
 )
 

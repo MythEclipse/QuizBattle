@@ -174,9 +174,53 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.login - failed")
                     _authState.value = AuthState(error = "Login gagal")
                 }
+                if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.login - exception: ${e.message}", e)
+                _authState.value = AuthState(error = e.message ?: "Terjadi kesalahan koneksi")
+            }
+        }
+    }
+
+    fun googleLogin(idToken: String) {
+        viewModelScope.launch {
+            _authState.value = AuthState(isLoading = true)
+            
+            try {
+                if (BuildConfig.DEBUG) Log.d("API", "AuthViewModel.googleLogin - start")
+                // Call API
+                val response = authApiService.googleLogin(
+                    com.mytheclipse.quizbattle.data.remote.api.GoogleLoginRequest(idToken = idToken)
+                )
+                
+                if (response.success) {
+                    if (BuildConfig.DEBUG) Log.d("API", "AuthViewModel.googleLogin - success userId=${response.user.id}")
+                    
+                    // Save tokens
+                    tokenRepository.saveToken(response.accessToken)
+                    tokenRepository.saveRefreshToken(response.refreshToken)
+                    tokenRepository.saveTokenExpiry(response.expiresIn)
+                    tokenRepository.saveUserId(response.user.id)
+                    tokenRepository.saveUserName(response.user.name ?: "User")
+                    tokenRepository.saveUserEmail(response.user.email ?: "")
+                    ApiConfig.setAuthToken(response.accessToken)
+                    
+                    // Create or login user in local database
+                    val result = userRepository.createOrLoginFromApi(
+                        response.user.name ?: "User",
+                        response.user.email ?: ""
+                    )
+                    
+                    result.onSuccess { user ->
+                        _authState.value = AuthState(isSuccess = true, user = user)
+                    }.onFailure { exception ->
+                        _authState.value = AuthState(error = exception.message ?: "Login gagal")
+                    }
+                } else {
+                    if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.googleLogin - failed")
+                    _authState.value = AuthState(error = "Google Login gagal")
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
-                if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.login - exception: ${e.message}", e)
+                if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.googleLogin - exception: ${e.message}", e)
                 _authState.value = AuthState(error = e.message ?: "Terjadi kesalahan koneksi")
             }
         }
