@@ -68,7 +68,7 @@ class MainActivity : BaseActivity() {
                 if (token == null) {
                     startActivity(AuthUtils.createLoginIntent(this@MainActivity, LoginActivity.REDIRECT_FEED))
                 } else {
-                    startActivity(Intent(this@MainActivity, FeedActivity::class.java))
+                    startActivity(Intent(this@MainActivity, GameHistoryActivity::class.java))
                 }
             }
         }

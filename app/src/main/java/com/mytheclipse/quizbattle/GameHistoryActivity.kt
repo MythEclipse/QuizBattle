@@ -7,19 +7,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mytheclipse.quizbattle.adapter.GameHistoryAdapter
-import com.mytheclipse.quizbattle.databinding.ActivityFeedBinding
+import com.mytheclipse.quizbattle.databinding.ActivityGameHistoryBinding
 import com.mytheclipse.quizbattle.viewmodel.GameHistoryViewModel
 import kotlinx.coroutines.launch
 
-class FeedActivity : BaseActivity() {
+class GameHistoryActivity : BaseActivity() {
     
-    private lateinit var binding: ActivityFeedBinding
+    private lateinit var binding: ActivityGameHistoryBinding
     private val gameHistoryViewModel: GameHistoryViewModel by viewModels()
     private lateinit var gameHistoryAdapter: GameHistoryAdapter
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityFeedBinding.inflate(layoutInflater)
+        binding = ActivityGameHistoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
         applySystemBarPadding(binding.root)
         

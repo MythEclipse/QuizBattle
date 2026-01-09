@@ -52,7 +52,7 @@
             android:name=".OnlineMenuActivity"
             android:exported="false" />
         <activity
-            android:name=".FeedActivity"
+            android:name=".GameHistoryActivity"
             android:exported="false" />
         <activity
             android:name=".ProfileActivity"

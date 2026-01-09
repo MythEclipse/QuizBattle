@@ -31,7 +31,10 @@ data class OnlineGameState(
     val isPlayer1: Boolean = true, // true = left/knight, false = right/goblin
     val error: String? = null,
     val playerHealth: Int = 100,
-    val opponentHealth: Int = 100
+    val opponentHealth: Int = 100,
+    val earnedPoints: Int = 0,
+    val earnedCoins: Int = 0,
+    val earnedExp: Int = 0
 )
 
 class OnlineGameViewModel(application: Application) : AndroidViewModel(application) {
@@ -191,9 +194,16 @@ class OnlineGameViewModel(application: Application) : AndroidViewModel(applicati
                     is GameEvent.GameFinished -> {
                         if (event.matchId != targetMatchId) return@collect
                         
+                        val userId = tokenRepository.getUserId()
+                        val isWinner = event.winner == userId
+                        val userRewards = if (isWinner) event.winnerRewards else event.loserRewards
+                        
                         _state.value = _state.value.copy(
                             gameFinished = true,
-                            isVictory = event.winner == tokenRepository.getUserId()
+                            isVictory = isWinner,
+                            earnedPoints = userRewards["points"] ?: 0,
+                            earnedCoins = userRewards["coins"] ?: 0,
+                            earnedExp = userRewards["experience"] ?: 0
                         )
                     }
                     is GameEvent.OpponentAnswered -> {

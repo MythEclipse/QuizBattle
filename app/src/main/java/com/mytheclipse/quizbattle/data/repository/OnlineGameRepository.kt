@@ -110,13 +110,26 @@ class OnlineGameRepository {
                 
                 val winnerId = winnerMap["userId"] as? String ?: ""
                 
+                @Suppress("UNCHECKED_CAST")
+                val rewardsPayload = payload["rewards"] as? Map<String, Any> ?: emptyMap()
+                
+                @Suppress("UNCHECKED_CAST")
+                val wRewards = rewardsPayload["winner"] as? Map<String, Number> ?: emptyMap()
+                val winnerRewards = wRewards.mapValues { it.value.toInt() }
+                
+                @Suppress("UNCHECKED_CAST")
+                val lRewards = rewardsPayload["loser"] as? Map<String, Number> ?: emptyMap()
+                val loserRewards = lRewards.mapValues { it.value.toInt() }
+                
                 GameEvent.GameFinished(
                     matchId = payload["matchId"] as? String ?: "",
                     winner = winnerId,
                     playerScore = (winnerMap["finalScore"] as? Double)?.toInt() ?: 0,
                     playerCorrect = (winnerMap["correctAnswers"] as? Double)?.toInt() ?: 0,
                     opponentScore = (loserMap["finalScore"] as? Double)?.toInt() ?: 0,
-                    opponentCorrect = (loserMap["correctAnswers"] as? Double)?.toInt() ?: 0
+                    opponentCorrect = (loserMap["correctAnswers"] as? Double)?.toInt() ?: 0,
+                    winnerRewards = winnerRewards,
+                    loserRewards = loserRewards
                 )
             }
             "game.opponent.answered" -> {
@@ -221,7 +234,10 @@ sealed class GameEvent {
         val playerScore: Int,
         val playerCorrect: Int,
         val opponentScore: Int,
-        val opponentCorrect: Int
+        val opponentScore: Int,
+        val opponentCorrect: Int,
+        val winnerRewards: Map<String, Int> = emptyMap(),
+        val loserRewards: Map<String, Int> = emptyMap()
     ) : GameEvent()
     
     data class OpponentAnswered(

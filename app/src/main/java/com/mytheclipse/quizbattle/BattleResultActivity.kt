@@ -31,6 +31,29 @@ class BattleResultActivity : BaseActivity() {
                 binding.resultTitleTextView.text = getString(R.string.defeat)
                 binding.resultTitleTextView.setTextColor(ContextCompat.getColor(this, R.color.defeat_red))
             }
+            
+            // Get rewards data
+            val earnedPoints = intent.getIntExtra("EARNED_POINTS", 0)
+            val earnedCoins = intent.getIntExtra("EARNED_COINS", 0)
+            val earnedExp = intent.getIntExtra("EARNED_EXP", 0)
+            
+            // Display stats
+            // Note: Correct Answers count is not currently passed from BattleActivity correctly (it passes opponent health as score?)
+            // We'll leave it 0 or hide it if not available, OR implement passing it later. 
+            // For now let's focus on rewards.
+            binding.correctAnswersTextView.text = "-" // Placeholder
+            
+            binding.pointsEarnedTextView.text = "+$earnedPoints"
+            binding.coinsEarnedTextView.text = "+$earnedCoins"
+            binding.xpEarnedTextView.text = "+$earnedExp"
+
+            if (earnedPoints > 0) {
+                 binding.pointsEarnedTextView.setTextColor(ContextCompat.getColor(this, R.color.primary_blue))
+            } else {
+                 binding.pointsEarnedTextView.text = "0"
+                 binding.pointsEarnedTextView.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
+            }
+
         } catch (e: Exception) {
             e.printStackTrace()
             // Fallback

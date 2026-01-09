@@ -60,82 +60,149 @@
         app:layout_constraintTop_toBottomOf="@id/resultIconContainer" />
 
     <!-- Stats Card -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/statsCard"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_xl"
-        android:layout_marginHorizontal="@dimen/spacing_large"
-        app:cardCornerRadius="@dimen/card_corner_radius"
-        app:cardElevation="@dimen/card_elevation"
-        app:cardBackgroundColor="@color/card_background"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/resultTitleTextView">
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:padding="@dimen/spacing_large">
 
-            <!-- Correct Answers -->
+            <!-- Row 1: Correct & Points -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center">
+                android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <!-- Correct Answers -->
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Correct"
-                    android:textSize="@dimen/text_size_small"
-                    android:textColor="@color/text_secondary" />
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
 
-                <TextView
-                    android:id="@+id/correctAnswersTextView"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Correct"
+                        android:textSize="@dimen/text_size_small"
+                        android:textColor="@color/text_secondary" />
+
+                    <TextView
+                        android:id="@+id/correctAnswersTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_xs"
+                        android:text="0"
+                        android:textSize="@dimen/text_size_xxl"
+                        android:textStyle="bold"
+                        android:textColor="@color/victory_green" />
+                </LinearLayout>
+
+                <!-- Divider -->
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/border_gray" />
+
+                <!-- Points Earned -->
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_xs"
-                    android:text="0"
-                    android:textSize="@dimen/text_size_xxl"
-                    android:textStyle="bold"
-                    android:textColor="@color/victory_green" />
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Points"
+                        android:textSize="@dimen/text_size_small"
+                        android:textColor="@color/text_secondary" />
+
+                    <TextView
+                        android:id="@+id/pointsEarnedTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_xs"
+                        android:text="+0"
+                        android:textSize="@dimen/text_size_xxl"
+                        android:textStyle="bold"
+                        android:textColor="@color/primary_blue" />
+                </LinearLayout>
             </LinearLayout>
-
-            <!-- Divider -->
+            
+            <!-- Divider Horizontal -->
             <View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="@dimen/spacing_medium"
                 android:background="@color/border_gray" />
 
-            <!-- Points Earned -->
+            <!-- Row 2: Coins & XP -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center">
+                android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <!-- Coins Earned -->
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Points"
-                    android:textSize="@dimen/text_size_small"
-                    android:textColor="@color/text_secondary" />
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
 
-                <TextView
-                    android:id="@+id/pointsEarnedTextView"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Coins"
+                        android:textSize="@dimen/text_size_small"
+                        android:textColor="@color/text_secondary" />
+
+                    <TextView
+                        android:id="@+id/coinsEarnedTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_xs"
+                        android:text="+0"
+                        android:textSize="@dimen/text_size_xxl"
+                        android:textStyle="bold"
+                        android:textColor="@color/accent_gold" />
+                </LinearLayout>
+
+                <!-- Divider -->
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/border_gray" />
+
+                <!-- XP Earned -->
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_xs"
-                    android:text="+0"
-                    android:textSize="@dimen/text_size_xxl"
-                    android:textStyle="bold"
-                    android:textColor="@color/primary_blue" />
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="XP"
+                        android:textSize="@dimen/text_size_small"
+                        android:textColor="@color/text_secondary" />
+
+                    <TextView
+                        android:id="@+id/xpEarnedTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_xs"
+                        android:text="+0"
+                        android:textSize="@dimen/text_size_xxl"
+                        android:textStyle="bold"
+                        android:textColor="@color/secondary_purple" />
+                </LinearLayout>
             </LinearLayout>
+            
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 

@@ -6,13 +6,15 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mytheclipse.quizbattle.R
-import com.mytheclipse.quizbattle.data.local.entity.GameHistory
+
 import com.mytheclipse.quizbattle.databinding.ItemGameHistoryBinding
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class GameHistoryAdapter : ListAdapter<GameHistory, GameHistoryAdapter.GameHistoryViewHolder>(GameHistoryDiffCallback()) {
+import com.mytheclipse.quizbattle.data.model.UiGameHistory
+
+class GameHistoryAdapter : ListAdapter<UiGameHistory, GameHistoryAdapter.GameHistoryViewHolder>(GameHistoryDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GameHistoryViewHolder {
         val binding = ItemGameHistoryBinding.inflate(
@@ -32,7 +34,7 @@ class GameHistoryAdapter : ListAdapter<GameHistory, GameHistoryAdapter.GameHisto
         private val binding: ItemGameHistoryBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(gameHistory: GameHistory) {
+        fun bind(gameHistory: UiGameHistory) {
             // Set result icon
             binding.resultIconTextView.text = if (gameHistory.isVictory) "🏆" else "😔"
             
@@ -44,8 +46,10 @@ class GameHistoryAdapter : ListAdapter<GameHistory, GameHistoryAdapter.GameHisto
             
             // Set game info
             val gameMode = when (gameHistory.gameMode) {
-                "online" -> "Online"
+                "ranked" -> "Ranked"
+                "casual" -> "Casual"
                 "friend" -> "Friend"
+                "online" -> "Online"
                 else -> "Offline"
             }
             binding.gameInfoTextView.text = "$gameMode • ${gameHistory.totalQuestions} questions"
@@ -90,12 +94,12 @@ class GameHistoryAdapter : ListAdapter<GameHistory, GameHistoryAdapter.GameHisto
         }
     }
 
-    class GameHistoryDiffCallback : DiffUtil.ItemCallback<GameHistory>() {
-        override fun areItemsTheSame(oldItem: GameHistory, newItem: GameHistory): Boolean {
+    class GameHistoryDiffCallback : DiffUtil.ItemCallback<UiGameHistory>() {
+        override fun areItemsTheSame(oldItem: UiGameHistory, newItem: UiGameHistory): Boolean {
             return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: GameHistory, newItem: GameHistory): Boolean {
+        override fun areContentsTheSame(oldItem: UiGameHistory, newItem: UiGameHistory): Boolean {
             return oldItem == newItem
         }
     }

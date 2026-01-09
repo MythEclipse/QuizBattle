@@ -128,6 +128,10 @@ class BattleActivity : BaseActivity() {
                         if (!isFinishing) {
                             val intent = Intent(this@BattleActivity, BattleResultActivity::class.java).apply {
                                 putExtra(BattleResultActivity.EXTRA_IS_VICTORY, isVictory)
+                                putExtra("EARNED_POINTS", state.earnedPoints)
+                                putExtra("EARNED_COINS", state.earnedCoins)
+                                putExtra("EARNED_EXP", state.earnedExp)
+                                putExtra("OPPONENT_SCORE", state.opponentHealth) // Using health as score for now since real points are 0 in Battle Mode
                             }
                             startActivity(intent)
                             finish()
