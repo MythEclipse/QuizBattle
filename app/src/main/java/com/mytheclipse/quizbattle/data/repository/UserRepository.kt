@@ -3,6 +3,7 @@ package com.mytheclipse.quizbattle.data.repository
 import com.mytheclipse.quizbattle.data.local.dao.UserDao
 import com.mytheclipse.quizbattle.data.local.entity.User
 import kotlinx.coroutines.flow.Flow
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 
 class UserRepository(private val userDao: UserDao) {
     
@@ -140,10 +141,10 @@ class UserRepository(private val userDao: UserDao) {
 
     suspend fun uploadAvatar(file: java.io.File): Result<String> {
         return try {
-            val requestFile = okhttp3.RequestBody.create(
-                okhttp3.MediaType.parse("image/*"),
-                file
-            )
+        val requestFile = okhttp3.RequestBody.create(
+            "image/*".toMediaTypeOrNull(),
+            file
+        )
             val body = okhttp3.MultipartBody.Part.createFormData("avatar", file.name, requestFile)
             
             val apiService = com.mytheclipse.quizbattle.data.remote.ApiConfig.createService(

@@ -69,7 +69,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                         error = "No user found. Please login again."
                     )
                 }
-                }
+
             } catch (e: Exception) {
                 _state.value = _state.value.copy(
                     isLoading = false,
