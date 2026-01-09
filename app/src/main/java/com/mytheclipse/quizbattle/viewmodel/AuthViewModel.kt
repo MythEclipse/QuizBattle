@@ -174,6 +174,8 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.login - failed")
                     _authState.value = AuthState(error = "Login gagal")
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
                 if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.login - exception: ${e.message}", e)
                 _authState.value = AuthState(error = e.message ?: "Terjadi kesalahan koneksi")
             }
