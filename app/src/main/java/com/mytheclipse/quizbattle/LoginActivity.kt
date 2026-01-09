@@ -154,7 +154,7 @@ class LoginActivity : BaseActivity() {
         if (redirectTarget != null) {
             when (redirectTarget) {
                 REDIRECT_ONLINE_MENU -> startActivity(Intent(this, OnlineMenuActivity::class.java))
-                REDIRECT_FEED -> startActivity(Intent(this, FeedActivity::class.java))
+                REDIRECT_FEED -> startActivity(Intent(this, GameHistoryActivity::class.java))
                 REDIRECT_PROFILE -> startActivity(Intent(this, ProfileActivity::class.java))
                 REDIRECT_LEADERBOARD -> startActivity(Intent(this, LeaderboardActivity::class.java))
                 REDIRECT_ONLINE_BATTLE -> {

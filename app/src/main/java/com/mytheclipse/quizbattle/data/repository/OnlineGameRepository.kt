@@ -234,7 +234,7 @@ sealed class GameEvent {
         val playerScore: Int,
         val playerCorrect: Int,
         val opponentScore: Int,
-        val opponentScore: Int,
+
         val opponentCorrect: Int,
         val winnerRewards: Map<String, Int> = emptyMap(),
         val loserRewards: Map<String, Int> = emptyMap()
