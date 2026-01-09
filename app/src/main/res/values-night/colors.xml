@@ -8,6 +8,7 @@
     <color name="secondary_green">#00E096</color>
     <color name="primary_blue_light">#1A3A4A</color>
     <color name="secondary_green_light">#1A3A2A</color>
+    <color name="primary_red_light">#3A1A2A</color>
     
     <!-- Accent Colors - Vibrant Neon -->
     <color name="accent_cyan">#00F0FF</color>
