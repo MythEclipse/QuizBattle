@@ -100,9 +100,9 @@
     <dimen name="progress_height">8dp</dimen>
     
     <!-- Battle Arena -->
-    <dimen name="battle_arena_height">240dp</dimen>
-    <dimen name="character_size_knight">160dp</dimen>
-    <dimen name="character_size_goblin">110dp</dimen>
+    <dimen name="battle_arena_height">220dp</dimen>
+    <dimen name="character_size_knight">180dp</dimen>
+    <dimen name="character_size_goblin">150dp</dimen>
     
     <!-- Leaderboard -->
     <dimen name="podium_avatar_first">84dp</dimen>
