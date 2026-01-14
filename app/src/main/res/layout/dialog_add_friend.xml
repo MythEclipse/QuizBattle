@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="ID atau Email Pengguna"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+        style="@style/Widget.QuizBattle.TextInputLayout">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etUserId"
@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:hint="Pesan (opsional)"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/Widget.QuizBattle.TextInputLayout"
         app:counterEnabled="true"
         app:counterMaxLength="100">
 

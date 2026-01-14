@@ -2,6 +2,8 @@ package com.mytheclipse.quizbattle
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.ContextThemeWrapper
+import android.view.LayoutInflater
 import androidx.activity.viewModels
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
@@ -244,7 +246,8 @@ class FriendListActivity : BaseActivity() {
     // region Dialogs
     
     private fun showAddFriendDialog() {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_add_friend, null)
+        val materialContext = ContextThemeWrapper(this, R.style.Theme_QuizBattle_Dialog)
+        val dialogView = LayoutInflater.from(materialContext).inflate(R.layout.dialog_add_friend, null)
         val etUserId = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etUserId)
         val etMessage = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etMessage)
         
