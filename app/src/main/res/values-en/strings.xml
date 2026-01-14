@@ -108,9 +108,6 @@
     <string name="match_id_format">Match #%1$s</string>
     <string name="question_progress_format">Question %1$d/%2$d</string>
     <string name="feature_coming_soon">This feature is coming soon!\n\nFor now, use Quick Match to play with other players.</string>
-    <string name="hp_format">HP: %1$d</string>
-    <string name="opponent_hp_format">Opponent HP: %1$d</string>
-    <string name="timer_format">⏱ %1$ds</string>
     
     <!-- Battle Result -->
     <string name="victory">Victory!</string>

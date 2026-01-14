@@ -4,6 +4,10 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.mytheclipse.quizbattle.data.model.ChatMessage
+import com.mytheclipse.quizbattle.data.model.ChatRoom
+import com.mytheclipse.quizbattle.data.remote.api.ChatMessageResponse
+import com.mytheclipse.quizbattle.data.remote.api.ChatRoomResponse
 import com.mytheclipse.quizbattle.data.repository.*
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -249,11 +253,11 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         when (event) {
             is ChatMessageEvent.PrivateMessage -> {
                 val message = ChatMessage(
-                    messageId = event.messageId,
-                    userId = event.senderId,
-                    userName = event.senderName,
-                    message = event.message,
-                    createdAt = event.timestamp
+                    id = event.messageId,
+                    senderId = event.senderId,
+                    senderName = event.senderName,
+                    content = event.message,
+                    timestamp = event.timestamp
                 )
                 updateState {
                     copy(messages = messages + message, isLoading = false)
@@ -264,11 +268,12 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     }
     
     private fun createOptimisticMessage(userId: String, message: String) = ChatMessage(
-        messageId = "temp_${System.currentTimeMillis()}",
-        userId = userId,
-        userName = SELF_USERNAME,
-        message = message,
-        createdAt = System.currentTimeMillis()
+        id = "temp_${System.currentTimeMillis()}",
+        senderId = userId,
+        senderName = SELF_USERNAME,
+        content = message,
+        timestamp = System.currentTimeMillis(),
+        isOwn = true
     )
     
     // endregion
@@ -276,20 +281,21 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     // region Extension Functions
     
     private fun ChatRoomResponse.toChatRoom() = ChatRoom(
-        roomId = id,
-        roomName = name,
-        roomType = ROOM_TYPE_GROUP,
+        id = id,
+        name = name,
         lastMessage = messages.lastOrNull()?.content,
+        lastMessageTime = System.currentTimeMillis(),
         unreadCount = 0,
-        createdAt = System.currentTimeMillis()
+        isPrivate = isPrivate == 1,
+        description = description
     )
     
-    private fun MessageResponse.toChatMessage() = ChatMessage(
-        messageId = id,
-        userId = userId,
-        userName = user.name ?: UNKNOWN_USER,
-        message = content,
-        createdAt = System.currentTimeMillis()
+    private fun ChatMessageResponse.toChatMessage() = ChatMessage(
+        id = id,
+        senderId = userId,
+        senderName = user.name ?: UNKNOWN_USER,
+        content = content,
+        timestamp = System.currentTimeMillis()
     )
     
     // endregion

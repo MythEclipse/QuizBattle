@@ -210,16 +210,6 @@
     </style>
 
     <!-- ============================================ -->
-    <!-- DIALOG STYLES                                 -->
-    <!-- ============================================ -->
-    
-    <style name="Theme.QuizBattle.Dialog" parent="ThemeOverlay.MaterialComponents.Dialog">
-        <item name="colorSurface">@color/card_background</item>
-        <item name="android:windowBackground">@drawable/bg_dialog</item>
-        <item name="dialogCornerRadius">@dimen/card_corner_radius</item>
-    </style>
-    
-    <!-- ============================================ -->
     <!-- SHAPE STYLES                                  -->
     <!-- ============================================ -->
     

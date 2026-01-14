@@ -173,7 +173,7 @@ class OnlineBattleActivity : BaseActivity() {
             setupPlayerKnightAnimation()
             setupOpponentGoblinAnimation()
         } catch (e: Exception) {
-            logError(TAG, "Failed to setup character animations", e)
+            logError("$TAG: Failed to setup character animations", e)
         }
     }
     

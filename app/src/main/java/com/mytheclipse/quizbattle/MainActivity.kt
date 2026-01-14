@@ -15,7 +15,7 @@ import com.mytheclipse.quizbattle.databinding.ActivityMainBinding
 import com.mytheclipse.quizbattle.util.AuthUtils
 import com.mytheclipse.quizbattle.utils.applySystemBarInsets
 import com.mytheclipse.quizbattle.utils.enableEdgeToEdge
-import com.mytheclipse.quizbattle.viewmodel.MainState
+import com.mytheclipse.quizbattle.viewmodel.MainScreenState
 import com.mytheclipse.quizbattle.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
 
@@ -119,13 +119,13 @@ class MainActivity : BaseActivity() {
         }
     }
     
-    private fun handleState(state: MainState) {
+    private fun handleState(state: MainScreenState) {
         updateLoadingState(state.isLoading)
         updateUserInfo(state.currentUser)
-        updateLeaderboardVisibility(state.isLoggedIn)
-        updateNavigationButtons(state.isLoggedIn)
+        updateLeaderboardVisibility(state.hasUser)
+        updateNavigationButtons(state.hasUser)
         
-        if (state.isLoggedIn) {
+        if (state.hasUser) {
             updateLeaderboard(state.topUsers)
         }
     }

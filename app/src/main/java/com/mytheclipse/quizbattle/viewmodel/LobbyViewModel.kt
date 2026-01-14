@@ -234,7 +234,7 @@ class LobbyViewModel(application: Application) : AndroidViewModel(application) {
     
     // region Extension Functions
     
-    private fun LobbyEvent.PlayerData.toPlayerInfo() = DataModels.PlayerInfo(
+    private fun LobbyPlayer.toPlayerInfo() = DataModels.PlayerInfo(
         userId = userId,
         userName = username,
         isHost = isHost,

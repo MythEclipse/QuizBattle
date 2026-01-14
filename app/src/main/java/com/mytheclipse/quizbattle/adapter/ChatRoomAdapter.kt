@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mytheclipse.quizbattle.R
-import com.mytheclipse.quizbattle.data.repository.ChatRoom
+import com.mytheclipse.quizbattle.data.model.ChatRoom
 
 /**
  * RecyclerView adapter for displaying chat rooms/conversations.

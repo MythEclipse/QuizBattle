@@ -37,7 +37,6 @@
     
     <!-- Login -->
     <string name="login">Masuk</string>
-    <string name="loading">Memuat…</string>
     <string name="email">Email</string>
     <string name="password">Kata Sandi</string>
     <string name="forgot_password">Lupa Kata Sandi?</string>

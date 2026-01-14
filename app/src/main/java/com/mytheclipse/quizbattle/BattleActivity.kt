@@ -19,6 +19,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.button.MaterialButton
 import com.mytheclipse.quizbattle.databinding.ActivityBattleBinding
 import com.mytheclipse.quizbattle.util.SoundManager
+import com.mytheclipse.quizbattle.viewmodel.BattleQuestion
 import com.mytheclipse.quizbattle.viewmodel.BattleState
 import com.mytheclipse.quizbattle.viewmodel.BattleViewModel
 import kotlinx.coroutines.launch
@@ -205,7 +206,7 @@ class BattleActivity : BaseActivity() {
     
     private fun updateAnswerButtons(
         state: BattleState,
-        question: com.mytheclipse.quizbattle.data.local.entity.Question
+        question: BattleQuestion
     ) {
         getAnswerButtons().forEachIndexed { index, button ->
             button.apply {

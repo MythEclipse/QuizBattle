@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mytheclipse.quizbattle.R
-import com.mytheclipse.quizbattle.data.repository.ChatMessage
+import com.mytheclipse.quizbattle.data.model.ChatMessage
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -54,7 +54,7 @@ class ChatMessageAdapter(
         private val timeTextView: TextView = itemView.findViewById(R.id.timeTextView)
         
         fun bind(message: ChatMessage) {
-            val isOwnMessage = message.userId == currentUserId
+            val isOwnMessage = message.senderId == currentUserId
             
             configureBubbleAppearance(isOwnMessage)
             bindMessageContent(message, isOwnMessage)
@@ -77,11 +77,11 @@ class ChatMessageAdapter(
         private fun bindMessageContent(message: ChatMessage, isOwnMessage: Boolean) {
             senderNameTextView.visibility = if (isOwnMessage) View.GONE else View.VISIBLE
             if (!isOwnMessage) {
-                senderNameTextView.text = message.userName
+                senderNameTextView.text = message.senderName
             }
             
-            messageTextView.text = message.message
-            timeTextView.text = formatTime(message.createdAt)
+            messageTextView.text = message.content
+            timeTextView.text = formatTime(message.timestamp)
         }
         
         private fun formatTime(timestamp: Long): String {
@@ -99,7 +99,7 @@ class ChatMessageAdapter(
     
     class MessageDiffCallback : DiffUtil.ItemCallback<ChatMessage>() {
         override fun areItemsTheSame(oldItem: ChatMessage, newItem: ChatMessage): Boolean {
-            return oldItem.messageId == newItem.messageId
+            return oldItem.id == newItem.id
         }
 
         override fun areContentsTheSame(oldItem: ChatMessage, newItem: ChatMessage): Boolean {

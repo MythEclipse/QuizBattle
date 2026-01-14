@@ -183,7 +183,7 @@ class SocialMediaViewModel(application: Application) : AndroidViewModel(applicat
     
     // region Extension Functions
     
-    private fun com.mytheclipse.quizbattle.data.repository.PostResponse.toPost() = DataModels.Post(
+    private fun com.mytheclipse.quizbattle.data.remote.model.PostResponse.toPost() = DataModels.Post(
         postId = id,
         userId = userId,
         userName = user.name ?: UNKNOWN_USER,

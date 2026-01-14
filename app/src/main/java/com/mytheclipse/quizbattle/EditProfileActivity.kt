@@ -148,7 +148,7 @@ class EditProfileActivity : BaseActivity() {
     
     private fun handleState(state: ProfileState) {
         updateLoadingState(state.isLoading)
-        updateAvatar(state.image)
+        state.image?.let { updateAvatar(it) }
         prefillFormIfNeeded(state)
         handleError(state.error)
         checkForSuccess(state)

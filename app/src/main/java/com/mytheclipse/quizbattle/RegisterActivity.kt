@@ -8,6 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.mytheclipse.quizbattle.databinding.ActivityRegisterBinding
 import com.mytheclipse.quizbattle.utils.ResultDialogHelper
+import com.mytheclipse.quizbattle.viewmodel.AuthState
 import com.mytheclipse.quizbattle.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 
@@ -123,7 +124,7 @@ class RegisterActivity : BaseActivity() {
         }
     }
     
-    private fun handleAuthState(state: com.mytheclipse.quizbattle.viewmodel.AuthUiState) {
+    private fun handleAuthState(state: AuthState) {
         setLoadingState(state.isLoading)
         
         state.error?.let { error ->
@@ -135,7 +136,7 @@ class RegisterActivity : BaseActivity() {
         }
     }
     
-    private fun handleSuccess(state: com.mytheclipse.quizbattle.viewmodel.AuthUiState) {
+    private fun handleSuccess(state: AuthState) {
         val (title, message) = when {
             state.requiresEmailVerification -> {
                 getString(R.string.registration_success) to 

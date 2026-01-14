@@ -11,8 +11,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import com.mytheclipse.quizbattle.data.local.entity.Friend
-import com.mytheclipse.quizbattle.data.repository.FriendEvent
-import com.mytheclipse.quizbattle.data.repository.MatchInviteEvent
+import com.mytheclipse.quizbattle.data.model.FriendEvent
+import com.mytheclipse.quizbattle.data.model.MatchInviteEvent
 import com.mytheclipse.quizbattle.databinding.ActivityFriendListBinding
 import com.mytheclipse.quizbattle.ui.FriendAdapter
 import com.mytheclipse.quizbattle.ui.FriendRequestAdapter

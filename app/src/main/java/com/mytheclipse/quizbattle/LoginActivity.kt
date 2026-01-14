@@ -238,7 +238,7 @@ class LoginActivity : BaseActivity() {
             REDIRECT_PROFILE -> navigateTo<ProfileActivity>()
             REDIRECT_LEADERBOARD -> navigateTo<LeaderboardActivity>()
             REDIRECT_ONLINE_BATTLE -> navigateToOnlineBattle()
-            else -> navigateToMain()
+            else -> navigateToMainScreen()
         }
         finish()
     }
@@ -250,7 +250,7 @@ class LoginActivity : BaseActivity() {
         }
     }
     
-    private fun navigateToMain() {
+    private fun navigateToMainScreen() {
         startActivity(Intent(this, MainActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         })

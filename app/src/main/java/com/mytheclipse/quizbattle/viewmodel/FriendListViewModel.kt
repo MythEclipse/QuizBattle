@@ -6,10 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.mytheclipse.quizbattle.data.local.QuizBattleDatabase
 import com.mytheclipse.quizbattle.data.local.entity.Friend
 import com.mytheclipse.quizbattle.data.local.entity.FriendStatus
+import com.mytheclipse.quizbattle.data.model.FriendEvent
+import com.mytheclipse.quizbattle.data.model.MatchInviteEvent
 import com.mytheclipse.quizbattle.data.remote.websocket.WebSocketManager
-import com.mytheclipse.quizbattle.data.repository.FriendEvent
 import com.mytheclipse.quizbattle.data.repository.FriendRepository
-import com.mytheclipse.quizbattle.data.repository.MatchInviteEvent
 import com.mytheclipse.quizbattle.data.repository.TokenRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -223,6 +223,10 @@ class FriendListViewModel(application: Application) : AndroidViewModel(applicati
             is FriendEvent.RequestAccepted -> handleRequestAccepted(event)
             is FriendEvent.RequestRejected -> handleRequestRejected(event)
             is FriendEvent.FriendRemoved -> handleFriendRemoved(event)
+            is FriendEvent.RequestSent -> { /* Request was sent successfully */ }
+            is FriendEvent.FriendListData -> { /* Friend list data received */ }
+            is FriendEvent.ChallengeSent -> { /* Challenge sent */ }
+            is FriendEvent.Unknown -> { /* Unknown event */ }
         }
         friendRepository.clearFriendEvent()
     }

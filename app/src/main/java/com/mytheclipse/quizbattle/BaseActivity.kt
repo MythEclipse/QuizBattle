@@ -214,7 +214,7 @@ abstract class BaseActivity : AppCompatActivity() {
         message: String,
         onDismiss: () -> Unit = {}
     ) {
-        ResultDialogHelper.showSuccess(this, title, message, onDismiss)
+        ResultDialogHelper.showSuccess(this, title, message, "OK", onDismiss)
     }
     
     protected fun showErrorDialog(title: String, message: String) {

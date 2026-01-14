@@ -144,4 +144,10 @@ dependencies {
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
+    
+    // CircleImageView
+    implementation(libs.circleimageview)
+    
+    // SwipeRefreshLayout
+    implementation(libs.androidx.swiperefreshlayout)
 }

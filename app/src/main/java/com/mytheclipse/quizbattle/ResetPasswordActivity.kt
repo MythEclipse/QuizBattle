@@ -7,6 +7,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.mytheclipse.quizbattle.databinding.ActivityResetPasswordBinding
+import com.mytheclipse.quizbattle.viewmodel.AuthState
 import com.mytheclipse.quizbattle.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 
@@ -86,7 +87,7 @@ class ResetPasswordActivity : BaseActivity() {
         }
     }
     
-    private fun handleAuthState(state: com.mytheclipse.quizbattle.viewmodel.AuthUiState) {
+    private fun handleAuthState(state: AuthState) {
         setLoadingState(state.isLoading)
         
         state.error?.let { error ->

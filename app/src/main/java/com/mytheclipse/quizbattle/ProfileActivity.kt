@@ -78,7 +78,7 @@ class ProfileActivity : BaseActivity() {
         updateLoadingState(state.isLoading)
         updateProfileInfo(state)
         updateStats(state)
-        updateAvatar(state.image)
+        state.image?.let { updateAvatar(it) }
     }
     
     private fun updateLoadingState(isLoading: Boolean) {

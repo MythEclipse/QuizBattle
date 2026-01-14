@@ -13,6 +13,7 @@ import com.mytheclipse.quizbattle.data.remote.api.ForgotPasswordRequest
 import com.mytheclipse.quizbattle.data.remote.api.GoogleLoginRequest
 import com.mytheclipse.quizbattle.data.remote.api.LoginRequest
 import com.mytheclipse.quizbattle.data.remote.api.RegisterRequest
+import com.mytheclipse.quizbattle.data.remote.model.LoginResponseData
 import com.mytheclipse.quizbattle.data.repository.TokenRepository
 import com.mytheclipse.quizbattle.data.repository.UserRepository
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -29,25 +30,21 @@ import kotlinx.coroutines.launch
  * More type-safe than data class with nullable fields
  */
 sealed class AuthState {
+    open val user: User? get() = null
+    open val message: String? get() = null
+    
     data object Initial : AuthState()
     data object Loading : AuthState()
-    data class Success(val user: User, val message: String? = null) : AuthState()
-    data class RegistrationSuccess(val message: String, val requiresVerification: Boolean = true) : AuthState()
-    data class ForgotPasswordSent(val message: String) : AuthState()
-    data class Error(val message: String) : AuthState()
+    data class Success(override val user: User, override val message: String? = null) : AuthState()
+    data class RegistrationSuccess(override val message: String, val requiresVerification: Boolean = true) : AuthState()
+    data class ForgotPasswordSent(override val message: String) : AuthState()
+    data class Error(override val message: String) : AuthState()
     
     // Helper properties for backward compatibility
     val isLoading: Boolean get() = this is Loading
     val isSuccess: Boolean get() = this is Success || this is RegistrationSuccess
     val error: String? get() = (this as? Error)?.message
-    val user: User? get() = (this as? Success)?.user
     val requiresEmailVerification: Boolean get() = (this as? RegistrationSuccess)?.requiresVerification == true
-    val message: String? get() = when (this) {
-        is Success -> message
-        is RegistrationSuccess -> message
-        is ForgotPasswordSent -> message
-        else -> null
-    }
 }
 
 /**
@@ -226,11 +223,11 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                password.any { !it.isLetterOrDigit() }
     }
     
-    private fun handleLoginSuccess(response: com.mytheclipse.quizbattle.data.remote.api.LoginResponse, email: String) {
-        saveTokens(response)
-        saveUserInfo(response, email)
-        
+    private fun handleLoginSuccess(response: LoginResponseData, email: String) {
         viewModelScope.launch {
+            saveTokens(response)
+            saveUserInfo(response, email)
+            
             val result = userRepository.createOrLoginFromApi(
                 response.user.name ?: "User",
                 email
@@ -244,14 +241,14 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
     
-    private fun saveTokens(response: com.mytheclipse.quizbattle.data.remote.api.LoginResponse) {
+    private suspend fun saveTokens(response: LoginResponseData) {
         tokenRepository.saveToken(response.accessToken)
         tokenRepository.saveRefreshToken(response.refreshToken)
         tokenRepository.saveTokenExpiry(response.expiresIn)
         ApiConfig.setAuthToken(response.accessToken)
     }
     
-    private fun saveUserInfo(response: com.mytheclipse.quizbattle.data.remote.api.LoginResponse, email: String) {
+    private suspend fun saveUserInfo(response: LoginResponseData, email: String) {
         tokenRepository.saveUserId(response.user.id)
         tokenRepository.saveUserName(response.user.name ?: "User")
         tokenRepository.saveUserEmail(response.user.email ?: email)

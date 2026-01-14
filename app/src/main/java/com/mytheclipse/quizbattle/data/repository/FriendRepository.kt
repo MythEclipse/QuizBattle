@@ -3,6 +3,8 @@ package com.mytheclipse.quizbattle.data.repository
 import com.mytheclipse.quizbattle.data.local.dao.FriendDao
 import com.mytheclipse.quizbattle.data.local.entity.Friend
 import com.mytheclipse.quizbattle.data.local.entity.FriendStatus
+import com.mytheclipse.quizbattle.data.model.FriendEvent
+import com.mytheclipse.quizbattle.data.model.MatchInviteEvent
 import com.mytheclipse.quizbattle.data.remote.websocket.WebSocketManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -255,60 +257,4 @@ class FriendRepository(
     fun clearMatchInviteEvent() {
         _matchInviteEvent.value = null
     }
-}
-
-sealed class FriendEvent {
-    data class RequestReceived(
-        val requestId: String,
-        val senderId: String,
-        val senderName: String,
-        val senderPoints: Int,
-        val senderAvatarUrl: String?,
-        val message: String?
-    ) : FriendEvent()
-    
-    data class RequestAccepted(
-        val requestId: String,
-        val friendId: String?,
-        val friendName: String?
-    ) : FriendEvent()
-    
-    data class RequestRejected(val requestId: String) : FriendEvent()
-    
-    data class FriendRemoved(
-        val friendId: String,
-        val removedBy: String
-    ) : FriendEvent()
-}
-
-sealed class MatchInviteEvent {
-    data class InviteReceived(
-        val inviteId: String,
-        val senderId: String,
-        val senderName: String,
-        val senderPoints: Int,
-        val senderWins: Int,
-        val senderAvatarUrl: String?,
-        val difficulty: String,
-        val category: String,
-        val totalQuestions: Int,
-        val timePerQuestion: Int,
-        val message: String?,
-        val expiresIn: Long
-    ) : MatchInviteEvent()
-    
-    data class InviteAccepted(
-        val inviteId: String,
-        val matchId: String,
-        val opponentId: String,
-        val opponentName: String,
-        val startIn: Int
-    ) : MatchInviteEvent()
-    
-    data class InviteRejected(
-        val inviteId: String,
-        val rejectedBy: String?
-    ) : MatchInviteEvent()
-    
-    data class InviteExpired(val inviteId: String) : MatchInviteEvent()
 }
