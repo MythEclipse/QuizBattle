@@ -40,7 +40,7 @@ class LeaderboardActivity : BaseActivity() {
         }
         
         binding.toggleButton.setOnClickListener {
-            viewModel.toggleFriendsOnly()
+            viewModel.refresh()
         }
     }
     
@@ -51,7 +51,7 @@ class LeaderboardActivity : BaseActivity() {
                 binding.progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
                 
                 // Update toggle button text
-                binding.toggleButton.text = if (state.showFriendsOnly) "Friends" else "Global"
+                binding.toggleButton.text = "Refresh"
                 
                 // User rank card
                 binding.yourRankTextView.text = if (state.userRank > 0) "#${state.userRank}" else "#-"

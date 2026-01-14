@@ -74,15 +74,13 @@
             android:exported="false" />
         <activity
             android:name=".ChatRoomActivity"
-            android.exported="false" />
+            android:exported="false" />
         <activity
             android:name=".FriendListActivity"
             android:exported="false" />
+
         <activity
             android:name=".CreatePostActivity"
-            android:exported="false" />
-        <activity
-            android:name=".MissionsActivity"
             android:exported="false" />
         <activity
             android:name=".RankedActivity"

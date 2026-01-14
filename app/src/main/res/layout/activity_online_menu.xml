@@ -118,6 +118,17 @@
             android:textColor="@color/text_on_dark"
             app:strokeColor="@color/text_secondary" />
 
+        <!-- Friend Battle Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/friendBattleButton"
+            style="@style/Widget.QuizBattle.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:text="👥 Battle Friend"
+            android:textColor="@color/text_on_dark"
+            app:strokeColor="@color/text_secondary" />
+
     </LinearLayout>
 
 </LinearLayout>

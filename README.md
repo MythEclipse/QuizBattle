@@ -33,16 +33,16 @@ QuizBattle adalah aplikasi mobile berbasis Android yang menggabungkan konsep pem
 - Ranked mode dengan sistem rating
 
 ### 3. **Social Features**
-- Friend list dan friend request
-- Chat system (private dan group)
+- Chat system (lobby dan global chat)
 - News feed dengan post & comment
 - Profile customization
 
 ### 4. **Gamification**
-- Leaderboard global dan friends
-- Missions dan achievements
+- Leaderboard global
+- Notifications center
 - Score tracking
 - Battle statistics
+- Friend system & match invites
 
 ### 5. **Account Management**
 - Login & Register dengan validasi
@@ -113,20 +113,31 @@ QuizBattle/
 │   │   ├── main/
 │   │   │   ├── java/com/mytheclipse/quizbattle/
 │   │   │   │   ├── data/              # Data layer (models, repositories)
+│   │   │   │   │   ├── database/      # Room DB (entities, DAOs)
+│   │   │   │   │   └── repository/    # Repositories
+│   │   │   │   ├── ui/                # UI components (adapters)
 │   │   │   │   ├── viewmodel/         # ViewModels untuk business logic
 │   │   │   │   ├── utils/             # Utility classes & helpers
 │   │   │   │   ├── BattleActivity.kt  # Main battle screen
 │   │   │   │   ├── LoginActivity.kt   # Authentication
 │   │   │   │   ├── MainActivity.kt    # Home screen
-│   │   │   │   └── [24+ Activity files]
+│   │   │   │   ├── SettingsActivity.kt    # App settings
+│   │   │   │   ├── ChatListActivity.kt    # Chat rooms list
+│   │   │   │   ├── ChatRoomActivity.kt    # Chat messaging
+│   │   │   │   ├── FriendListActivity.kt  # Friend list & invites
+│   │   │   │   ├── NotificationActivity.kt # Notification center
+│   │   │   │   └── [20+ Activity files]
 │   │   │   ├── res/
 │   │   │   │   ├── drawable/          # 300+ sprite frames & assets
-│   │   │   │   ├── layout/            # 27+ XML layout files
+│   │   │   │   ├── layout/            # 35+ XML layout files
 │   │   │   │   ├── values/            # Colors, strings, dimensions
 │   │   │   │   └── raw/               # Raw resources
 │   │   │   └── AndroidManifest.xml
 │   │   └── test/                      # Unit tests
 │   └── build.gradle.kts
+├── docs/                              # Documentation
+│   ├── database_schema.md
+│   └── feature_verification.md
 ├── gradle/
 ├── build.gradle.kts
 ├── settings.gradle.kts

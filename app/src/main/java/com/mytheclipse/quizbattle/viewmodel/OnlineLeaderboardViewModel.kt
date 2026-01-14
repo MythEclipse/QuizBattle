@@ -14,7 +14,6 @@ data class OnlineLeaderboardState(
     val leaderboard: List<LeaderboardEntry> = emptyList(),
     val userRank: Int = 0,
     val totalPlayers: Int = 0,
-    val showFriendsOnly: Boolean = false,
     val isLoading: Boolean = false,
     val error: String? = null
 )
@@ -62,14 +61,6 @@ class OnlineLeaderboardViewModel(application: Application) : AndroidViewModel(ap
                             isLoading = false
                         )
                     }
-                    is LeaderboardEvent.FriendsData -> {
-                        _state.value = _state.value.copy(
-                            leaderboard = event.entries,
-                            userRank = event.userRank,
-                            totalPlayers = event.totalFriends,
-                            isLoading = false
-                        )
-                    }
                     else -> {}
                 }
             }
@@ -78,25 +69,13 @@ class OnlineLeaderboardViewModel(application: Application) : AndroidViewModel(ap
     
     fun loadGlobalLeaderboard() {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true, showFriendsOnly = false)
+            _state.value = _state.value.copy(isLoading = true)
             val userId = tokenRepository.getUserId() ?: return@launch
             leaderboardRepository.syncGlobalLeaderboard(userId)
         }
     }
     
-    fun loadFriendsLeaderboard() {
-        viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true, showFriendsOnly = true)
-            val userId = tokenRepository.getUserId() ?: return@launch
-            leaderboardRepository.syncFriendsLeaderboard(userId)
-        }
-    }
-    
-    fun toggleFriendsOnly() {
-        if (_state.value.showFriendsOnly) {
-            loadGlobalLeaderboard()
-        } else {
-            loadFriendsLeaderboard()
-        }
+    fun refresh() {
+        loadGlobalLeaderboard()
     }
 }

@@ -5,7 +5,9 @@ This document describes the SQLite database schema for the QuizBattle applicatio
 ## Database Info
 
 - **Name:** `quiz_battle_database`
-- **Version:** 1
+- **Version:** 3
+
+> **Note:** Version 3 removed the `friends` table as the friend feature was deprecated.
 
 ---
 
@@ -65,19 +67,16 @@ Stores history of completed battles.
 
 ---
 
-## 4. Table: `friends`
+## 4. Table: `user_question_history`
 
-Stores friend list for local user.
+Stores user's question answer history.
 
-| Column Name      | Type    | Constraints                | Description                       |
-| ---------------- | ------- | -------------------------- | --------------------------------- |
-| `id`             | INTEGER | PRIMARY KEY, AUTOINCREMENT | Unique relation ID                |
-| `userId`         | INTEGER | NOT NULL                   | ID of the user owning this friend |
-| `friendUsername` | TEXT    | NOT NULL                   | Username of the friend            |
-| `friendEmail`    | TEXT    | NOT NULL                   | Email of the friend               |
-| `friendPoints`   | INTEGER | DEFAULT 0                  | Points of the friend              |
-| `status`         | TEXT    | DEFAULT "pending"          | Relationship status               |
-| `addedAt`        | INTEGER | DEFAULT (current time)     | Timestamp when added              |
+| Column Name      | Type    | Constraints                | Description                        |
+| ---------------- | ------- | -------------------------- | ---------------------------------- |
+| `id`             | INTEGER | PRIMARY KEY, AUTOINCREMENT | Unique history ID                  |
+| `userId`         | INTEGER | NOT NULL                   | ID of the user                     |
+| `questionId`     | INTEGER | NOT NULL                   | ID of the question answered        |
+| `answeredAt`     | INTEGER | DEFAULT (current time)     | Timestamp when question answered   |
 
 ---
 
@@ -86,7 +85,7 @@ Stores friend list for local user.
 ```mermaid
 erDiagram
     USERS ||--o{ GAME_HISTORY : plays
-    USERS ||--o{ FRIENDS : has
+    USERS ||--o{ USER_QUESTION_HISTORY : answers
 
     USERS {
         long id PK
@@ -100,10 +99,10 @@ erDiagram
         boolean isVictory
     }
 
-    FRIENDS {
+    USER_QUESTION_HISTORY {
         long id PK
         long userId FK
-        string status
+        long questionId FK
     }
 
     QUESTIONS {
@@ -112,3 +111,13 @@ erDiagram
         string difficulty
     }
 ```
+
+---
+
+## Migration Notes
+
+### Version 1 → 2
+- Added `user_question_history` table
+
+### Version 2 → 3
+- Removed `friends` table (Friend feature deprecated)

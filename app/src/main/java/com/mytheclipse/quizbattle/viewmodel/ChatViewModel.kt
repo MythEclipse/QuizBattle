@@ -154,4 +154,49 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+    
+    fun loadPrivateChat(friendId: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true, error = null)
+            
+            // For private chat, we observe incoming messages via WebSocket
+            repository.observePrivateChatMessages(friendId).collect { event ->
+                when (event) {
+                    is ChatMessageEvent.PrivateMessage -> {
+                        val message = ChatMessage(
+                            messageId = event.messageId,
+                            userId = event.senderId,
+                            userName = event.senderName,
+                            message = event.message,
+                            createdAt = event.timestamp
+                        )
+                        _state.value = _state.value.copy(
+                            messages = _state.value.messages + message,
+                            isLoading = false
+                        )
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+    
+    fun sendPrivateMessage(friendId: String, message: String) {
+        viewModelScope.launch {
+            val userId = tokenRepository.getUserId() ?: return@launch
+            repository.sendPrivateChatMessage(userId, friendId, message)
+            
+            // Optimistically add message to UI
+            val chatMessage = ChatMessage(
+                messageId = "temp_${System.currentTimeMillis()}",
+                userId = userId,
+                userName = "You",
+                message = message,
+                createdAt = System.currentTimeMillis()
+            )
+            _state.value = _state.value.copy(
+                messages = _state.value.messages + chatMessage
+            )
+        }
+    }
 }

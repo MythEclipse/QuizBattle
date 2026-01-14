@@ -45,26 +45,6 @@ object DataModels {
         val isReady: Boolean
     )
 
-    // Missions Data Classes
-    data class Mission(
-        val missionId: String,
-        val title: String,
-        val description: String,
-        val currentProgress: Int,
-        val targetProgress: Int,
-        val reward: Int,
-        val isCompleted: Boolean,
-        val isClaimed: Boolean
-    )
-
-    data class Achievement(
-        val achievementId: String,
-        val title: String,
-        val description: String,
-        val isUnlocked: Boolean,
-        val unlockedAt: Long?
-    )
-
     // Online Game Data Classes
     data class Question(
         val questionId: String,

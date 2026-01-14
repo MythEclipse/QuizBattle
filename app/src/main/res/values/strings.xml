@@ -89,10 +89,4 @@
     <string name="join_lobby">Join Lobby</string>
     <string name="searching_opponent">Searching for opponent...</string>
     <string name="waiting_for_players">Waiting for players...</string>
-    
-    <!-- Missions -->
-    <string name="missions">Missions</string>
-    <string name="daily_missions">Daily Missions</string>
-    <string name="weekly_missions">Weekly Missions</string>
-    <string name="claim_reward">Claim Reward</string>
 </resources>

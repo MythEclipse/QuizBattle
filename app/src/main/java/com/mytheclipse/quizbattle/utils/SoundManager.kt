@@ -181,7 +181,7 @@ enum class SoundEffect {
     NOTIFICATION,       // New notification sound
     MESSAGE_SENT,       // Chat message sent
     MESSAGE_RECEIVED,   // Chat message received
-    LEVEL_UP,           // Level up/achievement
+    LEVEL_UP,           // Level up
     MATCH_FOUND,        // Online match found
     OPPONENT_ATTACK,    // Opponent attacks
     OPPONENT_HURT,      // Opponent takes damage

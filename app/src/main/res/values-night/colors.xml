@@ -114,4 +114,8 @@
     <color name="input_background">#1A1A2E</color>
     <color name="input_border">#374151</color>
     <color name="input_border_focus">#00D4FF</color>
+    
+    <!-- Additional Colors -->
+    <color name="error_red">#EF4444</color>
+    <color name="divider">#374151</color>
 </resources>

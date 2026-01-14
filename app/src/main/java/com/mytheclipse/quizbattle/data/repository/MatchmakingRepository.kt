@@ -54,6 +54,44 @@ class MatchmakingRepository {
                     timePerQuestion = (settingsMap["timePerQuestion"] as? Double)?.toInt() ?: 30
                 )
             }
+            "matchmaking.confirm.request" -> {
+                @Suppress("UNCHECKED_CAST")
+                val opponentMap = payload["opponent"] as? Map<String, Any> ?: emptyMap()
+                @Suppress("UNCHECKED_CAST")
+                val settingsMap = payload["gameSettings"] as? Map<String, Any> ?: emptyMap()
+                
+                val points = (opponentMap["points"] as? Double)?.toInt() ?: 0
+                val calculatedLevel = (points / 100) + 1
+                
+                // Backend sends timeToConfirm in seconds, convert to millis
+                val timeToConfirmSec = (payload["timeToConfirm"] as? Double)?.toLong() ?: 30
+                
+                MatchmakingEvent.ConfirmRequest(
+                    matchId = payload["matchId"] as? String ?: "",
+                    opponentId = opponentMap["userId"] as? String ?: "",
+                    opponentName = opponentMap["username"] as? String ?: "Opponent",
+                    opponentLevel = calculatedLevel,
+                    opponentPoints = points,
+                    opponentAvatar = opponentMap["avatarUrl"] as? String,
+                    difficulty = settingsMap["difficulty"] as? String ?: "medium",
+                    category = settingsMap["category"] as? String ?: "general",
+                    totalQuestions = (settingsMap["totalQuestions"] as? Double)?.toInt() ?: 10,
+                    timePerQuestion = (settingsMap["timePerQuestion"] as? Double)?.toInt() ?: 30,
+                    expiresIn = timeToConfirmSec * 1000
+                )
+            }
+            "matchmaking.confirm.status" -> {
+                val playerConfirmed = payload["playerConfirmed"] as? Boolean ?: false
+                val opponentConfirmed = payload["opponentConfirmed"] as? Boolean ?: false
+                val confirmedCount = (if (playerConfirmed) 1 else 0) + (if (opponentConfirmed) 1 else 0)
+                
+                MatchmakingEvent.ConfirmStatus(
+                    matchId = payload["matchId"] as? String ?: "",
+                    status = payload["status"] as? String ?: "waiting",
+                    confirmedCount = confirmedCount,
+                    totalPlayers = 2
+                )
+            }
             "matchmaking.cancelled" -> {
                 MatchmakingEvent.Cancelled
             }
@@ -71,6 +109,18 @@ class MatchmakingRepository {
                 category?.let { put("category", it) }
             })
         }
+        webSocketManager.sendMessage(message)
+    }
+    
+    fun confirmMatch(userId: String, matchId: String, confirmed: Boolean) {
+        val message = mapOf(
+            "type" to "matchmaking.confirm",
+            "payload" to mapOf(
+                "userId" to userId,
+                "matchId" to matchId,
+                "confirmed" to confirmed
+            )
+        )
         webSocketManager.sendMessage(message)
     }
     
@@ -95,6 +145,25 @@ sealed class MatchmakingEvent {
         val category: String,
         val totalQuestions: Int,
         val timePerQuestion: Int
+    ) : MatchmakingEvent()
+    data class ConfirmRequest(
+        val matchId: String,
+        val opponentId: String,
+        val opponentName: String,
+        val opponentLevel: Int,
+        val opponentPoints: Int,
+        val opponentAvatar: String?,
+        val difficulty: String,
+        val category: String,
+        val totalQuestions: Int,
+        val timePerQuestion: Int,
+        val expiresIn: Long
+    ) : MatchmakingEvent()
+    data class ConfirmStatus(
+        val matchId: String,
+        val status: String,
+        val confirmedCount: Int,
+        val totalPlayers: Int
     ) : MatchmakingEvent()
     object Cancelled : MatchmakingEvent()
     object Unknown : MatchmakingEvent()

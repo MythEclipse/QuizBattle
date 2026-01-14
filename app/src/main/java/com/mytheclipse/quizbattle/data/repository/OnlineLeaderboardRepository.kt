@@ -21,14 +21,6 @@ class OnlineLeaderboardRepository {
         webSocketManager.sendMessage(message)
     }
     
-    fun syncFriendsLeaderboard(userId: String) {
-        val message = mapOf(
-            "type" to "leaderboard.friends.sync",
-            "payload" to mapOf("userId" to userId)
-        )
-        webSocketManager.sendMessage(message)
-    }
-    
     fun observeLeaderboardEvents(): Flow<LeaderboardEvent> {
         return webSocketManager.messages
             .filter { message ->
@@ -68,28 +60,6 @@ class OnlineLeaderboardRepository {
                     totalPlayers = (payload["totalPlayers"] as? Double)?.toInt() ?: entries.size
                 )
             }
-            "leaderboard.friends.data" -> {
-                val leaderboardList = payload["leaderboard"] as? List<Map<String, Any>> ?: emptyList()
-                val entries = leaderboardList.map { item ->
-                    DataModels.LeaderboardEntry(
-                        userId = item["userId"] as? String ?: "",
-                        userName = item["username"] as? String ?: "",
-                        score = (item["points"] as? Double)?.toInt() ?: 0,
-                        wins = (item["wins"] as? Double)?.toInt() ?: 0,
-                        losses = (item["losses"] as? Double)?.toInt() ?: 0,
-                        mmr = (item["points"] as? Double)?.toInt() ?: 0 // Use points as mmr
-                    )
-                }
-                // userRank is an object: { rank: number, points: number }
-                val userRankObj = payload["userRank"] as? Map<String, Any>
-                val userRank = (userRankObj?.get("rank") as? Double)?.toInt() ?: 0
-                
-                LeaderboardEvent.FriendsData(
-                    entries = entries,
-                    userRank = userRank,
-                    totalFriends = (payload["totalFriends"] as? Double)?.toInt() ?: entries.size
-                )
-            }
             else -> LeaderboardEvent.Unknown
         }
     }
@@ -100,12 +70,6 @@ sealed class LeaderboardEvent {
         val entries: List<DataModels.LeaderboardEntry>,
         val userRank: Int,
         val totalPlayers: Int
-    ) : LeaderboardEvent()
-    
-    data class FriendsData(
-        val entries: List<DataModels.LeaderboardEntry>,
-        val userRank: Int,
-        val totalFriends: Int
     ) : LeaderboardEvent()
     
     object Unknown : LeaderboardEvent()

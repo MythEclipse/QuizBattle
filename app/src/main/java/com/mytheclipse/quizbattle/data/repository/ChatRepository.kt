@@ -165,6 +165,25 @@ class ChatRepository {
             }
     }
     
+    fun observePrivateChatMessages(friendId: String): Flow<ChatMessageEvent> {
+        return webSocketManager.messages
+            .filter { message ->
+                val type = message["type"] as? String
+                if (type != "chat:private:message") return@filter false
+                
+                @Suppress("UNCHECKED_CAST")
+                val payload = message["payload"] as? Map<String, Any> ?: return@filter false
+                val sender = payload["sender"] as? Map<String, Any> ?: return@filter false
+                
+                // Filter to messages from the specific friend
+                val senderId = sender["userId"] as? String
+                senderId == friendId
+            }
+            .map { message ->
+                parseChatMessage(message)
+            }
+    }
+    
     @Suppress("UNCHECKED_CAST")
     private fun parseChatMessage(message: Map<String, Any>): ChatMessageEvent {
         val type = message["type"] as? String ?: ""

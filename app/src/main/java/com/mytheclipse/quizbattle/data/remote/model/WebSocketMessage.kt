@@ -153,6 +153,148 @@ data class PongPayload(
     val timestamp: Long
 )
 
+// Friend Request Messages
+data class FriendRequestSendMessage(
+    override val type: String = "friend.request.send",
+    val payload: FriendRequestSendPayload
+) : WebSocketMessage()
+
+data class FriendRequestSendPayload(
+    val userId: String,
+    val targetUserId: String,
+    val message: String? = null
+)
+
+data class FriendRequestReceivedMessage(
+    override val type: String = "friend.request.received",
+    val payload: FriendRequestReceivedPayload
+) : WebSocketMessage()
+
+data class FriendRequestReceivedPayload(
+    val requestId: String,
+    val sender: FriendSenderInfo,
+    val message: String? = null
+)
+
+data class FriendSenderInfo(
+    val userId: String,
+    val username: String,
+    val points: Int = 0,
+    val avatarUrl: String? = null
+)
+
+data class FriendRequestRespondMessage(
+    override val type: String = "friend.request.respond",
+    val payload: FriendRequestRespondPayload
+) : WebSocketMessage()
+
+data class FriendRequestRespondPayload(
+    val userId: String,
+    val requestId: String,
+    val accept: Boolean
+)
+
+// Match Invite Messages
+data class MatchInviteSendMessage(
+    override val type: String = "match.invite.send",
+    val payload: MatchInviteSendPayload
+) : WebSocketMessage()
+
+data class MatchInviteSendPayload(
+    val senderId: String,
+    val receiverId: String,
+    val gameSettings: InviteGameSettings,
+    val message: String? = null
+)
+
+data class InviteGameSettings(
+    val difficulty: String,
+    val category: String,
+    val totalQuestions: Int,
+    val timePerQuestion: Int
+)
+
+data class MatchInviteReceivedMessage(
+    override val type: String = "match.invite.received",
+    val payload: MatchInviteReceivedPayload
+) : WebSocketMessage()
+
+data class MatchInviteReceivedPayload(
+    val inviteId: String,
+    val sender: MatchInviteSenderInfo,
+    val gameSettings: InviteGameSettings,
+    val message: String? = null,
+    val expiresIn: Long = 60000
+)
+
+data class MatchInviteSenderInfo(
+    val userId: String,
+    val username: String,
+    val points: Int = 0,
+    val wins: Int = 0,
+    val avatarUrl: String? = null
+)
+
+data class MatchInviteRespondMessage(
+    override val type: String = "match.invite.respond",
+    val payload: MatchInviteRespondPayload
+) : WebSocketMessage()
+
+data class MatchInviteRespondPayload(
+    val userId: String,
+    val inviteId: String,
+    val accept: Boolean
+)
+
+data class MatchInviteAcceptedMessage(
+    override val type: String = "match.invite.accepted",
+    val payload: MatchInviteAcceptedPayload
+) : WebSocketMessage()
+
+data class MatchInviteAcceptedPayload(
+    val inviteId: String,
+    val matchId: String,
+    val opponent: OpponentInfo,
+    val gameSettings: InviteGameSettings,
+    val startIn: Int = 5
+)
+
+// Matchmaking Confirmation Messages
+data class MatchmakingConfirmRequestMessage(
+    override val type: String = "matchmaking.confirm.request",
+    val payload: MatchmakingConfirmRequestPayload
+) : WebSocketMessage()
+
+data class MatchmakingConfirmRequestPayload(
+    val matchId: String,
+    val opponent: OpponentInfo,
+    val gameSettings: GameSettingsWS,
+    val expiresIn: Long = 30000
+)
+
+data class MatchmakingConfirmMessage(
+    override val type: String = "matchmaking.confirm",
+    val payload: MatchmakingConfirmPayload
+) : WebSocketMessage()
+
+data class MatchmakingConfirmPayload(
+    val userId: String,
+    val matchId: String,
+    val accept: Boolean
+)
+
+data class MatchmakingConfirmStatusMessage(
+    override val type: String = "matchmaking.confirm.status",
+    val payload: MatchmakingConfirmStatusPayload
+) : WebSocketMessage()
+
+data class MatchmakingConfirmStatusPayload(
+    val matchId: String,
+    val status: String, // waiting, both_confirmed, rejected
+    val confirmedCount: Int,
+    val totalPlayers: Int
+)
+
 // Generic WebSocket wrapper
 data class WSMessage(
     @SerializedName("type")

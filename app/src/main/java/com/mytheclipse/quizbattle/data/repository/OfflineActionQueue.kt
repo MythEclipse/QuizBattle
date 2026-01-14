@@ -46,8 +46,7 @@ class OfflineActionQueue(private val context: Context) {
         SEND_FRIEND_REQUEST,
         ACCEPT_FRIEND_REQUEST,
         SUBMIT_ANSWER,
-        UPDATE_SETTINGS,
-        CLAIM_MISSION_REWARD
+        UPDATE_SETTINGS
     }
     
     /**

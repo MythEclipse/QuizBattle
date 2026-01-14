@@ -10,6 +10,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.mytheclipse.quizbattle.databinding.ActivityOnlineMenuBinding
+import com.mytheclipse.quizbattle.ui.MatchConfirmationDialog
 import com.mytheclipse.quizbattle.viewmodel.MatchmakingViewModel
 import kotlinx.coroutines.launch
 
@@ -24,6 +25,8 @@ class OnlineMenuActivity : BaseActivity() {
     private val handler = Handler(Looper.getMainLooper())
     private var timerRunnable: Runnable? = null
     
+    private var confirmationDialog: MatchConfirmationDialog? = null
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityOnlineMenuBinding.inflate(layoutInflater)
@@ -36,6 +39,7 @@ class OnlineMenuActivity : BaseActivity() {
         // CRITICAL: Clear matchFound BEFORE setting up observer!
         // If we wait for onResume(), observer may trigger first!
         matchmakingViewModel.clearMatchFound()
+        matchmakingViewModel.clearConfirmRequest()
         hasNavigated = false
         
         setupListeners()
@@ -77,6 +81,12 @@ class OnlineMenuActivity : BaseActivity() {
         binding.joinRoomButton?.setOnClickListener {
             showJoinRoomDialog()
         }
+        
+        // Add friend battle button
+        binding.friendBattleButton?.setOnClickListener {
+            val intent = Intent(this, FriendListActivity::class.java)
+            startActivity(intent)
+        }
     }
     
     private fun observeMatchmakingState() {
@@ -96,11 +106,29 @@ class OnlineMenuActivity : BaseActivity() {
                     stopSearchTimer()
                 }
                 
-                // Handle match found
+                // Handle confirmation request (new flow with confirmation)
+                state.confirmRequest?.let { confirmData ->
+                    showMatchConfirmationDialog(confirmData)
+                }
+                
+                // Handle confirm status updates
+                state.confirmStatus?.let { statusData ->
+                    confirmationDialog?.updateWaitingStatus(
+                        statusData.status,
+                        statusData.confirmedCount,
+                        statusData.totalPlayers
+                    )
+                }
+                
+                // Handle match found (after confirmation or direct match)
                 state.matchFound?.let { matchData ->
                     // CRITICAL: Guard against observer re-trigger
                     if (hasNavigated) return@collect
                     hasNavigated = true
+                    
+                    // Dismiss confirmation dialog if showing
+                    confirmationDialog?.dismiss()
+                    confirmationDialog = null
                     
                     stopSearchTimer()
                     navigateToOnlineBattle(
@@ -115,9 +143,37 @@ class OnlineMenuActivity : BaseActivity() {
                 // Handle errors
                 state.error?.let { error ->
                     Toast.makeText(this@OnlineMenuActivity, error, Toast.LENGTH_SHORT).show()
+                    matchmakingViewModel.clearError()
                 }
             }
         }
+    }
+    
+    private fun showMatchConfirmationDialog(confirmData: com.mytheclipse.quizbattle.viewmodel.ConfirmRequestData) {
+        // Dismiss existing dialog if any
+        confirmationDialog?.dismiss()
+        
+        confirmationDialog = MatchConfirmationDialog.newInstance(
+            matchId = confirmData.matchId,
+            opponentName = confirmData.opponentName,
+            opponentLevel = confirmData.opponentLevel,
+            opponentPoints = confirmData.opponentPoints,
+            opponentAvatarUrl = confirmData.opponentAvatar,
+            difficulty = confirmData.difficulty,
+            category = confirmData.category,
+            totalQuestions = confirmData.totalQuestions,
+            timeoutSeconds = confirmData.expiresIn / 1000
+        ).apply {
+            setOnAcceptListener { matchId ->
+                matchmakingViewModel.confirmMatch(matchId, true)
+            }
+            setOnDeclineListener { matchId ->
+                matchmakingViewModel.confirmMatch(matchId, false)
+                matchmakingViewModel.clearConfirmRequest()
+            }
+        }
+        
+        confirmationDialog?.show(supportFragmentManager, MatchConfirmationDialog.TAG)
     }
     
     private fun startRealMatchmaking() {
@@ -175,6 +231,7 @@ class OnlineMenuActivity : BaseActivity() {
         // Disable other buttons while searching
         binding.createRoomButton?.isEnabled = !isSearching
         binding.joinRoomButton?.isEnabled = !isSearching
+        binding.friendBattleButton?.isEnabled = !isSearching
     }
     
     private fun navigateToOnlineBattle(

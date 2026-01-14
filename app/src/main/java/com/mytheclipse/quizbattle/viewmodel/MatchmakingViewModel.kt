@@ -17,6 +17,8 @@ data class MatchmakingState(
     val queuePosition: Int = 0,
     val estimatedWaitTime: Int = 0,
     val matchFound: MatchFoundData? = null,
+    val confirmRequest: ConfirmRequestData? = null,
+    val confirmStatus: ConfirmStatusData? = null,
     val searchStartTime: Long? = null,
     val error: String? = null
 )
@@ -28,6 +30,26 @@ data class MatchFoundData(
     val opponentAvatar: String?,
     val difficulty: String,
     val category: String
+)
+
+data class ConfirmRequestData(
+    val matchId: String,
+    val opponentName: String,
+    val opponentLevel: Int,
+    val opponentPoints: Int,
+    val opponentAvatar: String?,
+    val difficulty: String,
+    val category: String,
+    val totalQuestions: Int,
+    val timePerQuestion: Int,
+    val expiresIn: Long
+)
+
+data class ConfirmStatusData(
+    val matchId: String,
+    val status: String,
+    val confirmedCount: Int,
+    val totalPlayers: Int
 )
 
 class MatchmakingViewModel(application: Application) : AndroidViewModel(application) {
@@ -93,6 +115,60 @@ class MatchmakingViewModel(application: Application) : AndroidViewModel(applicat
                             )
                         )
                     }
+                    is MatchmakingEvent.ConfirmRequest -> {
+                        _state.value = _state.value.copy(
+                            isSearching = false,
+                            searchStartTime = null,
+                            confirmRequest = ConfirmRequestData(
+                                matchId = event.matchId,
+                                opponentName = event.opponentName,
+                                opponentLevel = event.opponentLevel,
+                                opponentPoints = event.opponentPoints,
+                                opponentAvatar = event.opponentAvatar,
+                                difficulty = event.difficulty,
+                                category = event.category,
+                                totalQuestions = event.totalQuestions,
+                                timePerQuestion = event.timePerQuestion,
+                                expiresIn = event.expiresIn
+                            )
+                        )
+                    }
+                    is MatchmakingEvent.ConfirmStatus -> {
+                        _state.value = _state.value.copy(
+                            confirmStatus = ConfirmStatusData(
+                                matchId = event.matchId,
+                                status = event.status,
+                                confirmedCount = event.confirmedCount,
+                                totalPlayers = event.totalPlayers
+                            )
+                        )
+                        
+                        // If both players confirmed, clear confirm request and set match found
+                        if (event.status == "both_confirmed") {
+                            val confirmData = _state.value.confirmRequest
+                            if (confirmData != null) {
+                                _state.value = _state.value.copy(
+                                    confirmRequest = null,
+                                    confirmStatus = null,
+                                    matchFound = MatchFoundData(
+                                        matchId = confirmData.matchId,
+                                        opponentName = confirmData.opponentName,
+                                        opponentLevel = confirmData.opponentLevel,
+                                        opponentAvatar = confirmData.opponentAvatar,
+                                        difficulty = confirmData.difficulty,
+                                        category = confirmData.category
+                                    )
+                                )
+                            }
+                        } else if (event.status == "rejected" || event.status == "timeout") {
+                            // Clear confirm state if rejected or timed out
+                            _state.value = _state.value.copy(
+                                confirmRequest = null,
+                                confirmStatus = null,
+                                error = if (event.status == "rejected") "Lawan menolak pertandingan" else "Waktu konfirmasi habis"
+                            )
+                        }
+                    }
                     is MatchmakingEvent.Cancelled -> {
                         _state.value = MatchmakingState()
                     }
@@ -126,6 +202,21 @@ class MatchmakingViewModel(application: Application) : AndroidViewModel(applicat
         }
     }
     
+    fun confirmMatch(matchId: String, accept: Boolean) {
+        viewModelScope.launch {
+            val userId = tokenRepository.getUserId() ?: return@launch
+            matchmakingRepository.confirmMatch(userId, matchId, accept)
+            
+            if (!accept) {
+                // If declining, clear state
+                _state.value = _state.value.copy(
+                    confirmRequest = null,
+                    confirmStatus = null
+                )
+            }
+        }
+    }
+    
     fun cancelMatchmaking() {
         viewModelScope.launch {
             val userId = tokenRepository.getUserId() ?: return@launch
@@ -137,6 +228,14 @@ class MatchmakingViewModel(application: Application) : AndroidViewModel(applicat
     // CRITICAL: Clear matchFound after navigating to prevent reconnecting to old match
     fun clearMatchFound() {
         _state.value = _state.value.copy(matchFound = null)
+    }
+    
+    fun clearConfirmRequest() {
+        _state.value = _state.value.copy(confirmRequest = null, confirmStatus = null)
+    }
+    
+    fun clearError() {
+        _state.value = _state.value.copy(error = null)
     }
     
     override fun onCleared() {

@@ -211,6 +211,45 @@ class WebSocketManager {
         sendMessage(pingMessage)
     }
     
+    /**
+     * Send a typed message with JSONObject payload
+     */
+    fun send(type: String, payload: org.json.JSONObject) {
+        try {
+            val payloadMap = mutableMapOf<String, Any>()
+            payload.keys().forEach { key ->
+                val value = payload.get(key)
+                if (value is org.json.JSONObject) {
+                    val nestedMap = mutableMapOf<String, Any>()
+                    value.keys().forEach { nestedKey ->
+                        nestedMap[nestedKey] = value.get(nestedKey)
+                    }
+                    payloadMap[key] = nestedMap
+                } else {
+                    payloadMap[key] = value
+                }
+            }
+            val message = mapOf(
+                "type" to type,
+                "payload" to payloadMap
+            )
+            sendMessage(message)
+        } catch (e: Exception) {
+            if (com.mytheclipse.quizbattle.BuildConfig.DEBUG) Log.e("WebSocket", "send error: ${e.message}", e)
+        }
+    }
+    
+    /**
+     * Send a typed message with Map payload
+     */
+    fun send(type: String, payload: Map<String, Any>) {
+        val message = mapOf(
+            "type" to type,
+            "payload" to payload
+        )
+        sendMessage(message)
+    }
+    
     companion object {
         @Volatile
         private var instance: WebSocketManager? = null

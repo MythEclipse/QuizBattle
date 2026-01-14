@@ -2,37 +2,63 @@ package com.mytheclipse.quizbattle.data.local.dao
 
 import androidx.room.*
 import com.mytheclipse.quizbattle.data.local.entity.Friend
+import com.mytheclipse.quizbattle.data.local.entity.FriendStatus
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FriendDao {
-    @Query("SELECT * FROM friends WHERE id = :friendId")
-    suspend fun getFriendById(friendId: Long): Friend?
     
-    @Query("SELECT * FROM friends WHERE userId = :userId ORDER BY addedAt DESC")
-    fun getFriendsByUser(userId: Long): Flow<List<Friend>>
+    @Query("SELECT * FROM friends WHERE status = 'ACCEPTED' ORDER BY isOnline DESC, friendName ASC")
+    fun getAllFriends(): Flow<List<Friend>>
     
-    @Query("SELECT * FROM friends WHERE userId = :userId AND status = :status ORDER BY addedAt DESC")
-    fun getFriendsByStatus(userId: Long, status: String): Flow<List<Friend>>
+    @Query("SELECT * FROM friends WHERE status = 'PENDING_RECEIVED' ORDER BY addedAt DESC")
+    fun getPendingReceivedRequests(): Flow<List<Friend>>
     
-    @Query("SELECT * FROM friends WHERE userId = :userId AND status = 'accepted' ORDER BY friendPoints DESC LIMIT :limit")
-    suspend fun getTopFriends(userId: Long, limit: Int = 10): List<Friend>
+    @Query("SELECT * FROM friends WHERE status = 'PENDING_SENT' ORDER BY addedAt DESC")
+    fun getPendingSentRequests(): Flow<List<Friend>>
     
-    @Query("SELECT * FROM friends WHERE userId = :userId AND friendEmail = :friendEmail LIMIT 1")
-    suspend fun getFriendByEmail(userId: Long, friendEmail: String): Friend?
+    @Query("SELECT * FROM friends WHERE friendId = :friendId LIMIT 1")
+    suspend fun getFriendByFriendId(friendId: String): Friend?
+    
+    @Query("SELECT * FROM friends WHERE id = :id LIMIT 1")
+    suspend fun getFriendById(id: String): Friend?
+    
+    @Query("SELECT COUNT(*) FROM friends WHERE status = 'PENDING_RECEIVED'")
+    fun getPendingRequestCount(): Flow<Int>
+    
+    @Query("SELECT COUNT(*) FROM friends WHERE status = 'ACCEPTED' AND isOnline = 1")
+    fun getOnlineFriendsCount(): Flow<Int>
+    
+    @Query("SELECT * FROM friends WHERE status = 'ACCEPTED' AND isOnline = 1 ORDER BY friendName ASC")
+    fun getOnlineFriends(): Flow<List<Friend>>
+    
+    @Query("SELECT * FROM friends WHERE friendName LIKE '%' || :query || '%' AND status = 'ACCEPTED'")
+    fun searchFriends(query: String): Flow<List<Friend>>
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertFriend(friend: Friend): Long
+    suspend fun insert(friend: Friend)
+    
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(friends: List<Friend>)
     
     @Update
-    suspend fun updateFriend(friend: Friend)
+    suspend fun update(friend: Friend)
     
-    @Query("UPDATE friends SET status = :status WHERE id = :friendId")
-    suspend fun updateFriendStatus(friendId: Long, status: String)
+    @Query("UPDATE friends SET status = :status WHERE id = :id")
+    suspend fun updateStatus(id: String, status: FriendStatus)
+    
+    @Query("UPDATE friends SET isOnline = :isOnline, lastSeen = :lastSeen WHERE friendId = :friendId")
+    suspend fun updateOnlineStatus(friendId: String, isOnline: Boolean, lastSeen: Long = System.currentTimeMillis())
     
     @Delete
-    suspend fun deleteFriend(friend: Friend)
+    suspend fun delete(friend: Friend)
     
-    @Query("DELETE FROM friends WHERE userId = :userId")
-    suspend fun deleteAllFriends(userId: Long)
+    @Query("DELETE FROM friends WHERE id = :id")
+    suspend fun deleteById(id: String)
+    
+    @Query("DELETE FROM friends WHERE friendId = :friendId")
+    suspend fun deleteByFriendId(friendId: String)
+    
+    @Query("DELETE FROM friends")
+    suspend fun deleteAll()
 }

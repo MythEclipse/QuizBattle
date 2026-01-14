@@ -16,10 +16,10 @@ import kotlinx.coroutines.launch
         User::class, 
         Question::class, 
         GameHistory::class, 
-        Friend::class,
-        com.mytheclipse.quizbattle.data.local.entity.UserQuestionHistory::class
+        com.mytheclipse.quizbattle.data.local.entity.UserQuestionHistory::class,
+        Friend::class
     ],
-    version = 2,
+    version = 4,
     exportSchema = false
 )
 abstract class QuizBattleDatabase : RoomDatabase() {
@@ -41,6 +41,7 @@ abstract class QuizBattleDatabase : RoomDatabase() {
                     "quiz_battle_database"
                 )
                     .addCallback(DatabaseCallback())
+                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance
