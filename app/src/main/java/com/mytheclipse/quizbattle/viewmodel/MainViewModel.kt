@@ -22,6 +22,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     
     private val database = QuizBattleDatabase.getDatabase(application)
     private val userRepository = UserRepository(database.userDao())
+    private val tokenRepository = com.mytheclipse.quizbattle.data.repository.TokenRepository(application)
     
     private val _state = MutableStateFlow(MainScreenState())
     val state: StateFlow<MainScreenState> = _state.asStateFlow()
@@ -35,6 +36,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _state.value = _state.value.copy(isLoading = true)
             
             try {
+                // Initialize Auth Token from repository
+                val token = tokenRepository.getToken()
+                if (token != null) {
+                    com.mytheclipse.quizbattle.data.remote.ApiConfig.setAuthToken(token)
+                }
+
                 // Get current logged in user
                 val currentUser = userRepository.getLoggedInUser()
                 

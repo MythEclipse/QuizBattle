@@ -24,12 +24,30 @@ class OnlineLeaderboardViewModel(application: Application) : AndroidViewModel(ap
     private val tokenRepository = TokenRepository(application)
     private val leaderboardRepository = OnlineLeaderboardRepository()
     
+    private val webSocketManager = com.mytheclipse.quizbattle.data.remote.websocket.WebSocketManager.getInstance()
+    
+    // Add WebSocketManager import if needed, but it seems to be used in Repository, not VM directly usually,
+    // but here we need to trigger connection.
+    // Actually, the Repository uses it. We should probably trigger connection here.
+    
     private val _state = MutableStateFlow(OnlineLeaderboardState())
     val state: StateFlow<OnlineLeaderboardState> = _state.asStateFlow()
     
     init {
+        connectWebSocket()
         loadGlobalLeaderboard()
         observeLeaderboardEvents()
+    }
+    
+    private fun connectWebSocket() {
+        viewModelScope.launch {
+            val userId = tokenRepository.getUserId() ?: return@launch
+            val token = tokenRepository.getToken() ?: return@launch
+            val username = tokenRepository.getUserName() ?: "User"
+            val deviceId = tokenRepository.getOrCreateDeviceId()
+            
+            webSocketManager.connect(userId, token, username, deviceId)
+        }
     }
     
     private fun observeLeaderboardEvents() {
