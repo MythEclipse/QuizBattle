@@ -65,6 +65,7 @@ class MainActivity : BaseActivity() {
             feedButton.setOnClickListener { withDebounce { navigateToFeed() } }
             manageQuestionsButton.setOnClickListener { withDebounce { navigateTo<QuestionManagementActivity>() } }
             profileButton.setOnClickListener { withDebounce { navigateToProfile() } }
+            friendsButton.setOnClickListener { withDebounce { navigateToFriends() } }
         }
     }
     
@@ -91,6 +92,12 @@ class MainActivity : BaseActivity() {
     private fun navigateToProfile() {
         navigateWithLoginCheck(LoginActivity.REDIRECT_PROFILE) {
             navigateTo<ProfileActivity>()
+        }
+    }
+    
+    private fun navigateToFriends() {
+        navigateWithLoginCheck(LoginActivity.REDIRECT_ONLINE_MENU) {
+            navigateTo<FriendListActivity>()
         }
     }
     

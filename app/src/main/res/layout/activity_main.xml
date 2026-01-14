@@ -208,12 +208,22 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_medium"
-            android:layout_marginBottom="@dimen/spacing_large"
             android:orientation="horizontal"
-            android:weightSum="2"
+            android:weightSum="3"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/onlineButton">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/friendsButton"
+                style="@style/Widget.QuizBattle.Button.Outlined"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/button_height"
+                android:layout_weight="1"
+                android:layout_marginEnd="@dimen/spacing_xs"
+                android:text="👥"
+                app:strokeColor="@color/text_secondary"
+                android:textColor="@color/text_on_dark" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/feedButton"
@@ -221,13 +231,10 @@
                 android:layout_width="0dp"
                 android:layout_height="@dimen/button_height"
                 android:layout_weight="1"
-                android:layout_marginEnd="@dimen/spacing_xs"
-                android:text="@string/feed"
+                android:layout_marginHorizontal="@dimen/spacing_xs"
+                android:text="📰"
                 app:strokeColor="@color/text_secondary"
-                android:textColor="@color/text_on_dark"
-                app:icon="@android:drawable/ic_menu_recent_history"
-                app:iconTint="@color/text_on_dark"
-                app:iconGravity="textStart" />
+                android:textColor="@color/text_on_dark" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/profileButton"
@@ -236,12 +243,50 @@
                 android:layout_height="@dimen/button_height"
                 android:layout_weight="1"
                 android:layout_marginStart="@dimen/spacing_xs"
-                android:text="@string/profile"
+                android:text="👤"
                 app:strokeColor="@color/text_secondary"
-                android:textColor="@color/text_on_dark"
-                app:icon="@android:drawable/ic_menu_myplaces"
-                app:iconTint="@color/text_on_dark"
-                app:iconGravity="textStart" />
+                android:textColor="@color/text_on_dark" />
+        </LinearLayout>
+
+        <!-- Bottom Labels Row -->
+        <LinearLayout
+            android:id="@+id/bottomLabelsLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_xxs"
+            android:layout_marginBottom="@dimen/spacing_large"
+            android:orientation="horizontal"
+            android:weightSum="3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/bottomButtonsLayout">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Teman"
+                android:textColor="@color/text_secondary"
+                android:textSize="@dimen/text_size_small"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Feed"
+                android:textColor="@color/text_secondary"
+                android:textSize="@dimen/text_size_small"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Profil"
+                android:textColor="@color/text_secondary"
+                android:textSize="@dimen/text_size_small"
+                android:gravity="center" />
         </LinearLayout>
 
         <!-- Progress Bar -->
