@@ -87,6 +87,15 @@ class OnlineMenuActivity : BaseActivity() {
                 // Update UI based on searching state
                 updateSearchingUI(state.isSearching)
                 
+                // Restore timer if searching and timer not running
+                if (state.isSearching && timerRunnable == null) {
+                    state.searchStartTime?.let { startTime ->
+                        startSearchTimer(startTime)
+                    }
+                } else if (!state.isSearching) {
+                    stopSearchTimer()
+                }
+                
                 // Handle match found
                 state.matchFound?.let { matchData ->
                     // CRITICAL: Guard against observer re-trigger
@@ -95,11 +104,11 @@ class OnlineMenuActivity : BaseActivity() {
                     
                     stopSearchTimer()
                     navigateToOnlineBattle(
-                        matchId = matchData.matchId,
-                        opponentName = matchData.opponentName,
-                        opponentLevel = matchData.opponentLevel,
-                        category = matchData.category,
-                        difficulty = matchData.difficulty
+                        matchData.matchId,
+                        matchData.opponentName,
+                        matchData.opponentLevel,
+                        matchData.category,
+                        matchData.difficulty
                     )
                 }
                 
@@ -118,14 +127,18 @@ class OnlineMenuActivity : BaseActivity() {
             category = "general"
         )
         
-        // Start the search timer
+        // Start the search timer (will use current time)
         startSearchTimer()
         
         Toast.makeText(this, "Searching for opponent...", Toast.LENGTH_SHORT).show()
     }
     
-    private fun startSearchTimer() {
-        searchStartTime = System.currentTimeMillis()
+    private fun startSearchTimer(startTime: Long? = null) {
+        // Use provided start time or current time
+        searchStartTime = startTime ?: System.currentTimeMillis()
+        
+        // Stop any existing timer first
+        stopSearchTimer()
         
         timerRunnable = object : Runnable {
             override fun run() {
@@ -208,8 +221,9 @@ class OnlineMenuActivity : BaseActivity() {
         super.onDestroy()
         stopSearchTimer()
         handler.removeCallbacksAndMessages(null)
-        // Cancel matchmaking if activity is destroyed
-        if (isSearchingForMatch) {
+        // Cancel matchmaking ONLY if activity is finishing (user pressed back)
+        // do not cancel on rotation
+        if (isFinishing && isSearchingForMatch) {
             matchmakingViewModel.cancelMatchmaking()
         }
     }

@@ -49,7 +49,8 @@ class WebSocketManager {
     }
     
     fun connect(userId: String, token: String, username: String, deviceId: String) {
-        if (_connectionState.value is ConnectionState.Connected) {
+        val currentState = _connectionState.value
+        if (currentState is ConnectionState.Connected || currentState is ConnectionState.Connecting) {
             return
         }
         

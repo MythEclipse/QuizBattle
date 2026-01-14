@@ -17,6 +17,7 @@ data class MatchmakingState(
     val queuePosition: Int = 0,
     val estimatedWaitTime: Int = 0,
     val matchFound: MatchFoundData? = null,
+    val searchStartTime: Long? = null,
     val error: String? = null
 )
 
@@ -40,6 +41,31 @@ class MatchmakingViewModel(application: Application) : AndroidViewModel(applicat
     
     init {
         observeMatchmakingEvents()
+        observeConnectionState()
+    }
+
+    private var lastDifficulty: String? = null
+    private var lastCategory: String? = null
+    
+    private fun observeConnectionState() {
+        viewModelScope.launch {
+            webSocketManager.connectionState.collect { connectionState ->
+                if (connectionState is WebSocketManager.ConnectionState.Connected) {
+                     // Check if we were searching. If so, resend the find request.
+                     if (_state.value.isSearching) {
+                         val userId = tokenRepository.getUserId()
+                         if (userId != null) {
+                             // Add a small delay to ensure auth message is sent first
+                             kotlinx.coroutines.delay(500)
+                             // CRITICAL: Check isSearching AGAIN to ensure user didn't cancel during delay
+                             if (_state.value.isSearching) {
+                                 matchmakingRepository.findMatch(userId, "casual", lastDifficulty, lastCategory)
+                             }
+                         }
+                     }
+                }
+            }
+        }
     }
     
     private fun observeMatchmakingEvents() {
@@ -56,6 +82,7 @@ class MatchmakingViewModel(application: Application) : AndroidViewModel(applicat
                     is MatchmakingEvent.MatchFound -> {
                         _state.value = _state.value.copy(
                             isSearching = false,
+                            searchStartTime = null, // Clear timer
                             matchFound = MatchFoundData(
                                 matchId = event.matchId,
                                 opponentName = event.opponentName,
@@ -86,10 +113,16 @@ class MatchmakingViewModel(application: Application) : AndroidViewModel(applicat
     }
     
     fun findMatch(difficulty: String? = null, category: String? = null) {
+        lastDifficulty = difficulty
+        lastCategory = category
         viewModelScope.launch {
             val userId = tokenRepository.getUserId() ?: return@launch
             matchmakingRepository.findMatch(userId, "casual", difficulty, category)
-            _state.value = _state.value.copy(isSearching = true)
+            // Save start time so UI can restore timer
+            _state.value = _state.value.copy(
+                isSearching = true,
+                searchStartTime = System.currentTimeMillis()
+            )
         }
     }
     
