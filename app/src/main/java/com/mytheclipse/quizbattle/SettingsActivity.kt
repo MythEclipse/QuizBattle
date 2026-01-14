@@ -1,23 +1,34 @@
 package com.mytheclipse.quizbattle
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.mytheclipse.quizbattle.databinding.ActivitySettingsBinding
 import com.mytheclipse.quizbattle.utils.LocaleHelper
 import com.mytheclipse.quizbattle.viewmodel.AuthViewModel
+import com.mytheclipse.quizbattle.viewmodel.SettingsState
 import com.mytheclipse.quizbattle.viewmodel.SettingsViewModel
 import kotlinx.coroutines.launch
 
+/**
+ * Application settings screen
+ * Handles audio, notifications, language, and logout
+ */
 class SettingsActivity : BaseActivity() {
+    
+    // region Properties
     
     private lateinit var binding: ActivitySettingsBinding
     private val settingsViewModel: SettingsViewModel by viewModels()
     private val authViewModel: AuthViewModel by viewModels()
+    
+    // endregion
+    
+    // region Lifecycle
     
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(LocaleHelper.applyLocale(newBase))
@@ -29,66 +40,91 @@ class SettingsActivity : BaseActivity() {
         setContentView(binding.root)
         applySystemBarPadding(binding.root)
         
-        setupListeners()
-        observeSettings()
+        setupClickListeners()
+        setupSwitchListeners()
+        observeState()
         updateLanguageDisplay()
     }
     
-    private fun setupListeners() {
-        binding.backButton.setOnClickListener {
-            finish()
-        }
-        
-        binding.soundEffectsSwitch.setOnCheckedChangeListener { _, isChecked ->
-            settingsViewModel.setSoundEffectsEnabled(isChecked)
-        }
-        
-        binding.musicSwitch.setOnCheckedChangeListener { _, isChecked ->
-            settingsViewModel.setMusicEnabled(isChecked)
-        }
-        
-        binding.vibrationSwitch.setOnCheckedChangeListener { _, isChecked ->
-            settingsViewModel.setVibrationEnabled(isChecked)
-        }
-        
-        binding.notificationsSwitch.setOnCheckedChangeListener { _, isChecked ->
-            settingsViewModel.setNotificationsEnabled(isChecked)
-        }
-        
-        binding.languageButton.setOnClickListener {
-            showLanguageSelectionDialog()
-        }
-        
-        binding.logoutButton.setOnClickListener {
-            showLogoutConfirmation()
-        }
-        
-        binding.clearCacheButton.setOnClickListener {
-            settingsViewModel.clearCache()
-            Toast.makeText(this, getString(R.string.done), Toast.LENGTH_SHORT).show()
-        }
-        
-        binding.aboutButton.setOnClickListener {
-            showAboutDialog()
+    // endregion
+    
+    // region Setup
+    
+    private fun setupClickListeners() {
+        with(binding) {
+            backButton.setOnClickListener { navigateBack() }
+            languageButton.setOnClickListener { showLanguageSelectionDialog() }
+            logoutButton.setOnClickListener { showLogoutConfirmation() }
+            clearCacheButton.setOnClickListener { handleClearCache() }
+            aboutButton.setOnClickListener { showAboutDialog() }
         }
     }
     
-    private fun observeSettings() {
-        lifecycleScope.launch {
-            settingsViewModel.state.collect { state ->
-                binding.soundEffectsSwitch.isChecked = state.soundEffectsEnabled
-                binding.musicSwitch.isChecked = state.musicEnabled
-                binding.vibrationSwitch.isChecked = state.vibrationEnabled
-                binding.notificationsSwitch.isChecked = state.notificationsEnabled
-                binding.appVersionTextView.text = getString(R.string.version) + " ${state.appVersion}"
+    private fun setupSwitchListeners() {
+        with(binding) {
+            soundEffectsSwitch.setOnCheckedChangeListener { _, isChecked ->
+                settingsViewModel.setSoundEffectsEnabled(isChecked)
+            }
+            
+            musicSwitch.setOnCheckedChangeListener { _, isChecked ->
+                settingsViewModel.setMusicEnabled(isChecked)
+            }
+            
+            vibrationSwitch.setOnCheckedChangeListener { _, isChecked ->
+                settingsViewModel.setVibrationEnabled(isChecked)
+            }
+            
+            notificationsSwitch.setOnCheckedChangeListener { _, isChecked ->
+                settingsViewModel.setNotificationsEnabled(isChecked)
             }
         }
+    }
+    
+    // endregion
+    
+    // region State Observation
+    
+    private fun observeState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                settingsViewModel.state.collect { state ->
+                    updateSwitches(state)
+                    updateVersionDisplay(state.appVersion)
+                }
+            }
+        }
+    }
+    
+    private fun updateSwitches(state: SettingsState) {
+        with(binding) {
+            soundEffectsSwitch.isChecked = state.soundEffectsEnabled
+            musicSwitch.isChecked = state.musicEnabled
+            vibrationSwitch.isChecked = state.vibrationEnabled
+            notificationsSwitch.isChecked = state.notificationsEnabled
+        }
+    }
+    
+    private fun updateVersionDisplay(version: String) {
+        binding.appVersionTextView.text = "${getString(R.string.version)} $version"
     }
     
     private fun updateLanguageDisplay() {
         val currentLanguage = LocaleHelper.getLanguage(this)
         binding.currentLanguageText.text = LocaleHelper.getLanguageDisplayName(this, currentLanguage)
     }
+    
+    // endregion
+    
+    // region Actions
+    
+    private fun handleClearCache() {
+        settingsViewModel.clearCache()
+        showToast(getString(R.string.done))
+    }
+    
+    // endregion
+    
+    // region Dialogs
     
     private fun showLanguageSelectionDialog() {
         val languages = LocaleHelper.getAvailableLanguages()
@@ -119,43 +155,53 @@ class SettingsActivity : BaseActivity() {
         AlertDialog.Builder(this)
             .setTitle(R.string.language)
             .setMessage(R.string.app_restart_required)
-            .setPositiveButton(R.string.restart_now) { _, _ ->
-                restartApp()
-            }
-            .setNegativeButton(R.string.restart_later) { _, _ ->
-                updateLanguageDisplay()
-            }
+            .setPositiveButton(R.string.restart_now) { _, _ -> restartApp() }
+            .setNegativeButton(R.string.restart_later) { _, _ -> updateLanguageDisplay() }
             .setCancelable(false)
             .show()
-    }
-    
-    private fun restartApp() {
-        val intent = Intent(this, SplashActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        startActivity(intent)
-        Runtime.getRuntime().exit(0)
     }
     
     private fun showLogoutConfirmation() {
         AlertDialog.Builder(this)
             .setTitle(R.string.logout)
             .setMessage(R.string.logout_confirm)
-            .setPositiveButton(R.string.yes) { _, _ ->
-                authViewModel.logout()
-                val intent = Intent(this, LoginActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
-                finish()
-            }
+            .setPositiveButton(R.string.yes) { _, _ -> handleLogout() }
             .setNegativeButton(R.string.no, null)
             .show()
     }
     
     private fun showAboutDialog() {
         AlertDialog.Builder(this)
-            .setTitle(getString(R.string.about) + " QuizBattle")
-            .setMessage("QuizBattle v1.0\n\nDeveloped by Asep Haryana Saputra\nNIM: 20230810043\n\nMata Kuliah: Bahasa Pemrograman 3\nUniversitas Kuningan")
+            .setTitle("${getString(R.string.about)} QuizBattle")
+            .setMessage(ABOUT_MESSAGE)
             .setPositiveButton(R.string.ok, null)
             .show()
+    }
+    
+    // endregion
+    
+    // region Navigation
+    
+    private fun handleLogout() {
+        authViewModel.logout()
+        navigateTo<LoginActivity>(clearTask = true)
+        finish()
+    }
+    
+    private fun restartApp() {
+        navigateTo<SplashActivity>(clearTask = true)
+        Runtime.getRuntime().exit(0)
+    }
+    
+    // endregion
+    
+    companion object {
+        private const val ABOUT_MESSAGE = """QuizBattle v1.0
+
+Developed by Asep Haryana Saputra
+NIM: 20230810043
+
+Mata Kuliah: Bahasa Pemrograman 3
+Universitas Kuningan"""
     }
 }

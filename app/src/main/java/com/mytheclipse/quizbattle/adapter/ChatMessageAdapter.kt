@@ -15,10 +15,20 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+/**
+ * RecyclerView adapter for displaying chat messages.
+ * 
+ * Displays messages in a chat bubble style with different
+ * appearance for sent and received messages.
+ *
+ * @param currentUserId The ID of the current user to differentiate message ownership
+ */
 class ChatMessageAdapter(
     private val currentUserId: String
 ) : ListAdapter<ChatMessage, ChatMessageAdapter.MessageViewHolder>(MessageDiffCallback()) {
 
+    // region Adapter Implementation
+    
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_chat_message, parent, false)
@@ -28,7 +38,11 @@ class ChatMessageAdapter(
     override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
+    
+    // endregion
 
+    // region ViewHolder
+    
     class MessageViewHolder(
         itemView: View,
         private val currentUserId: String
@@ -39,30 +53,50 @@ class ChatMessageAdapter(
         private val messageTextView: TextView = itemView.findViewById(R.id.messageTextView)
         private val timeTextView: TextView = itemView.findViewById(R.id.timeTextView)
         
-        private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-        
         fun bind(message: ChatMessage) {
             val isOwnMessage = message.userId == currentUserId
             
-            // Adjust gravity based on message ownership
+            configureBubbleAppearance(isOwnMessage)
+            bindMessageContent(message, isOwnMessage)
+        }
+        
+        private fun configureBubbleAppearance(isOwnMessage: Boolean) {
             val params = messageContainer.layoutParams as LinearLayout.LayoutParams
+            
             if (isOwnMessage) {
                 params.gravity = Gravity.END
                 messageContainer.setBackgroundResource(R.drawable.bg_chat_bubble_own)
-                senderNameTextView.visibility = View.GONE
             } else {
                 params.gravity = Gravity.START
                 messageContainer.setBackgroundResource(R.drawable.bg_chat_bubble_other)
-                senderNameTextView.visibility = View.VISIBLE
+            }
+            
+            messageContainer.layoutParams = params
+        }
+        
+        private fun bindMessageContent(message: ChatMessage, isOwnMessage: Boolean) {
+            senderNameTextView.visibility = if (isOwnMessage) View.GONE else View.VISIBLE
+            if (!isOwnMessage) {
                 senderNameTextView.text = message.userName
             }
-            messageContainer.layoutParams = params
             
             messageTextView.text = message.message
-            timeTextView.text = timeFormat.format(Date(message.createdAt))
+            timeTextView.text = formatTime(message.createdAt)
+        }
+        
+        private fun formatTime(timestamp: Long): String {
+            return TIME_FORMAT.format(Date(timestamp))
+        }
+        
+        companion object {
+            private val TIME_FORMAT = SimpleDateFormat("HH:mm", Locale.getDefault())
         }
     }
+    
+    // endregion
 
+    // region DiffCallback
+    
     class MessageDiffCallback : DiffUtil.ItemCallback<ChatMessage>() {
         override fun areItemsTheSame(oldItem: ChatMessage, newItem: ChatMessage): Boolean {
             return oldItem.messageId == newItem.messageId
@@ -72,4 +106,6 @@ class ChatMessageAdapter(
             return oldItem == newItem
         }
     }
+    
+    // endregion
 }

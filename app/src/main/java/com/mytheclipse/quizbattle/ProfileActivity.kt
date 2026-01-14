@@ -1,21 +1,33 @@
 package com.mytheclipse.quizbattle
 
-import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import androidx.activity.viewModels
+import androidx.core.view.isVisible
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import coil.load
 import com.mytheclipse.quizbattle.databinding.ActivityProfileBinding
 import com.mytheclipse.quizbattle.viewmodel.AuthViewModel
+import com.mytheclipse.quizbattle.viewmodel.ProfileState
 import com.mytheclipse.quizbattle.viewmodel.ProfileViewModel
-import coil.load
 import kotlinx.coroutines.launch
 
+/**
+ * User profile screen showing stats and profile information
+ * Allows navigation to edit profile and logout
+ */
 class ProfileActivity : BaseActivity() {
+    
+    // region Properties
     
     private lateinit var binding: ActivityProfileBinding
     private val profileViewModel: ProfileViewModel by viewModels()
     private val authViewModel: AuthViewModel by viewModels()
+    
+    // endregion
+    
+    // region Lifecycle
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,48 +35,81 @@ class ProfileActivity : BaseActivity() {
         setContentView(binding.root)
         applySystemBarPadding(binding.root)
         
-        setupListeners()
-        observeProfileData()
+        setupClickListeners()
+        observeState()
         profileViewModel.loadProfile()
     }
     
-    private fun setupListeners() {
-        binding.backButton?.setOnClickListener {
-            finish()
-        }
-        
-        binding.logoutButton?.setOnClickListener {
-            authViewModel.logout()
-            val intent = Intent(this, LoginActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            finish()
-        }
-        
-        binding.editProfileButton?.setOnClickListener {
-            val intent = Intent(this, EditProfileActivity::class.java)
-            startActivity(intent)
-        }
+    // endregion
+    
+    // region Setup
+    
+    private fun setupClickListeners() {
+        binding.backButton?.setOnClickListener { navigateBack() }
+        binding.logoutButton?.setOnClickListener { withDebounce { handleLogout() } }
+        binding.editProfileButton?.setOnClickListener { withDebounce { navigateTo<EditProfileActivity>() } }
     }
     
-    private fun observeProfileData() {
+    // endregion
+    
+    // region Actions
+    
+    private fun handleLogout() {
+        authViewModel.logout()
+        navigateTo<LoginActivity>(clearTask = true)
+        finish()
+    }
+    
+    // endregion
+    
+    // region State Observation
+    
+    private fun observeState() {
         lifecycleScope.launch {
-            profileViewModel.state.collect { state ->
-                binding.progressBar?.visibility = if (state.isLoading) View.VISIBLE else View.GONE
-                
-                binding.usernameTextView?.text = state.username
-                binding.emailTextView?.text = state.email
-                binding.pointsTextView?.text = state.points.toString()
-                binding.winsTextView?.text = state.wins.toString()
-                binding.lossesTextView?.text = state.losses.toString()
-                binding.totalGamesTextView?.text = state.totalGames.toString()
-                binding.winRateTextView?.text = String.format("%.1f%%", state.winRate)
-                
-                binding.avatarImageView?.load(state.image) {
-                    placeholder(R.mipmap.ic_launcher)
-                    error(R.mipmap.ic_launcher)
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                profileViewModel.state.collect { state ->
+                    handleState(state)
                 }
             }
         }
+    }
+    
+    private fun handleState(state: ProfileState) {
+        updateLoadingState(state.isLoading)
+        updateProfileInfo(state)
+        updateStats(state)
+        updateAvatar(state.image)
+    }
+    
+    private fun updateLoadingState(isLoading: Boolean) {
+        binding.progressBar?.isVisible = isLoading
+    }
+    
+    private fun updateProfileInfo(state: ProfileState) {
+        binding.usernameTextView?.text = state.username
+        binding.emailTextView?.text = state.email
+    }
+    
+    private fun updateStats(state: ProfileState) {
+        with(binding) {
+            pointsTextView?.text = state.points.toString()
+            winsTextView?.text = state.wins.toString()
+            lossesTextView?.text = state.losses.toString()
+            totalGamesTextView?.text = state.totalGames.toString()
+            winRateTextView?.text = String.format(WIN_RATE_FORMAT, state.winRate)
+        }
+    }
+    
+    private fun updateAvatar(imageUrl: String) {
+        binding.avatarImageView?.load(imageUrl) {
+            placeholder(R.mipmap.ic_launcher)
+            error(R.mipmap.ic_launcher)
+        }
+    }
+    
+    // endregion
+    
+    companion object {
+        private const val WIN_RATE_FORMAT = "%.1f%%"
     }
 }

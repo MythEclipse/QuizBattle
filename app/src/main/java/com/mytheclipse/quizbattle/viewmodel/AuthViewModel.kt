@@ -1,229 +1,172 @@
 package com.mytheclipse.quizbattle.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.mytheclipse.quizbattle.BuildConfig
 import com.mytheclipse.quizbattle.data.local.QuizBattleDatabase
 import com.mytheclipse.quizbattle.data.local.entity.User
 import com.mytheclipse.quizbattle.data.remote.ApiConfig
 import com.mytheclipse.quizbattle.data.remote.api.AuthApiService
+import com.mytheclipse.quizbattle.data.remote.api.ForgotPasswordRequest
+import com.mytheclipse.quizbattle.data.remote.api.GoogleLoginRequest
 import com.mytheclipse.quizbattle.data.remote.api.LoginRequest
 import com.mytheclipse.quizbattle.data.remote.api.RegisterRequest
-import com.mytheclipse.quizbattle.data.remote.api.ForgotPasswordRequest
 import com.mytheclipse.quizbattle.data.repository.TokenRepository
 import com.mytheclipse.quizbattle.data.repository.UserRepository
-import android.util.Log
-import com.mytheclipse.quizbattle.BuildConfig
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-data class AuthState(
-    val isLoading: Boolean = false,
-    val isSuccess: Boolean = false,
-    val error: String? = null,
-    val user: User? = null,
-    val requiresEmailVerification: Boolean = false,
-    val message: String? = null
-)
+/**
+ * Sealed class representing authentication UI states
+ * More type-safe than data class with nullable fields
+ */
+sealed class AuthState {
+    data object Initial : AuthState()
+    data object Loading : AuthState()
+    data class Success(val user: User, val message: String? = null) : AuthState()
+    data class RegistrationSuccess(val message: String, val requiresVerification: Boolean = true) : AuthState()
+    data class ForgotPasswordSent(val message: String) : AuthState()
+    data class Error(val message: String) : AuthState()
+    
+    // Helper properties for backward compatibility
+    val isLoading: Boolean get() = this is Loading
+    val isSuccess: Boolean get() = this is Success || this is RegistrationSuccess
+    val error: String? get() = (this as? Error)?.message
+    val user: User? get() = (this as? Success)?.user
+    val requiresEmailVerification: Boolean get() = (this as? RegistrationSuccess)?.requiresVerification == true
+    val message: String? get() = when (this) {
+        is Success -> message
+        is RegistrationSuccess -> message
+        is ForgotPasswordSent -> message
+        else -> null
+    }
+}
+
+/**
+ * One-time events for navigation and UI actions
+ */
+sealed class AuthEvent {
+    data object NavigateToMain : AuthEvent()
+    data object NavigateToLogin : AuthEvent()
+    data class ShowToast(val message: String) : AuthEvent()
+}
 
 class AuthViewModel(application: Application) : AndroidViewModel(application) {
     
+    // ===== Dependencies =====
     private val database = QuizBattleDatabase.getDatabase(application)
     private val userRepository = UserRepository(database.userDao())
     private val tokenRepository = TokenRepository(application)
-    private val authApiService = ApiConfig.createService(AuthApiService::class.java)
+    private val authApiService: AuthApiService = ApiConfig.createService(AuthApiService::class.java)
     
-    private val _authState = MutableStateFlow(AuthState())
+    // ===== State =====
+    private val _authState = MutableStateFlow<AuthState>(AuthState.Initial)
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
+    
+    // ===== Events =====
+    private val _events = MutableSharedFlow<AuthEvent>()
+    val events: SharedFlow<AuthEvent> = _events.asSharedFlow()
+    
+    // ===== Error Handler =====
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        logError("Exception", throwable)
+        _authState.value = AuthState.Error(throwable.message ?: "Terjadi kesalahan")
+    }
     
     init {
         checkLoggedInUser()
     }
     
-    private fun checkLoggedInUser() {
-        viewModelScope.launch {
-            try {
-                val token = tokenRepository.getToken()
-                if (token != null) {
-                    ApiConfig.setAuthToken(token)
-                    val user = userRepository.getLoggedInUser()
-                    if (user != null) {
-                        _authState.value = AuthState(user = user)
-                    }
-                }
-            } catch (e: Exception) {
-                // User not logged in
-            }
-        }
-    }
-    
-    private fun isValidPassword(password: String): Boolean {
-        // Elysia requires: 8+ chars, uppercase, lowercase, digit, special char
-        val hasMinLength = password.length >= 8
-        val hasUppercase = password.any { it.isUpperCase() }
-        val hasLowercase = password.any { it.isLowerCase() }
-        val hasDigit = password.any { it.isDigit() }
-        val hasSpecial = password.any { !it.isLetterOrDigit() }
-        return hasMinLength && hasUppercase && hasLowercase && hasDigit && hasSpecial
-    }
+    // ===== Public Methods =====
     
     fun register(username: String, email: String, password: String, confirmPassword: String) {
-        viewModelScope.launch {
-            _authState.value = AuthState(isLoading = true)
+        // Validate inputs
+        validateRegistration(username, email, password, confirmPassword)?.let { error ->
+            _authState.value = AuthState.Error(error)
+            return
+        }
+        
+        executeWithLoading {
+            logDebug("register", "start email=$email username=$username")
             
-            // Validation
-            if (username.isBlank() || email.isBlank() || password.isBlank()) {
-                _authState.value = AuthState(error = "Semua field harus diisi")
-                return@launch
-            }
+            val response = authApiService.register(
+                RegisterRequest(name = username, email = email, password = password)
+            )
             
-            if (password != confirmPassword) {
-                _authState.value = AuthState(error = "Password tidak cocok")
-                return@launch
-            }
-            
-            if (!isValidPassword(password)) {
-                _authState.value = AuthState(
-                    error = "Password minimal 8 karakter dengan huruf besar, kecil, angka, dan simbol"
+            if (response.success) {
+                logDebug("register", "success userId=${response.user.id}")
+                userRepository.registerUser(username, email, password)
+                _authState.value = AuthState.RegistrationSuccess(
+                    message = response.message,
+                    requiresVerification = true
                 )
-                return@launch
-            }
-            
-            try {
-                if (BuildConfig.DEBUG) Log.d("API", "AuthViewModel.register - start email=$email username=$username")
-                // Call API
-                val response = authApiService.register(
-                    RegisterRequest(name = username, email = email, password = password)
-                )
-                
-                if (response.success) {
-                    if (BuildConfig.DEBUG) Log.d("API", "AuthViewModel.register - success userId=${response.user.id}")
-                    
-                    // Registration successful, but email verification required
-                    // Save user to local database for later login
-                    val result = userRepository.registerUser(username, email, password)
-                    result.onSuccess {
-                        _authState.value = AuthState(
-                            isSuccess = true,
-                            requiresEmailVerification = true,
-                            message = response.message
-                        )
-                    }.onFailure { exception ->
-                        // Even if local save fails, registration was successful
-                        _authState.value = AuthState(
-                            isSuccess = true,
-                            requiresEmailVerification = true,
-                            message = response.message
-                        )
-                    }
-                } else {
-                    if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.register - failed")
-                    _authState.value = AuthState(error = "Registrasi gagal")
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.register - exception: ${e.message}", e)
-                _authState.value = AuthState(error = e.message ?: "Terjadi kesalahan koneksi")
+            } else {
+                _authState.value = AuthState.Error("Registrasi gagal")
             }
         }
     }
     
     fun login(email: String, password: String) {
-        viewModelScope.launch {
-            _authState.value = AuthState(isLoading = true)
+        if (email.isBlank() || password.isBlank()) {
+            _authState.value = AuthState.Error("Email dan password harus diisi")
+            return
+        }
+        
+        executeWithLoading {
+            logDebug("login", "start email=$email")
             
-            // Validation
-            if (email.isBlank() || password.isBlank()) {
-                _authState.value = AuthState(error = "Email dan password harus diisi")
-                return@launch
-            }
+            val response = authApiService.login(LoginRequest(email, password))
             
-            try {
-                if (BuildConfig.DEBUG) Log.d("API", "AuthViewModel.login - start email=$email")
-                // Call API
-                val response = authApiService.login(
-                    LoginRequest(email = email, password = password)
-                )
-                
-                if (response.success) {
-                    if (BuildConfig.DEBUG) Log.d("API", "AuthViewModel.login - success userId=${response.user.id}")
-                    
-                    // Save tokens
-                    tokenRepository.saveToken(response.accessToken)
-                    tokenRepository.saveRefreshToken(response.refreshToken)
-                    tokenRepository.saveTokenExpiry(response.expiresIn)
-                    tokenRepository.saveUserId(response.user.id)
-                    tokenRepository.saveUserName(response.user.name ?: "User")
-                    tokenRepository.saveUserEmail(response.user.email ?: email)
-                    ApiConfig.setAuthToken(response.accessToken)
-                    
-                    // Create or login user in local database with isLoggedIn = true
-                    val result = userRepository.createOrLoginFromApi(
-                        response.user.name ?: "User",
-                        email
-                    )
-                    
-                    result.onSuccess { user ->
-                        _authState.value = AuthState(isSuccess = true, user = user)
-                    }.onFailure { exception ->
-                        _authState.value = AuthState(error = exception.message ?: "Login gagal")
-                    }
-                } else {
-                    if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.login - failed")
-                    _authState.value = AuthState(error = "Login gagal")
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.login - exception: ${e.message}", e)
-                _authState.value = AuthState(error = e.message ?: "Terjadi kesalahan koneksi")
+            if (response.success) {
+                logDebug("login", "success userId=${response.user.id}")
+                handleLoginSuccess(response, email)
+            } else {
+                _authState.value = AuthState.Error("Login gagal")
             }
         }
     }
 
     fun googleLogin(idToken: String) {
-        viewModelScope.launch {
-            _authState.value = AuthState(isLoading = true)
+        executeWithLoading {
+            logDebug("googleLogin", "start")
             
-            try {
-                if (BuildConfig.DEBUG) Log.d("API", "AuthViewModel.googleLogin - start")
-                // Call API
-                val response = authApiService.googleLogin(
-                    com.mytheclipse.quizbattle.data.remote.api.GoogleLoginRequest(idToken = idToken)
+            val response = authApiService.googleLogin(GoogleLoginRequest(idToken = idToken))
+            
+            if (response.success) {
+                logDebug("googleLogin", "success userId=${response.user.id}")
+                handleLoginSuccess(response, response.user.email ?: "")
+            } else {
+                _authState.value = AuthState.Error("Google Login gagal")
+            }
+        }
+    }
+    
+    fun forgotPassword(email: String) {
+        if (email.isBlank()) {
+            _authState.value = AuthState.Error("Email tidak boleh kosong")
+            return
+        }
+        
+        executeWithLoading {
+            logDebug("forgotPassword", "start email=$email")
+            
+            val response = authApiService.forgotPassword(ForgotPasswordRequest(email = email))
+            
+            if (response.success) {
+                logDebug("forgotPassword", "success")
+                _authState.value = AuthState.ForgotPasswordSent(
+                    "Link reset password telah dikirim ke email Anda"
                 )
-                
-                if (response.success) {
-                    if (BuildConfig.DEBUG) Log.d("API", "AuthViewModel.googleLogin - success userId=${response.user.id}")
-                    
-                    // Save tokens
-                    tokenRepository.saveToken(response.accessToken)
-                    tokenRepository.saveRefreshToken(response.refreshToken)
-                    tokenRepository.saveTokenExpiry(response.expiresIn)
-                    tokenRepository.saveUserId(response.user.id)
-                    tokenRepository.saveUserName(response.user.name ?: "User")
-                    tokenRepository.saveUserEmail(response.user.email ?: "")
-                    ApiConfig.setAuthToken(response.accessToken)
-                    
-                    // Create or login user in local database
-                    val result = userRepository.createOrLoginFromApi(
-                        response.user.name ?: "User",
-                        response.user.email ?: ""
-                    )
-                    
-                    result.onSuccess { user ->
-                        _authState.value = AuthState(isSuccess = true, user = user)
-                    }.onFailure { exception ->
-                        _authState.value = AuthState(error = exception.message ?: "Login gagal")
-                    }
-                } else {
-                    if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.googleLogin - failed")
-                    _authState.value = AuthState(error = "Google Login gagal")
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.googleLogin - exception: ${e.message}", e)
-                _authState.value = AuthState(error = e.message ?: "Terjadi kesalahan koneksi")
+            } else {
+                _authState.value = AuthState.Error(response.error ?: "Reset password gagal")
             }
         }
     }
@@ -233,55 +176,108 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             tokenRepository.clearAll()
             ApiConfig.setAuthToken(null)
             userRepository.logoutUser()
-            _authState.value = AuthState()
+            _authState.value = AuthState.Initial
+            _events.emit(AuthEvent.NavigateToLogin)
         }
     }
     
     fun resetState() {
-        _authState.value = AuthState()
+        _authState.value = AuthState.Initial
     }
     
     fun clearError() {
-        _authState.value = _authState.value.copy(error = null)
+        if (_authState.value is AuthState.Error) {
+            _authState.value = AuthState.Initial
+        }
     }
     
-    fun forgotPassword(email: String) {
-        viewModelScope.launch {
-            _authState.value = AuthState(isLoading = true)
-            
-            if (email.isBlank()) {
-                _authState.value = AuthState(error = "Email tidak boleh kosong")
-                return@launch
-            }
-            
-            try {
-                if (BuildConfig.DEBUG) Log.d("API", "AuthViewModel.forgotPassword - start email=$email")
-                val response = authApiService.forgotPassword(
-                    ForgotPasswordRequest(email = email)
-                )
-                
-                if (response.success) {
-                    if (BuildConfig.DEBUG) Log.d("API", "AuthViewModel.forgotPassword - success email=$email")
-                    _authState.value = AuthState(
-                        isSuccess = true,
-                        message = "Link reset password telah dikirim ke email Anda"
-                    )
-                } else {
-                    if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.forgotPassword - failed: ${response.error}")
-                    _authState.value = AuthState(error = response.error ?: "Reset password gagal")
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                if (BuildConfig.DEBUG) Log.e("API", "AuthViewModel.forgotPassword - exception: ${e.message}", e)
-                _authState.value = AuthState(error = e.message ?: "Terjadi kesalahan koneksi")
+    // ===== Private Methods =====
+    
+    private fun checkLoggedInUser() {
+        viewModelScope.launch(exceptionHandler) {
+            val token = tokenRepository.getToken() ?: return@launch
+            ApiConfig.setAuthToken(token)
+            userRepository.getLoggedInUser()?.let { user ->
+                _authState.value = AuthState.Success(user)
             }
         }
     }
     
-    // Deprecated: Use forgotPassword instead
-    @Deprecated("Use forgotPassword instead", ReplaceWith("forgotPassword(email)"))
-    fun resetPassword(email: String) {
-        forgotPassword(email)
+    private fun validateRegistration(
+        username: String,
+        email: String,
+        password: String,
+        confirmPassword: String
+    ): String? = when {
+        username.isBlank() || email.isBlank() || password.isBlank() -> 
+            "Semua field harus diisi"
+        password != confirmPassword -> 
+            "Password tidak cocok"
+        !isValidPassword(password) -> 
+            "Password minimal 8 karakter dengan huruf besar, kecil, angka, dan simbol"
+        else -> null
+    }
+    
+    private fun isValidPassword(password: String): Boolean {
+        return password.length >= 8 &&
+               password.any { it.isUpperCase() } &&
+               password.any { it.isLowerCase() } &&
+               password.any { it.isDigit() } &&
+               password.any { !it.isLetterOrDigit() }
+    }
+    
+    private fun handleLoginSuccess(response: com.mytheclipse.quizbattle.data.remote.api.LoginResponse, email: String) {
+        saveTokens(response)
+        saveUserInfo(response, email)
+        
+        viewModelScope.launch {
+            val result = userRepository.createOrLoginFromApi(
+                response.user.name ?: "User",
+                email
+            )
+            
+            result.onSuccess { user ->
+                _authState.value = AuthState.Success(user)
+            }.onFailure { exception ->
+                _authState.value = AuthState.Error(exception.message ?: "Login gagal")
+            }
+        }
+    }
+    
+    private fun saveTokens(response: com.mytheclipse.quizbattle.data.remote.api.LoginResponse) {
+        tokenRepository.saveToken(response.accessToken)
+        tokenRepository.saveRefreshToken(response.refreshToken)
+        tokenRepository.saveTokenExpiry(response.expiresIn)
+        ApiConfig.setAuthToken(response.accessToken)
+    }
+    
+    private fun saveUserInfo(response: com.mytheclipse.quizbattle.data.remote.api.LoginResponse, email: String) {
+        tokenRepository.saveUserId(response.user.id)
+        tokenRepository.saveUserName(response.user.name ?: "User")
+        tokenRepository.saveUserEmail(response.user.email ?: email)
+    }
+    
+    private inline fun executeWithLoading(crossinline block: suspend () -> Unit) {
+        viewModelScope.launch(exceptionHandler) {
+            _authState.value = AuthState.Loading
+            block()
+        }
+    }
+    
+    private fun logDebug(method: String, message: String) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "AuthViewModel.$method - $message")
+        }
+    }
+    
+    private fun logError(method: String, throwable: Throwable) {
+        if (BuildConfig.DEBUG) {
+            Log.e(TAG, "AuthViewModel.$method - ${throwable.message}", throwable)
+        }
+    }
+    
+    companion object {
+        private const val TAG = "AuthViewModel"
     }
 }
 

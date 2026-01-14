@@ -1,19 +1,29 @@
 package com.mytheclipse.quizbattle
 
 import android.os.Bundle
-import android.view.View
-import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.mytheclipse.quizbattle.databinding.ActivityResetPasswordBinding
 import com.mytheclipse.quizbattle.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 
+/**
+ * Password reset screen
+ * Allows users to request a password reset link via email
+ */
 class ResetPasswordActivity : BaseActivity() {
     
+    // region Properties
+    
     private lateinit var binding: ActivityResetPasswordBinding
-    private val authViewModel: AuthViewModel by viewModels()
+    private val viewModel: AuthViewModel by viewModels()
+    
+    // endregion
+    
+    // region Lifecycle
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,60 +31,103 @@ class ResetPasswordActivity : BaseActivity() {
         setContentView(binding.root)
         applySystemBarPadding(binding.root)
         
-        setupListeners()
-        observeAuthState()
+        setupClickListeners()
+        observeState()
     }
     
-    private fun setupListeners() {
-        binding.sendResetLinkButton.setOnClickListener {
-            val email = binding.emailEditText.text.toString().trim()
-            
-            if (email.isEmpty()) {
-                binding.emailInputLayout.error = "Email tidak boleh kosong"
-            } else {
-                binding.emailInputLayout.error = null
-                authViewModel.forgotPassword(email)
+    // endregion
+    
+    // region Setup
+    
+    private fun setupClickListeners() {
+        with(binding) {
+            sendResetLinkButton.setOnClickListener { withDebounce { attemptSendResetLink() } }
+            backToLoginTextView.setOnClickListener { navigateBack() }
+        }
+    }
+    
+    // endregion
+    
+    // region Reset Password Logic
+    
+    private fun attemptSendResetLink() {
+        val email = binding.emailEditText.text.toString().trim()
+        
+        clearErrors()
+        
+        if (!validateEmail(email)) return
+        
+        viewModel.forgotPassword(email)
+    }
+    
+    private fun validateEmail(email: String): Boolean {
+        if (email.isEmpty()) {
+            binding.emailInputLayout.error = getString(R.string.error_email_empty)
+            return false
+        }
+        return true
+    }
+    
+    private fun clearErrors() {
+        binding.emailInputLayout.error = null
+    }
+    
+    // endregion
+    
+    // region State Observation
+    
+    private fun observeState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.authState.collect { state ->
+                    handleAuthState(state)
+                }
             }
+        }
+    }
+    
+    private fun handleAuthState(state: com.mytheclipse.quizbattle.viewmodel.AuthUiState) {
+        setLoadingState(state.isLoading)
+        
+        state.error?.let { error ->
+            handleError(error)
         }
         
-        binding.backToLoginTextView.setOnClickListener {
-            finish()
+        if (state.isSuccess) {
+            handleSuccess(state.message)
         }
     }
     
-    private fun observeAuthState() {
-        lifecycleScope.launch {
-            authViewModel.authState.collect { state ->
-                // Set loading state - disable all interactive elements
-                setLoadingState(state.isLoading)
-                
-                // Handle errors - show toast and clear error to prevent duplicate toasts
-                state.error?.let { error ->
-                    Toast.makeText(this@ResetPasswordActivity, error, Toast.LENGTH_LONG).show()
-                    authViewModel.clearError()
-                }
-                
-                if (state.isSuccess) {
-                    val message = state.message ?: "Link reset password telah dikirim ke email Anda"
-                    Toast.makeText(this@ResetPasswordActivity, message, Toast.LENGTH_LONG).show()
-                    authViewModel.resetState()
-                    finish()
-                }
-            }
-        }
+    private fun handleSuccess(message: String?) {
+        val successMessage = message ?: getString(R.string.reset_link_sent)
+        showToast(successMessage)
+        viewModel.resetState()
+        navigateBack()
     }
+    
+    private fun handleError(error: String) {
+        showToast(error)
+        viewModel.clearError()
+    }
+    
+    // endregion
+    
+    // region UI State
     
     private fun setLoadingState(isLoading: Boolean) {
-        // Show/hide progress bar
-        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-        
-        // Disable/enable all interactive elements to prevent spam
-        binding.sendResetLinkButton.isEnabled = !isLoading
-        binding.emailEditText.isEnabled = !isLoading
-        binding.backToLoginTextView.isClickable = !isLoading
-        
-        // Change button text to indicate loading
-        binding.sendResetLinkButton.text = if (isLoading) "Loading..." else "Kirim Link Reset"
+        with(binding) {
+            progressBar.isVisible = isLoading
+            
+            sendResetLinkButton.isEnabled = !isLoading
+            emailEditText.isEnabled = !isLoading
+            backToLoginTextView.isClickable = !isLoading
+            
+            sendResetLinkButton.text = getString(
+                if (isLoading) R.string.loading else R.string.send_reset_link
+            )
+        }
     }
+    
+    // endregion
 }
 

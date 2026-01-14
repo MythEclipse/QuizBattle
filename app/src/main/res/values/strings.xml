@@ -4,6 +4,7 @@
     <!-- Common -->
     <string name="loading">Memuat…</string>
     <string name="error_occurred">Terjadi kesalahan</string>
+    <string name="unrecognized_credential">Tipe kredensial tidak dikenali</string>
     <string name="try_again">Coba Lagi</string>
     <string name="ok">OK</string>
     <string name="cancel">Batal</string>
@@ -23,11 +24,20 @@
     <string name="done">Selesai</string>
     <string name="skip">Lewati</string>
     
+    <!-- Question Management -->
+    <string name="add_question">Tambah Soal Baru</string>
+    <string name="edit_question">Edit Soal</string>
+    <string name="delete_question">Hapus Soal</string>
+    <string name="delete_question_confirm">Apakah Anda yakin ingin menghapus soal ini?\n\n\"%1$s\"</string>
+    <string name="error_question_empty">Pertanyaan tidak boleh kosong</string>
+    <string name="error_answers_required">Semua jawaban harus diisi</string>
+    
     <!-- Splash -->
     <string name="splash_title">QuizBattle</string>
     
     <!-- Login -->
     <string name="login">Masuk</string>
+    <string name="loading">Memuat…</string>
     <string name="email">Email</string>
     <string name="password">Kata Sandi</string>
     <string name="forgot_password">Lupa Kata Sandi?</string>
@@ -37,6 +47,11 @@
     <string name="login_failed">Gagal masuk</string>
     <string name="invalid_email">Email tidak valid</string>
     <string name="invalid_password">Kata sandi minimal 6 karakter</string>
+    <string name="error_email_empty">Email tidak boleh kosong</string>
+    <string name="error_password_empty">Kata sandi tidak boleh kosong</string>
+    <string name="welcome_user">Selamat datang, %1$s!</string>
+    <string name="vs_opponent">vs %1$s</string>
+    <string name="wins_count">%1$d kemenangan</string>
     
     <!-- Register -->
     <string name="register_title">Buat Akun</string>
@@ -46,12 +61,21 @@
     <string name="register_success">Pendaftaran berhasil</string>
     <string name="password_mismatch">Kata sandi tidak cocok</string>
     <string name="username_required">Nama pengguna wajib diisi</string>
+    <string name="error_username_empty">Nama pengguna tidak boleh kosong</string>
+    <string name="error_confirm_password_empty">Konfirmasi kata sandi tidak boleh kosong</string>
+    <string name="error_password_mismatch">Kata sandi tidak cocok</string>
+    <string name="registration_success">Pendaftaran Berhasil!</string>
+    <string name="registration_failed">Pendaftaran Gagal</string>
+    <string name="check_email_verification">Silakan cek email Anda untuk verifikasi.</string>
+    <string name="account_created_login">Akun berhasil dibuat. Silakan login.</string>
+    <string name="login_required">Silakan login terlebih dahulu</string>
     
     <!-- Reset Password -->
     <string name="reset_password">Atur Ulang Kata Sandi</string>
     <string name="reset_password_desc">Masukkan email untuk atur ulang kata sandi</string>
     <string name="send_reset_link">Kirim Link Reset</string>
     <string name="reset_email_sent">Email reset telah dikirim</string>
+    <string name="reset_link_sent">Link reset password telah dikirim ke email Anda</string>
     
     <!-- Main Menu -->
     <string name="leaderboard">Papan Peringkat</string>
@@ -64,6 +88,11 @@
     <string name="notifications">Notifikasi</string>
     <string name="friends">Teman</string>
     <string name="home">Beranda</string>
+    <string name="hello_user">Halo, %1$s!</string>
+    <string name="points_format">Points: %1$d</string>
+    <string name="points_short_format">%1$d pts</string>
+    <string name="mode_guest">Mode: Guest</string>
+    <string name="login_to_save_progress">Login untuk menyimpan progress</string>
     
     <!-- Battle -->
     <string name="question">Pertanyaan</string>
@@ -74,6 +103,12 @@
     <string name="wrong_answer">Jawaban Salah!</string>
     <string name="question_of">Pertanyaan %1$d dari %2$d</string>
     <string name="score">Skor</string>
+    <string name="hp_format">HP: %1$d</string>
+    <string name="opponent_hp_format">Opponent HP: %1$d</string>
+    <string name="timer_format">⏱ %1$ds</string>
+    <string name="match_id_format">Match #%1$s</string>
+    <string name="question_progress_format">Pertanyaan %1$d/%2$d</string>
+    <string name="feature_coming_soon">Fitur ini akan segera hadir!\n\nUntuk saat ini, gunakan Quick Match untuk bermain dengan pemain lain.</string>
     
     <!-- Battle Result -->
     <string name="victory">Kemenangan!</string>
@@ -100,6 +135,7 @@
     <string name="change_avatar">Ubah Foto Profil</string>
     <string name="update_profile">Perbarui Profil</string>
     <string name="profile_updated">Profil berhasil diperbarui</string>
+    <string name="error_processing_image">Gagal memproses gambar</string>
     
     <!-- Settings -->
     <string name="sound_effects">Efek Suara</string>
@@ -141,6 +177,7 @@
     <string name="offline_status">Offline</string>
     <string name="last_seen">Terakhir dilihat %1$s</string>
     <string name="typing">sedang mengetik…</string>
+    <string name="typing_indicator">%1$s sedang mengetik…</string>
     
     <!-- Online Match -->
     <string name="quick_match">Pertandingan Cepat</string>
@@ -196,6 +233,7 @@
     <!-- Friends -->
     <string name="add_friend">Tambah Teman</string>
     <string name="friend_requests">Permintaan Pertemanan</string>
+    <string name="friend_request">Permintaan Pertemanan</string>
     <string name="send_friend_request">Kirim Permintaan</string>
     <string name="accept_friend">Terima</string>
     <string name="decline_friend">Tolak</string>
@@ -206,6 +244,30 @@
     <string name="no_friends">Belum ada teman</string>
     <string name="search_friends">Cari teman…</string>
     <string name="invite_to_match">Undang Bertanding</string>
+    <string name="online_with_count">Online (%1$d)</string>
+    <string name="requests">Permintaan</string>
+    <string name="no_friends_message">Belum ada teman. Tambahkan teman untuk mulai bermain!</string>
+    <string name="no_online_friends">Tidak ada teman online saat ini</string>
+    <string name="no_friend_requests">Tidak ada permintaan pertemanan</string>
+    <string name="send">Kirim</string>
+    <string name="friend_request_sent">Permintaan pertemanan dikirim</string>
+    <string name="enter_user_id">Masukkan ID pengguna</string>
+    <string name="invite_to_battle">Undang ke Battle</string>
+    <string name="invite_message">Undang %1$s untuk bertanding?</string>
+    <string name="invite">Undang</string>
+    <string name="invite_sent">Undangan dikirim ke %1$s</string>
+    <string name="remove_friend_confirm">Hapus %1$s dari daftar teman?</string>
+    <string name="wants_to_be_friends">ingin berteman denganmu</string>
+    <string name="message_label">Pesan</string>
+    <string name="accept">Terima</string>
+    <string name="reject">Tolak</string>
+    <string name="later">Nanti</string>
+    <string name="battle_invite">Undangan Battle</string>
+    <string name="invites_you_to_battle">mengundangmu untuk bertanding!</string>
+    <string name="difficulty">Kesulitan</string>
+    <string name="category">Kategori</string>
+    <string name="total_questions">Jumlah soal</string>
+    <string name="time_per_question">Waktu per soal</string>
     
     <!-- Notifications -->
     <string name="no_notifications">Tidak ada notifikasi</string>

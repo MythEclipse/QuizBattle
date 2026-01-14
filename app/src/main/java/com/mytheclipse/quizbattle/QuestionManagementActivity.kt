@@ -2,28 +2,39 @@ package com.mytheclipse.quizbattle
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Spinner
-import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.mytheclipse.quizbattle.adapter.QuestionAdapter
 import com.mytheclipse.quizbattle.data.local.entity.Question
 import com.mytheclipse.quizbattle.databinding.ActivityQuestionManagementBinding
+import com.mytheclipse.quizbattle.viewmodel.QuestionManagementState
 import com.mytheclipse.quizbattle.viewmodel.QuestionManagementViewModel
-import kotlinx.coroutines.launch
 
+/**
+ * Activity for managing quiz questions (CRUD operations).
+ * 
+ * Provides functionality to:
+ * - View all questions in a list
+ * - Add new questions with category and difficulty
+ * - Edit existing questions
+ * - Delete questions with confirmation
+ */
 class QuestionManagementActivity : BaseActivity() {
 
+    // region Properties
+    
     private lateinit var binding: ActivityQuestionManagementBinding
     private val viewModel: QuestionManagementViewModel by viewModels()
     private lateinit var questionAdapter: QuestionAdapter
+    
+    // endregion
 
+    // region Lifecycle
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityQuestionManagementBinding.inflate(layoutInflater)
@@ -35,10 +46,14 @@ class QuestionManagementActivity : BaseActivity() {
         setupFab()
         observeState()
     }
+    
+    // endregion
 
+    // region Setup
+    
     private fun setupToolbar() {
         binding.toolbar.setNavigationOnClickListener {
-            finish()
+            navigateBack()
         }
     }
 
@@ -48,97 +63,126 @@ class QuestionManagementActivity : BaseActivity() {
             onDeleteClick = { question -> showDeleteConfirmation(question) }
         )
         binding.questionsRecyclerView.apply {
-            layoutManager = LinearLayoutManager(this@QuestionManagementActivity)
+            layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this@QuestionManagementActivity)
             adapter = questionAdapter
         }
     }
 
     private fun setupFab() {
         binding.addQuestionFab.setOnClickListener {
-            showAddDialog()
+            withDebounce { showAddDialog() }
         }
     }
+    
+    // endregion
 
+    // region State Observation
+    
     private fun observeState() {
-        lifecycleScope.launch {
-            viewModel.state.collect { state ->
-                // Show loading
-                binding.progressBar.visibility = if (state.isLoading) {
-                    android.view.View.VISIBLE
-                } else {
-                    android.view.View.GONE
-                }
-
-                // Update list
-                questionAdapter.submitList(state.questions)
-
-                // Show empty state
-                binding.emptyStateLayout.visibility = if (state.questions.isEmpty() && !state.isLoading) {
-                    android.view.View.VISIBLE
-                } else {
-                    android.view.View.GONE
-                }
-
-                // Show error
-                state.error?.let { error ->
-                    Toast.makeText(this@QuestionManagementActivity, error, Toast.LENGTH_SHORT).show()
-                    viewModel.clearMessage()
-                }
-
-                // Show success
-                state.successMessage?.let { message ->
-                    Toast.makeText(this@QuestionManagementActivity, message, Toast.LENGTH_SHORT).show()
-                    viewModel.clearMessage()
-                }
-            }
+        collectState(viewModel.state) { state ->
+            handleState(state)
         }
     }
+    
+    private fun handleState(state: QuestionManagementState) {
+        updateLoadingState(state.isLoading)
+        updateQuestionsList(state)
+        handleMessages(state)
+    }
+    
+    private fun updateLoadingState(isLoading: Boolean) {
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+    }
+    
+    private fun updateQuestionsList(state: QuestionManagementState) {
+        val isEmpty = state.questions.isEmpty() && !state.isLoading
+        
+        binding.emptyStateLayout.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        questionAdapter.submitList(state.questions)
+    }
+    
+    private fun handleMessages(state: QuestionManagementState) {
+        state.error?.let { error ->
+            showToast(error)
+            viewModel.clearMessage()
+        }
+        
+        state.successMessage?.let { message ->
+            showToast(message)
+            viewModel.clearMessage()
+        }
+    }
+    
+    // endregion
 
+    // region Dialogs
+    
     private fun showAddDialog() {
-        val dialogView = LayoutInflater.from(this)
-            .inflate(R.layout.dialog_add_edit_question, null)
-
+        val dialogView = inflateQuestionDialogView()
         setupDialogSpinners(dialogView)
 
         MaterialAlertDialogBuilder(this)
-            .setTitle("Tambah Soal Baru")
+            .setTitle(R.string.add_question)
             .setView(dialogView)
-            .setPositiveButton("Simpan") { dialog, _ ->
-                val questionText = dialogView.findViewById<TextInputEditText>(R.id.questionEditText).text.toString()
-                val answer1 = dialogView.findViewById<TextInputEditText>(R.id.answer1EditText).text.toString()
-                val answer2 = dialogView.findViewById<TextInputEditText>(R.id.answer2EditText).text.toString()
-                val answer3 = dialogView.findViewById<TextInputEditText>(R.id.answer3EditText).text.toString()
-                val answer4 = dialogView.findViewById<TextInputEditText>(R.id.answer4EditText).text.toString()
-                val correctAnswerSpinner = dialogView.findViewById<Spinner>(R.id.correctAnswerSpinner)
-                val categorySpinner = dialogView.findViewById<Spinner>(R.id.categorySpinner)
-                val difficultySpinner = dialogView.findViewById<Spinner>(R.id.difficultySpinner)
-
-                if (validateInputs(questionText, answer1, answer2, answer3, answer4)) {
-                    viewModel.addQuestion(
-                        questionText = questionText,
-                        answer1 = answer1,
-                        answer2 = answer2,
-                        answer3 = answer3,
-                        answer4 = answer4,
-                        correctAnswerIndex = correctAnswerSpinner.selectedItemPosition,
-                        category = categorySpinner.selectedItem.toString(),
-                        difficulty = difficultySpinner.selectedItem.toString()
-                    )
-                }
+            .setPositiveButton(R.string.save) { dialog, _ ->
+                handleAddQuestion(dialogView)
                 dialog.dismiss()
             }
-            .setNegativeButton("Batal") { dialog, _ -> dialog.dismiss() }
+            .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }
             .show()
     }
 
     private fun showEditDialog(question: Question) {
-        val dialogView = LayoutInflater.from(this)
-            .inflate(R.layout.dialog_add_edit_question, null)
-
-        // Setup spinners
+        val dialogView = inflateQuestionDialogView()
         setupDialogSpinners(dialogView)
+        prefillEditForm(dialogView, question)
 
-        // Pre-fill form
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.edit_question)
+            .setView(dialogView)
+            .setPositiveButton(R.string.save) { dialog, _ ->
+                handleUpdateQuestion(dialogView, question)
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }
+            .show()
+    }
+
+    private fun showDeleteConfirmation(question: Question) {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.delete_question)
+            .setMessage(getString(R.string.delete_question_confirm, question.questionText))
+            .setPositiveButton(R.string.delete) { dialog, _ ->
+                viewModel.deleteQuestion(question)
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.cancel) { dialog, _ -> dialog.dismiss() }
+            .show()
+    }
+    
+    // endregion
+
+    // region Dialog Helpers
+    
+    private fun inflateQuestionDialogView(): View {
+        return LayoutInflater.from(this).inflate(R.layout.dialog_add_edit_question, null)
+    }
+    
+    private fun setupDialogSpinners(dialogView: View) {
+        val correctAnswerSpinner = dialogView.findViewById<Spinner>(R.id.correctAnswerSpinner)
+        val categorySpinner = dialogView.findViewById<Spinner>(R.id.categorySpinner)
+        val difficultySpinner = dialogView.findViewById<Spinner>(R.id.difficultySpinner)
+
+        correctAnswerSpinner.adapter = createSpinnerAdapter(QuestionManagementViewModel.CORRECT_ANSWER_OPTIONS)
+        categorySpinner.adapter = createSpinnerAdapter(QuestionManagementViewModel.CATEGORIES)
+        difficultySpinner.adapter = createSpinnerAdapter(QuestionManagementViewModel.DIFFICULTIES)
+    }
+    
+    private fun createSpinnerAdapter(items: List<String>): ArrayAdapter<String> {
+        return ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, items)
+    }
+    
+    private fun prefillEditForm(dialogView: View, question: Question) {
         dialogView.findViewById<TextInputEditText>(R.id.questionEditText).setText(question.questionText)
         dialogView.findViewById<TextInputEditText>(R.id.answer1EditText).setText(question.answer1)
         dialogView.findViewById<TextInputEditText>(R.id.answer2EditText).setText(question.answer2)
@@ -156,87 +200,97 @@ class QuestionManagementActivity : BaseActivity() {
 
         val difficultyIndex = QuestionManagementViewModel.DIFFICULTIES.indexOf(question.difficulty)
         if (difficultyIndex >= 0) difficultySpinner.setSelection(difficultyIndex)
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Edit Soal")
-            .setView(dialogView)
-            .setPositiveButton("Simpan") { dialog, _ ->
-                val questionText = dialogView.findViewById<TextInputEditText>(R.id.questionEditText).text.toString()
-                val answer1 = dialogView.findViewById<TextInputEditText>(R.id.answer1EditText).text.toString()
-                val answer2 = dialogView.findViewById<TextInputEditText>(R.id.answer2EditText).text.toString()
-                val answer3 = dialogView.findViewById<TextInputEditText>(R.id.answer3EditText).text.toString()
-                val answer4 = dialogView.findViewById<TextInputEditText>(R.id.answer4EditText).text.toString()
-
-                if (validateInputs(questionText, answer1, answer2, answer3, answer4)) {
-                    val updatedQuestion = question.copy(
-                        questionText = questionText,
-                        answer1 = answer1,
-                        answer2 = answer2,
-                        answer3 = answer3,
-                        answer4 = answer4,
-                        correctAnswerIndex = correctAnswerSpinner.selectedItemPosition,
-                        category = categorySpinner.selectedItem.toString(),
-                        difficulty = difficultySpinner.selectedItem.toString()
-                    )
-                    viewModel.updateQuestion(updatedQuestion)
-                }
-                dialog.dismiss()
-            }
-            .setNegativeButton("Batal") { dialog, _ -> dialog.dismiss() }
-            .show()
     }
+    
+    // endregion
 
-    private fun showDeleteConfirmation(question: Question) {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Hapus Soal")
-            .setMessage("Apakah Anda yakin ingin menghapus soal ini?\n\n\"${question.questionText}\"")
-            .setPositiveButton("Hapus") { dialog, _ ->
-                viewModel.deleteQuestion(question)
-                dialog.dismiss()
-            }
-            .setNegativeButton("Batal") { dialog, _ -> dialog.dismiss() }
-            .show()
+    // region Question Actions
+    
+    private fun handleAddQuestion(dialogView: View) {
+        val formData = extractFormData(dialogView)
+        
+        if (validateFormData(formData)) {
+            viewModel.addQuestion(
+                questionText = formData.questionText,
+                answer1 = formData.answer1,
+                answer2 = formData.answer2,
+                answer3 = formData.answer3,
+                answer4 = formData.answer4,
+                correctAnswerIndex = formData.correctAnswerIndex,
+                category = formData.category,
+                difficulty = formData.difficulty
+            )
+        }
     }
-
-    private fun setupDialogSpinners(dialogView: android.view.View) {
+    
+    private fun handleUpdateQuestion(dialogView: View, originalQuestion: Question) {
+        val formData = extractFormData(dialogView)
+        
+        if (validateFormData(formData)) {
+            val updatedQuestion = originalQuestion.copy(
+                questionText = formData.questionText,
+                answer1 = formData.answer1,
+                answer2 = formData.answer2,
+                answer3 = formData.answer3,
+                answer4 = formData.answer4,
+                correctAnswerIndex = formData.correctAnswerIndex,
+                category = formData.category,
+                difficulty = formData.difficulty
+            )
+            viewModel.updateQuestion(updatedQuestion)
+        }
+    }
+    
+    private fun extractFormData(dialogView: View): QuestionFormData {
         val correctAnswerSpinner = dialogView.findViewById<Spinner>(R.id.correctAnswerSpinner)
         val categorySpinner = dialogView.findViewById<Spinner>(R.id.categorySpinner)
         val difficultySpinner = dialogView.findViewById<Spinner>(R.id.difficultySpinner)
-
-        correctAnswerSpinner.adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_dropdown_item,
-            QuestionManagementViewModel.CORRECT_ANSWER_OPTIONS
-        )
-
-        categorySpinner.adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_dropdown_item,
-            QuestionManagementViewModel.CATEGORIES
-        )
-
-        difficultySpinner.adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_dropdown_item,
-            QuestionManagementViewModel.DIFFICULTIES
+        
+        return QuestionFormData(
+            questionText = dialogView.findViewById<TextInputEditText>(R.id.questionEditText).text.toString(),
+            answer1 = dialogView.findViewById<TextInputEditText>(R.id.answer1EditText).text.toString(),
+            answer2 = dialogView.findViewById<TextInputEditText>(R.id.answer2EditText).text.toString(),
+            answer3 = dialogView.findViewById<TextInputEditText>(R.id.answer3EditText).text.toString(),
+            answer4 = dialogView.findViewById<TextInputEditText>(R.id.answer4EditText).text.toString(),
+            correctAnswerIndex = correctAnswerSpinner.selectedItemPosition,
+            category = categorySpinner.selectedItem.toString(),
+            difficulty = difficultySpinner.selectedItem.toString()
         )
     }
+    
+    // endregion
 
-    private fun validateInputs(
-        questionText: String,
-        answer1: String,
-        answer2: String,
-        answer3: String,
-        answer4: String
-    ): Boolean {
-        if (questionText.isBlank()) {
-            Toast.makeText(this, "Pertanyaan tidak boleh kosong", Toast.LENGTH_SHORT).show()
+    // region Validation
+    
+    private fun validateFormData(formData: QuestionFormData): Boolean {
+        if (formData.questionText.isBlank()) {
+            showToast(getString(R.string.error_question_empty))
             return false
         }
-        if (answer1.isBlank() || answer2.isBlank() || answer3.isBlank() || answer4.isBlank()) {
-            Toast.makeText(this, "Semua jawaban harus diisi", Toast.LENGTH_SHORT).show()
+        
+        if (formData.answer1.isBlank() || formData.answer2.isBlank() || 
+            formData.answer3.isBlank() || formData.answer4.isBlank()) {
+            showToast(getString(R.string.error_answers_required))
             return false
         }
+        
         return true
     }
+    
+    // endregion
+
+    // region Data Classes
+    
+    private data class QuestionFormData(
+        val questionText: String,
+        val answer1: String,
+        val answer2: String,
+        val answer3: String,
+        val answer4: String,
+        val correctAnswerIndex: Int,
+        val category: String,
+        val difficulty: String
+    )
+    
+    // endregion
 }

@@ -3,28 +3,41 @@ package com.mytheclipse.quizbattle
 import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mytheclipse.quizbattle.adapter.NotificationAdapter
+import com.mytheclipse.quizbattle.data.repository.DataModels.NotificationInfo
 import com.mytheclipse.quizbattle.databinding.ActivityNotificationBinding
+import com.mytheclipse.quizbattle.viewmodel.NotificationState
 import com.mytheclipse.quizbattle.viewmodel.NotificationViewModel
-import kotlinx.coroutines.launch
 
+/**
+ * Activity for displaying user notifications.
+ * 
+ * Shows a list of notifications with support for:
+ * - Mark as read on click
+ * - Swipe to delete
+ * - Mark all as read
+ * - Different notification types (battle invite, friend request, etc.)
+ */
 class NotificationActivity : BaseActivity() {
+
+    // region Properties
     
     private lateinit var binding: ActivityNotificationBinding
     private val viewModel: NotificationViewModel by viewModels()
+    
     private val adapter = NotificationAdapter(
         onNotificationClick = { notification ->
-            if (!notification.isRead) {
-                viewModel.markAsRead(notification.notificationId)
-            }
-            handleNotificationAction(notification)
+            handleNotificationClick(notification)
         },
         onDeleteClick = { notification ->
             viewModel.deleteNotification(notification.notificationId)
         }
     )
+    
+    // endregion
+
+    // region Lifecycle
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,78 +45,123 @@ class NotificationActivity : BaseActivity() {
         setContentView(binding.root)
         applySystemBarPadding(binding.root)
         
-        setupViews()
-        setupListeners()
+        setupRecyclerView()
+        setupClickListeners()
+        setupSwipeRefresh()
         observeState()
     }
     
-    private fun setupViews() {
+    // endregion
+
+    // region Setup
+    
+    private fun setupRecyclerView() {
         binding.notificationsRecyclerView.apply {
             layoutManager = LinearLayoutManager(this@NotificationActivity)
             adapter = this@NotificationActivity.adapter
         }
     }
     
-    private fun setupListeners() {
+    private fun setupClickListeners() {
         binding.backButton.setOnClickListener {
-            finish()
+            navigateBack()
         }
         
         binding.markAllReadButton.setOnClickListener {
-            viewModel.markAllAsRead()
+            withDebounce { viewModel.markAllAsRead() }
         }
-        
+    }
+    
+    private fun setupSwipeRefresh() {
         binding.swipeRefreshLayout.setOnRefreshListener {
             viewModel.loadNotifications()
         }
     }
     
+    // endregion
+
+    // region State Observation
+    
     private fun observeState() {
-        lifecycleScope.launch {
-            viewModel.state.collect { state ->
-                binding.swipeRefreshLayout.isRefreshing = state.isLoading
-                binding.progressBar.visibility = if (state.isLoading && state.notifications.isEmpty()) View.VISIBLE else View.GONE
-                
-                // Update badge
-                if (state.unreadCount > 0) {
-                    binding.unreadBadge.visibility = View.VISIBLE
-                    binding.unreadBadge.text = if (state.unreadCount > 99) "99+" else state.unreadCount.toString()
-                    binding.markAllReadButton.visibility = View.VISIBLE
-                } else {
-                    binding.unreadBadge.visibility = View.GONE
-                    binding.markAllReadButton.visibility = View.GONE
-                }
-                
-                // Notifications list
-                if (state.notifications.isEmpty() && !state.isLoading) {
-                    binding.notificationsRecyclerView.visibility = View.GONE
-                    binding.emptyStateLayout.visibility = View.VISIBLE
-                } else {
-                    binding.notificationsRecyclerView.visibility = View.VISIBLE
-                    binding.emptyStateLayout.visibility = View.GONE
-                    adapter.submitList(state.notifications)
-                }
-                
-                state.error?.let { error ->
-                    android.widget.Toast.makeText(this@NotificationActivity, error, android.widget.Toast.LENGTH_SHORT).show()
-                }
-            }
+        collectState(viewModel.state) { state ->
+            handleState(state)
         }
     }
     
-    private fun handleNotificationAction(notification: com.mytheclipse.quizbattle.data.repository.DataModels.NotificationInfo) {
-        // Handle different notification types
-        when (notification.type) {
-            "battle_invite" -> {
-                // Navigate to battle
-            }
-            "friend_request" -> {
-                // Navigate to friends
-                startActivity(android.content.Intent(this, FriendListActivity::class.java))
-            }
-            else -> {
-                // Default action
-            }
+    private fun handleState(state: NotificationState) {
+        updateLoadingState(state)
+        updateUnreadBadge(state.unreadCount)
+        updateNotificationsList(state)
+        handleError(state.error)
+    }
+    
+    private fun updateLoadingState(state: NotificationState) {
+        binding.swipeRefreshLayout.isRefreshing = state.isLoading
+        
+        val showInitialLoading = state.isLoading && state.notifications.isEmpty()
+        binding.progressBar.visibility = if (showInitialLoading) View.VISIBLE else View.GONE
+    }
+    
+    private fun updateUnreadBadge(unreadCount: Int) {
+        val hasUnread = unreadCount > 0
+        
+        binding.unreadBadge.visibility = if (hasUnread) View.VISIBLE else View.GONE
+        binding.markAllReadButton.visibility = if (hasUnread) View.VISIBLE else View.GONE
+        
+        if (hasUnread) {
+            binding.unreadBadge.text = formatUnreadCount(unreadCount)
         }
+    }
+    
+    private fun formatUnreadCount(count: Int): String {
+        return if (count > MAX_BADGE_COUNT) MAX_BADGE_TEXT else count.toString()
+    }
+    
+    private fun updateNotificationsList(state: NotificationState) {
+        val isEmpty = state.notifications.isEmpty() && !state.isLoading
+        
+        binding.notificationsRecyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
+        binding.emptyStateLayout.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        
+        if (!isEmpty) {
+            adapter.submitList(state.notifications)
+        }
+    }
+    
+    private fun handleError(error: String?) {
+        error?.let { showToast(it) }
+    }
+    
+    // endregion
+
+    // region Notification Actions
+    
+    private fun handleNotificationClick(notification: NotificationInfo) {
+        if (!notification.isRead) {
+            viewModel.markAsRead(notification.notificationId)
+        }
+        navigateBasedOnType(notification.type)
+    }
+    
+    private fun navigateBasedOnType(type: String) {
+        when (type) {
+            TYPE_BATTLE_INVITE -> handleBattleInvite()
+            TYPE_FRIEND_REQUEST -> navigateTo<FriendListActivity>()
+            else -> { /* No action for unknown types */ }
+        }
+    }
+    
+    private fun handleBattleInvite() {
+        // Navigate to battle - can be extended later
+    }
+    
+    // endregion
+
+    companion object {
+        private const val TYPE_BATTLE_INVITE = "battle_invite"
+        private const val TYPE_FRIEND_REQUEST = "friend_request"
+        
+        private const val MAX_BADGE_COUNT = 99
+        private const val MAX_BADGE_TEXT = "99+"
     }
 }

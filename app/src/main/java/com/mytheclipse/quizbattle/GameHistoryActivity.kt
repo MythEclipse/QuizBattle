@@ -3,19 +3,29 @@ package com.mytheclipse.quizbattle
 import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mytheclipse.quizbattle.adapter.GameHistoryAdapter
 import com.mytheclipse.quizbattle.databinding.ActivityGameHistoryBinding
+import com.mytheclipse.quizbattle.viewmodel.GameHistoryState
 import com.mytheclipse.quizbattle.viewmodel.GameHistoryViewModel
-import kotlinx.coroutines.launch
 
+/**
+ * Activity for displaying the user's game history.
+ * 
+ * Shows a chronological list of past battles with results,
+ * scores, and opponent information.
+ */
 class GameHistoryActivity : BaseActivity() {
+
+    // region Properties
     
     private lateinit var binding: ActivityGameHistoryBinding
-    private val gameHistoryViewModel: GameHistoryViewModel by viewModels()
-    private lateinit var gameHistoryAdapter: GameHistoryAdapter
+    private val viewModel: GameHistoryViewModel by viewModels()
+    private lateinit var adapter: GameHistoryAdapter
+    
+    // endregion
+
+    // region Lifecycle
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,36 +34,57 @@ class GameHistoryActivity : BaseActivity() {
         applySystemBarPadding(binding.root)
         
         setupRecyclerView()
-        setupListeners()
-        observeGameHistory()
+        setupClickListeners()
+        observeState()
     }
+    
+    // endregion
+
+    // region Setup
     
     private fun setupRecyclerView() {
-        gameHistoryAdapter = GameHistoryAdapter()
-        binding.feedRecyclerView?.layoutManager = LinearLayoutManager(this)
-        binding.feedRecyclerView?.adapter = gameHistoryAdapter
+        adapter = GameHistoryAdapter()
+        binding.feedRecyclerView?.apply {
+            layoutManager = LinearLayoutManager(this@GameHistoryActivity)
+            adapter = this@GameHistoryActivity.adapter
+        }
     }
     
-    private fun setupListeners() {
+    private fun setupClickListeners() {
         binding.backButton?.setOnClickListener {
-            finish()
+            navigateBack()
         }
     }
     
-    private fun observeGameHistory() {
-        lifecycleScope.launch {
-            gameHistoryViewModel.state.collect { state ->
-                binding.progressBar?.visibility = if (state.isLoading) View.VISIBLE else View.GONE
-                
-                if (state.gameHistoryList.isEmpty() && !state.isLoading) {
-                    binding.emptyStateLayout?.visibility = View.VISIBLE
-                    binding.feedRecyclerView?.visibility = View.GONE
-                } else {
-                    binding.emptyStateLayout?.visibility = View.GONE
-                    binding.feedRecyclerView?.visibility = View.VISIBLE
-                    gameHistoryAdapter.submitList(state.gameHistoryList)
-                }
-            }
+    // endregion
+
+    // region State Observation
+    
+    private fun observeState() {
+        collectState(viewModel.state) { state ->
+            handleState(state)
         }
     }
+    
+    private fun handleState(state: GameHistoryState) {
+        updateLoadingState(state.isLoading)
+        updateHistoryList(state)
+    }
+    
+    private fun updateLoadingState(isLoading: Boolean) {
+        binding.progressBar?.visibility = if (isLoading) View.VISIBLE else View.GONE
+    }
+    
+    private fun updateHistoryList(state: GameHistoryState) {
+        val isEmpty = state.gameHistoryList.isEmpty() && !state.isLoading
+        
+        binding.emptyStateLayout?.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        binding.feedRecyclerView?.visibility = if (isEmpty) View.GONE else View.VISIBLE
+        
+        if (!isEmpty) {
+            adapter.submitList(state.gameHistoryList)
+        }
+    }
+    
+    // endregion
 }
