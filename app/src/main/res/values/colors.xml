@@ -64,6 +64,7 @@
     <color name="victory_green">#10B981</color>
     <color name="progress_track">#E5E7EB</color>
     <color name="black_overlay">#80000000</color>
+    <color name="error">#EF4444</color>
     <color name="error_text">#EF4444</color>
     <color name="success_text">#10B981</color>
 

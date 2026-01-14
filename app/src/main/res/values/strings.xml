@@ -89,4 +89,22 @@
     <string name="join_lobby">Join Lobby</string>
     <string name="searching_opponent">Searching for opponent...</string>
     <string name="waiting_for_players">Waiting for players...</string>
+
+    <!-- Match Confirmation Dialog -->
+    <string name="match_found_title">Lawan Ditemukan!</string>
+    <string name="match_settings_title">Pengaturan Pertandingan</string>
+    <string name="difficulty_label">Kesulitan</string>
+    <string name="category_label">Kategori</string>
+    <string name="question_count_label">Jumlah Soal</string>
+    <string name="opponent_stats_format">Level %1$d • %2$d pts</string>
+    <string name="question_count_format">%1$d soal</string>
+    <string name="time_remaining_format">Waktu tersisa: %1$d detik</string>
+    <string name="time_expired">Waktu habis!</string>
+    <string name="waiting_opponent_confirmation">Menunggu konfirmasi lawan…</string>
+    <string name="waiting_confirmation_count">Menunggu konfirmasi lawan… (%1$d/%2$d)</string>
+    <string name="both_players_ready">Kedua pemain siap! Memulai pertandingan…</string>
+    <string name="opponent_rejected">Lawan menolak pertandingan</string>
+    <string name="match_starting">Pertandingan dimulai…</string>
+    <string name="btn_accept">Terima</string>
+    <string name="btn_decline">Tolak</string>
 </resources>

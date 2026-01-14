@@ -7,149 +7,270 @@
     android:padding="24dp"
     android:background="@drawable/bg_dialog_rounded">
 
+    <!-- Title with icon -->
+    <ImageView
+        android:id="@+id/ivMatchIcon"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_battle"
+        app:tint="?attr/colorPrimary"
+        android:contentDescription="@null"
+        app:layout_constraintEnd_toStartOf="@id/tvTitle"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tvTitle"
+        app:layout_constraintBottom_toBottomOf="@id/tvTitle"
+        android:layout_marginEnd="8dp" />
+
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Lawan Ditemukan!"
+        android:text="@string/match_found_title"
         android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
         android:textColor="?attr/colorPrimary"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/ivMatchIcon"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/ivOpponentAvatar"
+    <!-- Divider -->
+    <View
+        android:id="@+id/dividerTop"
         android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginTop="20dp"
-        android:src="@drawable/ic_profile"
-        app:civ_border_color="?attr/colorPrimary"
-        app:civ_border_width="2dp"
+        android:layout_height="3dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_gradient_primary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
+    <!-- Opponent Avatar with glow effect -->
+    <View
+        android:id="@+id/avatarGlow"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/bg_avatar_glow"
+        android:alpha="0.5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dividerTop" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/ivOpponentAvatar"
+        android:layout_width="88dp"
+        android:layout_height="88dp"
+        android:src="@drawable/ic_profile"
+        app:civ_border_color="?attr/colorPrimary"
+        app:civ_border_width="3dp"
+        app:layout_constraintEnd_toEndOf="@id/avatarGlow"
+        app:layout_constraintStart_toStartOf="@id/avatarGlow"
+        app:layout_constraintTop_toTopOf="@id/avatarGlow"
+        app:layout_constraintBottom_toBottomOf="@id/avatarGlow" />
+
+    <!-- VS Label -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvVsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="VS"
+        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+        android:textColor="?attr/colorError"
+        android:textStyle="bold"
+        android:letterSpacing="0.1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/avatarGlow" />
+
+    <!-- Opponent Name -->
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tvOpponentName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+        android:layout_marginTop="8dp"
+        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
         android:textColor="?attr/colorOnSurface"
+        android:textStyle="bold"
         tools:text="Player Name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ivOpponentAvatar" />
+        app:layout_constraintTop_toBottomOf="@id/tvVsLabel" />
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tvOpponentStats"
+    <!-- Opponent Stats with icons -->
+    <LinearLayout
+        android:id="@+id/layoutOpponentStats"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-        android:textColor="?attr/colorOnSurfaceVariant"
-        tools:text="Level 15 • 1250 pts"
+        android:layout_marginTop="6dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvOpponentName" />
+        app:layout_constraintTop_toBottomOf="@id/tvOpponentName">
 
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/ic_level"
+            app:tint="?attr/colorPrimary"
+            android:contentDescription="@null" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvOpponentStats"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            tools:text="Level 15 • 1250 pts" />
+
+    </LinearLayout>
+
+    <!-- Game Settings Card -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardGameSettings"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:cardBackgroundColor="?attr/colorSurfaceVariant"
-        app:cardCornerRadius="12dp"
+        android:layout_marginTop="20dp"
+        app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+        app:cardCornerRadius="16dp"
         app:cardElevation="0dp"
-        app:layout_constraintTop_toBottomOf="@id/tvOpponentStats">
+        app:strokeWidth="1dp"
+        app:strokeColor="?attr/colorOutlineVariant"
+        app:layout_constraintTop_toBottomOf="@id/layoutOpponentStats">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:padding="16dp">
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tvSettingsLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Pengaturan Pertandingan"
-                android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                android:textColor="?attr/colorOnSurfaceVariant" />
-
+            <!-- Header -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_settings"
+                    app:tint="?attr/colorPrimary"
+                    android:contentDescription="@null" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tvSettingsLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/match_settings_title"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+                    android:textColor="?attr/colorPrimary" />
+
+            </LinearLayout>
+
+            <!-- Difficulty Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingVertical="6dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_difficulty"
+                    app:tint="?attr/colorOnSurfaceVariant"
+                    android:contentDescription="@null" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Kesulitan"
-                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                    android:layout_marginStart="10dp"
+                    android:text="@string/difficulty_label"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                     android:textColor="?attr/colorOnSurfaceVariant" />
 
-                <com.google.android.material.textview.MaterialTextView
+                <com.google.android.material.chip.Chip
                     android:id="@+id/tvDifficulty"
+                    style="@style/Widget.Material3.Chip.Suggestion"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textStyle="bold"
+                    android:layout_height="32dp"
+                    android:clickable="false"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                     tools:text="Medium" />
 
             </LinearLayout>
 
+            <!-- Category Row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingVertical="6dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_category"
+                    app:tint="?attr/colorOnSurfaceVariant"
+                    android:contentDescription="@null" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Kategori"
-                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                    android:layout_marginStart="10dp"
+                    android:text="@string/category_label"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                     android:textColor="?attr/colorOnSurfaceVariant" />
 
-                <com.google.android.material.textview.MaterialTextView
+                <com.google.android.material.chip.Chip
                     android:id="@+id/tvCategory"
+                    style="@style/Widget.Material3.Chip.Suggestion"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textStyle="bold"
+                    android:layout_height="32dp"
+                    android:clickable="false"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                     tools:text="General" />
 
             </LinearLayout>
 
+            <!-- Question Count Row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingVertical="6dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_quiz"
+                    app:tint="?attr/colorOnSurfaceVariant"
+                    android:contentDescription="@null" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Jumlah Soal"
-                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+                    android:layout_marginStart="10dp"
+                    android:text="@string/question_count_label"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                     android:textColor="?attr/colorOnSurfaceVariant" />
 
-                <com.google.android.material.textview.MaterialTextView
+                <com.google.android.material.chip.Chip
                     android:id="@+id/tvQuestionCount"
+                    style="@style/Widget.Material3.Chip.Suggestion"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textStyle="bold"
+                    android:layout_height="32dp"
+                    android:clickable="false"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
                     tools:text="10 soal" />
 
             </LinearLayout>
@@ -158,14 +279,18 @@
 
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- Countdown Section -->
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tvCountdown"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-        android:textColor="?attr/colorError"
+        android:layout_marginTop="20dp"
+        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+        android:textColor="?attr/colorPrimary"
+        android:drawableStart="@drawable/ic_timer"
+        android:drawablePadding="8dp"
         tools:text="Waktu tersisa: 30 detik"
+        app:drawableTint="?attr/colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cardGameSettings" />
@@ -174,49 +299,63 @@
         android:id="@+id/progressCountdown"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="12dp"
         app:indicatorColor="?attr/colorPrimary"
         app:trackColor="?attr/colorSurfaceVariant"
+        app:trackThickness="8dp"
+        app:trackCornerRadius="4dp"
         app:layout_constraintTop_toBottomOf="@id/tvCountdown" />
 
+    <!-- Waiting Status -->
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tvWaitingStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-        android:textColor="?attr/colorOnSurfaceVariant"
+        android:layout_marginTop="12dp"
+        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+        android:textColor="?attr/colorTertiary"
         android:visibility="gone"
+        android:drawableStart="@drawable/ic_hourglass"
+        android:drawablePadding="8dp"
         tools:text="Menunggu konfirmasi lawan..."
         tools:visibility="visible"
+        app:drawableTint="?attr/colorTertiary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/progressCountdown" />
 
+    <!-- Action Buttons -->
     <LinearLayout
         android:id="@+id/layoutButtons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="24dp"
         android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@id/tvWaitingStatus">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDecline"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+            style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
-            android:text="Tolak" />
+            android:text="@string/btn_decline"
+            app:icon="@drawable/ic_close"
+            app:iconGravity="textStart"
+            app:cornerRadius="16dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAccept"
+            style="@style/Widget.Material3.Button"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:layout_weight="1"
             android:layout_marginStart="8dp"
-            android:text="Terima" />
+            android:text="@string/btn_accept"
+            app:icon="@drawable/ic_check"
+            app:iconGravity="textStart"
+            app:cornerRadius="16dp" />
 
     </LinearLayout>
 
