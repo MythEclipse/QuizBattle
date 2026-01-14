@@ -138,6 +138,13 @@ class UserRepository(private val userDao: UserDao) {
             guestUser.copy(id = userId)
         }
     }
+    
+    /**
+     * Get all users sorted by points for offline leaderboard
+     */
+    suspend fun getAllUsersSortedByPoints(): List<User> {
+        return userDao.getAllUsersSortedByPoints()
+    }
 
     suspend fun uploadAvatar(file: java.io.File): Result<String> {
         return try {

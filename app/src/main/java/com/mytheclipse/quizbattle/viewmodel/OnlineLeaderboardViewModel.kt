@@ -4,8 +4,11 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.mytheclipse.quizbattle.core.extensions.isNetworkAvailable
+import com.mytheclipse.quizbattle.data.local.QuizBattleDatabase
 import com.mytheclipse.quizbattle.data.remote.websocket.WebSocketManager
 import com.mytheclipse.quizbattle.data.repository.DataModels.LeaderboardEntry
+import com.mytheclipse.quizbattle.data.repository.GameHistoryRepository
 import com.mytheclipse.quizbattle.data.repository.*
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -14,6 +17,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -52,12 +56,17 @@ sealed class OnlineLeaderboardEvent {
 
 /**
  * ViewModel for Online Leaderboard functionality
+ * Supports online mode with WebSocket and offline fallback to local data
  */
 class OnlineLeaderboardViewModel(application: Application) : AndroidViewModel(application) {
     
     // region Dependencies
+    private val context = application.applicationContext
+    private val database = QuizBattleDatabase.getDatabase(application)
     private val tokenRepository = TokenRepository(application)
     private val leaderboardRepository = OnlineLeaderboardRepository()
+    private val gameHistoryRepository = GameHistoryRepository(database.gameHistoryDao())
+    private val userRepository = UserRepository(database.userDao())
     private val webSocketManager = WebSocketManager.getInstance()
     // endregion
     
@@ -85,8 +94,15 @@ class OnlineLeaderboardViewModel(application: Application) : AndroidViewModel(ap
     fun loadGlobalLeaderboard() {
         launchSafely {
             setLoading(true)
-            val userId = getUserIdOrReturn() ?: return@launchSafely
-            leaderboardRepository.syncGlobalLeaderboard(userId)
+            
+            // Check if online
+            if (context.isNetworkAvailable()) {
+                val userId = getUserIdOrReturn() ?: return@launchSafely
+                leaderboardRepository.syncGlobalLeaderboard(userId)
+            } else {
+                // Offline fallback - load from local database
+                loadLocalLeaderboard()
+            }
         }
     }
     
@@ -103,9 +119,49 @@ class OnlineLeaderboardViewModel(application: Application) : AndroidViewModel(ap
     // region Private Methods
     
     private fun initializeLeaderboard() {
-        connectWebSocket()
+        // Only connect WebSocket if online
+        if (context.isNetworkAvailable()) {
+            connectWebSocket()
+            observeLeaderboardEvents()
+        }
         loadGlobalLeaderboard()
-        observeLeaderboardEvents()
+    }
+    
+    private suspend fun loadLocalLeaderboard() {
+        // Get current user
+        val currentUser = userRepository.getLoggedInUser() 
+            ?: userRepository.getOrCreateGuestUser()
+        
+        // Get all users sorted by points (offline leaderboard)
+        val allUsers = userRepository.getAllUsersSortedByPoints()
+        
+        // Convert to LeaderboardEntry
+        val entries = allUsers.mapIndexed { index, user ->
+            LeaderboardEntry(
+                rank = index + 1,
+                userId = user.id.toString(),
+                userName = user.username,
+                score = user.points,
+                wins = user.wins,
+                losses = user.losses,
+                mmr = user.points
+            )
+        }
+        
+        // Find current user's rank
+        val userRank = entries.indexOfFirst { it.userId == currentUser.id.toString() } + 1
+        
+        updateState {
+            copy(
+                leaderboard = entries,
+                userRank = if (userRank > 0) userRank else 0,
+                totalPlayers = entries.size,
+                isLoading = false,
+                error = if (entries.isEmpty()) "Tidak ada data. Main dulu untuk masuk leaderboard!" else null
+            )
+        }
+        
+        emitEvent(OnlineLeaderboardEvent.DataLoaded)
     }
     
     private fun connectWebSocket() {

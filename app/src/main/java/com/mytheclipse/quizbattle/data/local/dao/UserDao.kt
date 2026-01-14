@@ -39,6 +39,9 @@ interface UserDao {
     @Query("UPDATE users SET points = points + :points, wins = wins + :wins, losses = losses + :losses, totalGames = totalGames + 1 WHERE id = :userId")
     suspend fun updateUserStats(userId: Long, points: Int, wins: Int, losses: Int)
     
+    @Query("SELECT * FROM users ORDER BY points DESC")
+    suspend fun getAllUsersSortedByPoints(): List<User>
+    
     @Delete
     suspend fun deleteUser(user: User)
 }

@@ -17,6 +17,7 @@ object DataModels {
 
     // Leaderboard Data Classes
     data class LeaderboardEntry(
+        val rank: Int = 0,
         val userId: String,
         val userName: String,
         val score: Int,
