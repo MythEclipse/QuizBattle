@@ -105,6 +105,7 @@
     <string name="hp_format">HP: %1$d</string>
     <string name="opponent_hp_format">Opponent HP: %1$d</string>
     <string name="timer_format">⏱ %1$ds</string>
+    <string name="timer_seconds_only">%1$ds</string>
     <string name="match_id_format">Match #%1$s</string>
     <string name="question_progress_format">Pertanyaan %1$d/%2$d</string>
     <string name="feature_coming_soon">Fitur ini akan segera hadir!\n\nUntuk saat ini, gunakan Quick Match untuk bermain dengan pemain lain.</string>
@@ -248,6 +249,7 @@
     <string name="no_friends_message">Belum ada teman. Tambahkan teman untuk mulai bermain!</string>
     <string name="no_online_friends">Tidak ada teman online saat ini</string>
     <string name="no_friend_requests">Tidak ada permintaan pertemanan</string>
+    <string name="friend_feature_requires_internet">Fitur Friend memerlukan koneksi internet.\n\nSilakan cek koneksi Anda dan coba lagi.</string>
     <string name="send">Kirim</string>
     <string name="friend_request_sent">Permintaan pertemanan dikirim</string>
     <string name="enter_user_id">Masukkan ID pengguna</string>

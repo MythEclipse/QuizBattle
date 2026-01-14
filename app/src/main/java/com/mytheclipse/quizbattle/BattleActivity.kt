@@ -49,6 +49,7 @@ class BattleActivity : BaseActivity() {
     
     private var advanceScheduled: Boolean = false
     private var isNavigatingToResult: Boolean = false
+    private var lastQuestionIndex: Int = -1  // Track current question to restart timer only on new question
     
     // endregion
     
@@ -140,8 +141,13 @@ class BattleActivity : BaseActivity() {
             updateHealthBars(state)
             updateCharacterAnimations(state)
             
-            if (!state.isAnswered) {
+            // Only start timer when question changes and not answered
+            val currentQuestionIndex = state.currentQuestionIndex
+            if (!state.isAnswered && currentQuestionIndex != lastQuestionIndex) {
+                lastQuestionIndex = currentQuestionIndex
                 startTimer()
+            } else if (state.isAnswered) {
+                stopTimer()
             }
         }
     }
@@ -449,6 +455,8 @@ class BattleActivity : BaseActivity() {
         
         timerRunnable = object : Runnable {
             override fun run() {
+                // Update both timerChip (main display) and hidden timerTextView
+                binding.timerChip.text = getString(R.string.timer_seconds_only, timeLeft)
                 binding.timerTextView.text = getString(R.string.timer_format, timeLeft)
                 timeLeft--
                 

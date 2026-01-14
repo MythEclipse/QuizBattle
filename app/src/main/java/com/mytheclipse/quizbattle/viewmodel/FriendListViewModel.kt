@@ -32,6 +32,7 @@ data class FriendListState(
     val pendingCount: Int = 0,
     val onlineCount: Int = 0,
     val isLoading: Boolean = false,
+    val isConnected: Boolean = false,
     val error: String? = null,
     val searchQuery: String = "",
     val selectedTab: FriendTab = FriendTab.ALL
@@ -92,6 +93,7 @@ class FriendListViewModel(application: Application) : AndroidViewModel(applicati
     
     init {
         initializeUser()
+        observeConnectionState()
         observeFriends()
         observeEvents()
     }
@@ -174,6 +176,17 @@ class FriendListViewModel(application: Application) : AndroidViewModel(applicati
         viewModelScope.launch {
             currentUserId = tokenRepository.getUserId() ?: ""
             if (hasUser) refreshFriendList()
+        }
+    }
+    
+    private fun observeConnectionState() {
+        collectFlow(webSocketManager.connectionState) { connectionState ->
+            val isConnected = connectionState is WebSocketManager.ConnectionState.Connected
+            _state.update { it.copy(isConnected = isConnected) }
+            
+            if (!isConnected && _state.value.friends.isEmpty()) {
+                _state.update { it.copy(error = "Fitur Friend memerlukan koneksi internet. Silakan cek koneksi Anda.") }
+            }
         }
     }
     

@@ -84,10 +84,6 @@ class OnlineMenuActivity : BaseActivity() {
             withDebounce { showCreateRoomDialog() }
         }
         
-        binding.joinRoomButton?.setOnClickListener {
-            withDebounce { showJoinRoomDialog() }
-        }
-        
         binding.friendBattleButton?.setOnClickListener {
             withDebounce { navigateTo<FriendListActivity>() }
         }
@@ -244,7 +240,6 @@ class OnlineMenuActivity : BaseActivity() {
         }
         
         binding.createRoomButton?.isEnabled = !isSearching
-        binding.joinRoomButton?.isEnabled = !isSearching
         binding.friendBattleButton?.isEnabled = !isSearching
     }
     

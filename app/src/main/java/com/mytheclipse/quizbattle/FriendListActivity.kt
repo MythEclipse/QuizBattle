@@ -124,6 +124,7 @@ class FriendListActivity : BaseActivity() {
     
     private fun handleState(state: FriendListState) {
         updateLoadingState(state.isLoading)
+        updateConnectionState(state.isConnected)
         updateTabBadges(state)
         updateListDisplay(state)
         handleError(state.error)
@@ -131,6 +132,20 @@ class FriendListActivity : BaseActivity() {
     
     private fun updateLoadingState(isLoading: Boolean) {
         binding.swipeRefresh.isRefreshing = isLoading
+    }
+    
+    private fun updateConnectionState(isConnected: Boolean) {
+        // Show offline indicator when not connected
+        binding.tvEmpty.apply {
+            if (!isConnected && viewModel.state.value.friends.isEmpty()) {
+                isVisible = true
+                text = getString(R.string.friend_feature_requires_internet)
+            }
+        }
+        
+        // Disable add friend button when offline
+        binding.fabAddFriend.isEnabled = isConnected
+        binding.fabAddFriend.alpha = if (isConnected) 1f else 0.5f
     }
     
     private fun updateTabBadges(state: FriendListState) {

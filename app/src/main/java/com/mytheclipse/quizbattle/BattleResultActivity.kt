@@ -85,6 +85,17 @@ class BattleResultActivity : BaseActivity() {
         binding.backToMenuButton.setOnClickListener { 
             withDebounce { navigateToMain() } 
         }
+        
+        binding.playAgainButton.setOnClickListener {
+            withDebounce { navigateToBattle() }
+        }
+    }
+    
+    private fun navigateToBattle() {
+        val intent = android.content.Intent(this, BattleActivity::class.java)
+        intent.flags = android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
+        startActivity(intent)
+        finish()
     }
     
     // endregion

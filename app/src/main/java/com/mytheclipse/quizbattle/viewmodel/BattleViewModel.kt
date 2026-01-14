@@ -136,8 +136,10 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
         val currentState = _state.value
         if (!currentState.isAnswered || currentState.isGameOver) return
         
+        // Game only ends when health reaches 0, not when questions run out
         if (!currentState.hasMoreQuestions) {
-            endGame()
+            // Reload more questions instead of ending the game
+            loadMoreQuestions()
             return
         }
         
@@ -198,6 +200,38 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
             loadQuestions()
         }
         startOpponentAttackLoop()
+    }
+    
+    /**
+     * Load more questions when current batch is exhausted.
+     * Preserves current health and game state, only refreshes questions.
+     */
+    private fun loadMoreQuestions() {
+        launchSafely {
+            val currentUser = userRepository.getLoggedInUser() 
+                ?: userRepository.getOrCreateGuestUser()
+            
+            val questions = fetchQuestions(currentUser.id)
+            
+            if (questions.isNotEmpty()) {
+                markQuestionsAsSeen(currentUser.id, questions)
+            }
+            
+            val battleQuestions = questions.map { it.toBattleQuestion() }.shuffled()
+            
+            updateState {
+                copy(
+                    questions = battleQuestions,
+                    currentQuestionIndex = 0,
+                    isAnswered = false,
+                    selectedAnswerIndex = BattleState.NO_ANSWER_SELECTED,
+                    timeProgress = BattleState.FULL_TIME,
+                    playerTookDamage = false,
+                    playerAttacking = false,
+                    opponentTookDamage = false
+                )
+            }
+        }
     }
     
     private fun loadQuestions() {
