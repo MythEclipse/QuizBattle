@@ -168,8 +168,66 @@ class FriendRepository(
     
     // Event handling
     
-    fun handleWebSocketMessage(type: String, payload: JSONObject) {
+    suspend fun handleWebSocketMessage(type: String, payload: JSONObject) {
         when (type) {
+            "friend.list.data" -> {
+                // Handle friend list data
+                // Clear all accepted friends first
+                friendDao.deleteByStatus(FriendStatus.ACCEPTED)
+                
+                val friendsArray = payload.optJSONArray("friends")
+                if (friendsArray != null && friendsArray.length() > 0) {
+                    val friendsList = mutableListOf<Friend>()
+                    for (i in 0 until friendsArray.length()) {
+                        val friendObj = friendsArray.getJSONObject(i)
+                        val friend = Friend(
+                            id = friendObj.optString("friendshipId", friendObj.getString("userId")),
+                            friendId = friendObj.getString("userId"),
+                            friendName = friendObj.getString("username"),
+                            friendAvatarUrl = friendObj.optString("avatarUrl", null),
+                            points = friendObj.optInt("points", 0),
+                            status = FriendStatus.ACCEPTED,
+                            isOnline = friendObj.optBoolean("isOnline", false)
+                        )
+                        friendsList.add(friend)
+                    }
+                    saveFriends(friendsList)
+                }
+                _friendRequestEvent.value = FriendEvent.FriendListData(
+                    friends = emptyList(),
+                    pendingRequests = emptyList(),
+                    totalFriends = 0
+                )
+            }
+            "friend.request.list" -> {
+                // Handle pending friend requests
+                // Clear all pending received requests first
+                friendDao.deleteByStatus(FriendStatus.PENDING_RECEIVED)
+                
+                val requestsArray = payload.optJSONArray("requests")
+                if (requestsArray != null && requestsArray.length() > 0) {
+                    val requestsList = mutableListOf<Friend>()
+                    for (i in 0 until requestsArray.length()) {
+                        val requestObj = requestsArray.getJSONObject(i)
+                        val user = requestObj.getJSONObject("user")
+                        val friend = Friend(
+                            id = requestObj.getString("requestId"),
+                            friendId = user.getString("userId"),
+                            friendName = user.getString("username"),
+                            friendAvatarUrl = user.optString("avatarUrl", null),
+                            points = user.optInt("points", 0),
+                            status = FriendStatus.PENDING_RECEIVED
+                        )
+                        requestsList.add(friend)
+                    }
+                    saveFriends(requestsList)
+                }
+                _friendRequestEvent.value = FriendEvent.FriendListData(
+                    friends = emptyList(),
+                    pendingRequests = emptyList(),
+                    totalFriends = 0
+                )
+            }
             "friend.request.received" -> {
                 val sender = payload.getJSONObject("sender")
                 _friendRequestEvent.value = FriendEvent.RequestReceived(

@@ -59,6 +59,9 @@ interface FriendDao {
     @Query("DELETE FROM friends WHERE friendId = :friendId")
     suspend fun deleteByFriendId(friendId: String)
     
+    @Query("DELETE FROM friends WHERE status = :status")
+    suspend fun deleteByStatus(status: FriendStatus)
+    
     @Query("DELETE FROM friends")
     suspend fun deleteAll()
 }

@@ -98,6 +98,7 @@ class FriendListViewModel(application: Application) : AndroidViewModel(applicati
         observeConnectionState()
         observeFriends()
         observeEvents()
+        observeWebSocketMessages()
     }
     
     // ===== Public Methods =====
@@ -283,6 +284,46 @@ class FriendListViewModel(application: Application) : AndroidViewModel(applicati
         viewModelScope.launch {
             friendRepository.matchInviteEvent.filterNotNull().collect { event ->
                 handleMatchInviteEvent(event)
+            }
+        }
+    }
+    
+    private fun observeWebSocketMessages() {
+        viewModelScope.launch {
+            webSocketManager.messages.collect { message ->
+                try {
+                    val type = message["type"] as? String ?: return@collect
+                    android.util.Log.d("FriendList/WS", "Received message type: $type, full message: $message")
+                    
+                    val payload = message["payload"] as? Map<*, *>
+                    if (payload == null) {
+                        android.util.Log.w("FriendList/WS", "No payload in message type: $type")
+                        return@collect
+                    }
+                    
+                    @Suppress("UNCHECKED_CAST")
+                    val jsonPayload = org.json.JSONObject(payload as Map<String, Any>)
+                    
+                    when (type) {
+                        "friend.list.data", "friend.request.list" -> {
+                            android.util.Log.d("FriendList/WS", "Processing friend list data: $type, payload: $jsonPayload")
+                            launch {
+                                friendRepository.handleWebSocketMessage(type, jsonPayload)
+                            }
+                        }
+                        else -> {
+                            // Let repository handle other friend/match events
+                            if (type.startsWith("friend.") || type.startsWith("match.")) {
+                                android.util.Log.d("FriendList/WS", "Processing friend/match event: $type")
+                                launch {
+                                    friendRepository.handleWebSocketMessage(type, jsonPayload)
+                                }
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("FriendList/WS", "Error processing message", e)
+                }
             }
         }
     }
