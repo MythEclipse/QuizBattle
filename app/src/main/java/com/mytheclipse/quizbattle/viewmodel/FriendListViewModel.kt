@@ -18,6 +18,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -106,24 +108,56 @@ class FriendListViewModel(application: Application) : AndroidViewModel(applicati
     }
     
     fun refreshFriendList() {
-        if (!hasUser) return
+        if (!hasUser) {
+            showToast("User tidak ditemukan")
+            return
+        }
+        
+        if (!_state.value.isConnected) {
+            showToast("Tidak terhubung ke server")
+            setLoading(false)
+            return
+        }
         
         setLoading(true)
-        friendRepository.requestFriendList(currentUserId)
-        friendRepository.requestPendingRequests(currentUserId, INCOMING_REQUESTS)
-        
-        // Auto-hide loading after 5 seconds if no response
         viewModelScope.launch {
-            kotlinx.coroutines.delay(5000)
-            if (_state.value.isLoading) {
+            try {
+                friendRepository.requestFriendList(currentUserId)
+                friendRepository.requestPendingRequests(currentUserId, INCOMING_REQUESTS)
+                
+                // Auto-hide loading after 5 seconds if no response
+                delay(5000)
+                if (_state.value.isLoading) {
+                    setLoading(false)
+                    showToast("Gagal mengambil data. Silakan coba lagi.")
+                }
+            } catch (e: Exception) {
                 setLoading(false)
+                showToast("Error: ${e.message}")
             }
         }
     }
     
     fun sendFriendRequest(targetUserId: String, message: String? = null) {
-        if (!hasUser) return
-        friendRepository.sendFriendRequest(currentUserId, targetUserId, message)
+        if (!hasUser) {
+            showToast("User tidak ditemukan")
+            return
+        }
+        if (!_state.value.isConnected) {
+            showToast("Tidak terhubung ke server. Silakan coba lagi.")
+            return
+        }
+        if (currentUserId == targetUserId) {
+            showToast("Tidak bisa menambahkan diri sendiri sebagai teman")
+            return
+        }
+        viewModelScope.launch {
+            try {
+                friendRepository.sendFriendRequest(currentUserId, targetUserId, message)
+            } catch (e: Exception) {
+                showToast("Gagal mengirim permintaan: ${e.message}")
+            }
+        }
     }
     
     fun acceptFriendRequest(requestId: String) {
@@ -183,7 +217,22 @@ class FriendListViewModel(application: Application) : AndroidViewModel(applicati
     private fun initializeUser() {
         viewModelScope.launch {
             currentUserId = tokenRepository.getUserId() ?: ""
-            if (hasUser) refreshFriendList()
+            val token = tokenRepository.getToken() ?: ""
+            val username = tokenRepository.getUserName() ?: ""
+            val deviceId = android.provider.Settings.Secure.getString(
+                getApplication<Application>().contentResolver,
+                android.provider.Settings.Secure.ANDROID_ID
+            )
+            
+            if (hasUser && token.isNotEmpty()) {
+                // Connect WebSocket
+                webSocketManager.connect(currentUserId, token, username, deviceId)
+                // Wait a bit for connection
+                delay(1000)
+                refreshFriendList()
+            } else {
+                _state.update { it.copy(error = "Silakan login terlebih dahulu") }
+            }
         }
     }
     
