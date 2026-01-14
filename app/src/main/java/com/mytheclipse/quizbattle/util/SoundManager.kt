@@ -4,9 +4,20 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.media.SoundPool
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.preferencesDataStore
 import com.mytheclipse.quizbattle.R
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
+
+private val Context.soundDataStore by preferencesDataStore(name = "sound_settings")
 
 class SoundManager(private val context: Context) {
+
+    private val MUSIC_ENABLED_KEY = booleanPreferencesKey("music_enabled")
+    private val SFX_ENABLED_KEY = booleanPreferencesKey("sfx_enabled")
 
     private var musicPlayer: MediaPlayer? = null
     private var soundPool: SoundPool? = null
@@ -21,11 +32,20 @@ class SoundManager(private val context: Context) {
     private var sfxWin: Int = 0
     private var sfxLose: Int = 0
     
-    // Flags
+    // Flags - load from preferences
     private var isMusicEnabled = true
     private var isSfxEnabled = true
 
     init {
+        // Load preferences
+        runBlocking {
+            isMusicEnabled = context.soundDataStore.data.map { 
+                it[MUSIC_ENABLED_KEY] ?: true 
+            }.first()
+            isSfxEnabled = context.soundDataStore.data.map { 
+                it[SFX_ENABLED_KEY] ?: true 
+            }.first()
+        }
         initSoundPool()
     }
     
@@ -147,6 +167,30 @@ class SoundManager(private val context: Context) {
         if (!isSfxEnabled || soundId == 0) return
         soundPool?.play(soundId, 1f, 1f, 1, 0, 1f)
     }
+    
+    fun setMusicEnabled(enabled: Boolean) {
+        isMusicEnabled = enabled
+        if (!enabled) {
+            stopMusic()
+        }
+        runBlocking {
+            context.soundDataStore.edit { prefs ->
+                prefs[MUSIC_ENABLED_KEY] = enabled
+            }
+        }
+    }
+    
+    fun setSfxEnabled(enabled: Boolean) {
+        isSfxEnabled = enabled
+        runBlocking {
+            context.soundDataStore.edit { prefs ->
+                prefs[SFX_ENABLED_KEY] = enabled
+            }
+        }
+    }
+    
+    fun isMusicEnabled(): Boolean = isMusicEnabled
+    fun isSfxEnabled(): Boolean = isSfxEnabled
     
     fun release() {
         stopMusic()

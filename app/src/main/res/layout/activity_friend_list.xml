@@ -5,20 +5,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface"
+    android:background="@drawable/bg_gradient_main"
     tools:context=".FriendListActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        app:elevation="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_back"
+            app:navigationIconTint="@color/white"
             app:title="Daftar Teman"
-            app:titleTextColor="?attr/colorOnSurface" />
+            app:titleTextColor="@color/white" />
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
@@ -82,8 +85,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="Belum ada teman"
-                android:textAppearance="?attr/textAppearanceBodyLarge"
-                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="@dimen/text_size_medium"
+                android:textColor="@color/text_secondary"
                 android:visibility="gone" />
 
         </FrameLayout>
@@ -98,6 +101,6 @@
         android:layout_margin="16dp"
         android:contentDescription="Tambah Teman"
         app:srcCompat="@drawable/ic_add_friend"
-        app:tint="?attr/colorOnPrimary" />
+        app:tint="@color/white" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

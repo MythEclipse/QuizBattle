@@ -1,6 +1,7 @@
 package com.mytheclipse.quizbattle.data.repository
 
 import com.mytheclipse.quizbattle.data.remote.websocket.WebSocketManager
+import com.mytheclipse.quizbattle.utils.AppLogger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
@@ -42,10 +43,14 @@ class MatchmakingRepository {
                 val points = (opponentMap["points"] as? Double)?.toInt() ?: 0
                 val calculatedLevel = (points / 100) + 1 // Simple level calculation
                 
+                val matchId = payload["matchId"] as? String ?: ""
+                val opponentName = opponentMap["username"] as? String ?: "Opponent"
+                AppLogger.Match.found(matchId, opponentName)
+                
                 MatchmakingEvent.MatchFound(
-                    matchId = payload["matchId"] as? String ?: "",
+                    matchId = matchId,
                     opponentId = opponentMap["userId"] as? String ?: "",
-                    opponentName = opponentMap["username"] as? String ?: "Opponent",
+                    opponentName = opponentName,
                     opponentLevel = calculatedLevel,
                     opponentAvatar = opponentMap["avatarUrl"] as? String,
                     difficulty = settingsMap["difficulty"] as? String ?: "medium",
@@ -100,6 +105,7 @@ class MatchmakingRepository {
     }
     
     fun findMatch(userId: String, gameMode: String = "casual", difficulty: String? = null, category: String? = null) {
+        AppLogger.Match.searching(gameMode)
         val message = buildMap {
             put("type", "matchmaking.find")
             put("payload", buildMap {
@@ -113,6 +119,7 @@ class MatchmakingRepository {
     }
     
     fun confirmMatch(userId: String, matchId: String, confirmed: Boolean) {
+        AppLogger.log(AppLogger.LogLevel.INFO, "Match", if (confirmed) "Match confirmed: $matchId" else "Match declined: $matchId")
         val message = mapOf(
             "type" to "matchmaking.confirm",
             "payload" to mapOf(
@@ -125,6 +132,7 @@ class MatchmakingRepository {
     }
     
     fun cancelMatchmaking(userId: String) {
+        AppLogger.Match.cancelled("User requested")
         val message = mapOf(
             "type" to "matchmaking.cancel",
             "payload" to mapOf("userId" to userId)

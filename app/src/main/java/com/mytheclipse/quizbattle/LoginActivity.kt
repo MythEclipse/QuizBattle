@@ -15,6 +15,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.mytheclipse.quizbattle.databinding.ActivityLoginBinding
+import com.mytheclipse.quizbattle.utils.AppLogger
 import com.mytheclipse.quizbattle.utils.ResultDialogHelper
 import com.mytheclipse.quizbattle.viewmodel.AuthState
 import com.mytheclipse.quizbattle.viewmodel.AuthViewModel
@@ -81,8 +82,12 @@ class LoginActivity : BaseActivity() {
         
         clearErrors()
         
-        if (!validateInputs(email, password)) return
+        if (!validateInputs(email, password)) {
+            AppLogger.Auth.loginFailed(email, "Validation failed")
+            return
+        }
         
+        AppLogger.Auth.loginAttempt(email)
         viewModel.login(email, password)
     }
     
@@ -114,13 +119,19 @@ class LoginActivity : BaseActivity() {
     private fun signInWithGoogle() {
         lifecycleScope.launch {
             try {
+                AppLogger.log(AppLogger.LogLevel.INFO, "Auth", "Google login attempt")
                 showLoading()
                 val idToken = getGoogleIdToken()
-                idToken?.let { viewModel.googleLogin(it) }
+                idToken?.let { 
+                    AppLogger.log(AppLogger.LogLevel.INFO, "Auth", "Google token received")
+                    viewModel.googleLogin(it) 
+                }
             } catch (e: GetCredentialCancellationException) {
+                AppLogger.log(AppLogger.LogLevel.INFO, "Auth", "Google login cancelled")
                 hideLoading()
                 // User cancelled, do nothing
             } catch (e: Exception) {
+                AppLogger.log(AppLogger.LogLevel.ERROR, "Auth", "Google login failed: ${e.message}")
                 hideLoading()
                 showError(e.message ?: getString(R.string.error_occurred))
             }
@@ -183,6 +194,7 @@ class LoginActivity : BaseActivity() {
     
     private fun handleLoginSuccess(state: AuthState.Success) {
         hideLoading()
+        AppLogger.Auth.loginSuccess(state.user.id.toString(), state.user.username)
         ResultDialogHelper.showSuccess(
             context = this,
             title = getString(R.string.login_success),
@@ -193,6 +205,7 @@ class LoginActivity : BaseActivity() {
     
     private fun handleError(message: String) {
         hideLoading()
+        AppLogger.Auth.loginFailed("unknown", message)
         showError(message)
         viewModel.clearError()
     }

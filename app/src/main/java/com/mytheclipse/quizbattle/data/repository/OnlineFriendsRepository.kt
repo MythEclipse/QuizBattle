@@ -4,6 +4,7 @@ import com.mytheclipse.quizbattle.data.model.FriendEvent
 import com.mytheclipse.quizbattle.data.model.FriendInfo
 import com.mytheclipse.quizbattle.data.model.FriendRequestInfo
 import com.mytheclipse.quizbattle.data.remote.websocket.WebSocketManager
+import com.mytheclipse.quizbattle.utils.AppLogger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
@@ -13,6 +14,7 @@ class OnlineFriendsRepository {
     private val webSocketManager = WebSocketManager.getInstance()
     
     fun sendFriendRequest(senderId: String, targetUsername: String) {
+        AppLogger.Friend.requestSent(targetUsername)
         val message = mapOf(
             "type" to "friend.request.send",
             "payload" to mapOf(
@@ -24,6 +26,7 @@ class OnlineFriendsRepository {
     }
     
     fun acceptFriendRequest(userId: String, requestId: String) {
+        AppLogger.Friend.requestAccepted(requestId)
         val message = mapOf(
             "type" to "friend.request.accept",
             "payload" to mapOf(
@@ -35,6 +38,7 @@ class OnlineFriendsRepository {
     }
     
     fun rejectFriendRequest(userId: String, requestId: String) {
+        AppLogger.Friend.requestRejected(requestId)
         val message = mapOf(
             "type" to "friend.request.reject",
             "payload" to mapOf(
@@ -65,6 +69,7 @@ class OnlineFriendsRepository {
     }
     
     fun challengeFriend(challengerId: String, targetFriendId: String, gameSettings: Map<String, Any>) {
+        AppLogger.Friend.inviteSent(targetFriendId)
         val message = mapOf(
             "type" to "friend.challenge",
             "payload" to mapOf(
@@ -123,26 +128,19 @@ class OnlineFriendsRepository {
                     FriendInfo(
                         userId = item["userId"] as? String ?: "",
                         username = item["username"] as? String ?: "",
-                        level = (item["level"] as? Double)?.toInt() ?: 1,
-                        avatar = null, // Avatar disabled for user management
+                        level = calculateLevelFromPoints((item["points"] as? Double)?.toInt() ?: 0),
+                        avatar = item["avatarUrl"] as? String,
                         status = item["status"] as? String ?: "offline",
                         wins = (item["wins"] as? Double)?.toInt() ?: 0,
-                        losses = (item["losses"] as? Double)?.toInt() ?: 0
+                        losses = 0 // Not provided by backend
                     )
                 }
                 
-                val pendingList = payload["pendingRequests"] as? List<Map<String, Any>> ?: emptyList()
-                val pendingRequests = pendingList.map { item ->
-                    FriendRequestInfo(
-                        requestId = item["requestId"] as? String ?: "",
-                        senderId = item["senderId"] as? String ?: "",
-                        senderName = item["senderName"] as? String ?: ""
-                    )
-                }
+                val pendingCount = (payload["pendingRequests"] as? Double)?.toInt() ?: 0
                 
                 FriendEvent.FriendListData(
                     friends = friends,
-                    pendingRequests = pendingRequests,
+                    pendingRequests = emptyList(), // Pending requests now sent separately
                     totalFriends = (payload["totalFriends"] as? Double)?.toInt() ?: 0
                 )
             }
@@ -153,5 +151,12 @@ class OnlineFriendsRepository {
             }
             else -> FriendEvent.Unknown
         }
+    }
+    
+    /**
+     * Calculate level from points (100 points per level)
+     */
+    private fun calculateLevelFromPoints(points: Int): Int {
+        return (points / 100) + 1
     }
 }

@@ -7,6 +7,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.mytheclipse.quizbattle.databinding.ActivityRegisterBinding
+import com.mytheclipse.quizbattle.utils.AppLogger
 import com.mytheclipse.quizbattle.utils.ResultDialogHelper
 import com.mytheclipse.quizbattle.viewmodel.AuthState
 import com.mytheclipse.quizbattle.viewmodel.AuthViewModel
@@ -60,8 +61,12 @@ class RegisterActivity : BaseActivity() {
         
         clearErrors()
         
-        if (!validateInputs(username, email, password, confirmPassword)) return
+        if (!validateInputs(username, email, password, confirmPassword)) {
+            AppLogger.Auth.registerFailed(email, "Validation failed")
+            return
+        }
         
+        AppLogger.Auth.registerAttempt(email)
         viewModel.register(username, email, password, confirmPassword)
     }
     
@@ -139,10 +144,12 @@ class RegisterActivity : BaseActivity() {
     private fun handleSuccess(state: AuthState) {
         val (title, message) = when {
             state.requiresEmailVerification -> {
+                AppLogger.Auth.registerSuccess("pending", state.message ?: "")
                 getString(R.string.registration_success) to 
                     (state.message ?: getString(R.string.check_email_verification))
             }
             else -> {
+                AppLogger.Auth.registerSuccess("success", "Account created")
                 getString(R.string.registration_success) to 
                     getString(R.string.account_created_login)
             }
@@ -157,6 +164,7 @@ class RegisterActivity : BaseActivity() {
     }
     
     private fun handleError(error: String) {
+        AppLogger.Auth.registerFailed("unknown", error)
         ResultDialogHelper.showError(
             context = this,
             title = getString(R.string.registration_failed),
