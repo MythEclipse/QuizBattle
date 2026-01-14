@@ -111,6 +111,14 @@ class FriendListViewModel(application: Application) : AndroidViewModel(applicati
         setLoading(true)
         friendRepository.requestFriendList(currentUserId)
         friendRepository.requestPendingRequests(currentUserId, INCOMING_REQUESTS)
+        
+        // Auto-hide loading after 5 seconds if no response
+        viewModelScope.launch {
+            kotlinx.coroutines.delay(5000)
+            if (_state.value.isLoading) {
+                setLoading(false)
+            }
+        }
     }
     
     fun sendFriendRequest(targetUserId: String, message: String? = null) {
@@ -237,7 +245,10 @@ class FriendListViewModel(application: Application) : AndroidViewModel(applicati
             is FriendEvent.RequestRejected -> handleRequestRejected(event)
             is FriendEvent.FriendRemoved -> handleFriendRemoved(event)
             is FriendEvent.RequestSent -> { /* Request was sent successfully */ }
-            is FriendEvent.FriendListData -> { /* Friend list data received */ }
+            is FriendEvent.FriendListData -> {
+                // Friend list data received - stop loading
+                setLoading(false)
+            }
             is FriendEvent.ChallengeSent -> { /* Challenge sent */ }
             is FriendEvent.Unknown -> { /* Unknown event */ }
         }
