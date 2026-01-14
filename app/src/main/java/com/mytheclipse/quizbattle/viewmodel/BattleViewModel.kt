@@ -405,11 +405,15 @@ class BattleViewModel(application: Application) : AndroidViewModel(application) 
             val currentState = _state.value
             val isVictory = determineVictory(currentState)
             
+            // Save game history (for history view only, not leaderboard)
             val gameHistory = createGameHistory(currentUser.id, currentState, isVictory)
             gameHistoryRepository.insertGame(gameHistory)
             
             val rewards = calculateRewards(isVictory)
-            updateUserStats(currentUser.id, rewards, isVictory)
+            
+            // NOTE: In offline mode, we don't update user stats (points/wins/losses)
+            // to keep leaderboard fair - only online games count toward rankings
+            // updateUserStats(currentUser.id, rewards, isVictory)
             
             updateState {
                 copy(
