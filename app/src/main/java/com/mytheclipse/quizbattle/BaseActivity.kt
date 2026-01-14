@@ -1,5 +1,6 @@
 package com.mytheclipse.quizbattle
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -9,10 +10,15 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import com.mytheclipse.quizbattle.data.repository.TokenRepository
+import com.mytheclipse.quizbattle.utils.LocaleHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 abstract class BaseActivity : AppCompatActivity() {
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(LocaleHelper.applyLocale(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
