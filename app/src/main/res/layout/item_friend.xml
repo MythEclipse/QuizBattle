@@ -28,7 +28,7 @@
                 android:id="@+id/ivAvatar"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:background="?attr/colorSurfaceVariant"
+                android:background="@color/background_gray"
                 android:scaleType="centerCrop"
                 app:shapeAppearanceOverlay="@style/CircleImageView"
                 tools:src="@drawable/ic_profile" />
@@ -67,7 +67,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="?attr/textAppearanceBodySmall"
-            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textColor="@color/text_secondary"
             app:layout_constraintEnd_toStartOf="@id/btnChat"
             app:layout_constraintStart_toEndOf="@id/avatarContainer"
             app:layout_constraintTop_toBottomOf="@id/tvName"
